@@ -1,0 +1,237 @@
+/* Navbar Styling */
+.demo-navbar.v-app-bar {
+  background: linear-gradient(90deg, #063f78 0%, #0b4f94 55%, #1565c0 100%) !important;
+  color: #ffffff !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 2px 10px rgba(6, 63, 120, 0.24) !important;
+}
+
+.demo-navbar .v-toolbar__title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.navbar-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+.navbar-logo {
+  height: 40px !important;
+  width: auto !important;
+  max-width: 180px !important;
+  object-fit: contain !important;
+  margin-right: 0 !important;
+}
+
+.navbar-page-title {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: 0.4px !important;
+  margin-left: 4px !important;
+  position: relative !important;
+  padding-left: 0 !important;
+}
+
+.demo-navbar .v-app-bar-nav-icon {
+  color: #ffffff !important;
+  cursor: pointer;
+}
+
+.demo-navbar .v-btn,
+.demo-navbar .v-btn .v-icon {
+  color: #ffffff !important;
+  cursor: pointer;
+}
+
+.demo-navbar .v-btn:hover {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Center Time/Date Badge */
+.header-center-time {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.header-right-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-right: 12px !important;
+}
+
+/* Redesigned Unified User Profile Trigger Pill */
+.user-profile-trigger {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 5px 12px 5px 6px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+.user-profile-trigger:hover {
+  background: rgba(255, 255, 255, 0.24) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
+}
+
+.user-avatar-circle {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.user-avatar-icon {
+  color: #063f78 !important;
+}
+
+.user-info {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 1px !important;
+  min-width: 0 !important;
+}
+
+.user-name {
+  font-size: 0.84rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: 0.2px !important;
+  margin: 0 !important;
+  line-height: 1.15 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 140px !important;
+}
+
+.user-role-text {
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  color: #dbeafe !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  margin: 0 !important;
+  line-height: 1.15 !important;
+}
+
+.user-chevron {
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin-left: 2px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Profile menu */
+.profile-menu-card {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18) !important;
+  padding: 16px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-menu-user {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.profile-menu-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #063F78;
+}
+
+.profile-menu-role {
+  font-size: 0.75rem;
+  color: #78909c;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Responsive Navbar Styles */
+@media (max-width: 960px) {
+  .demo-navbar.v-app-bar {
+    height: 56px !important;
+  }
+
+  .navbar-brand {
+    gap: 12px !important;
+  }
+
+  .navbar-logo {
+    height: 32px !important;
+    max-width: 130px !important;
+  }
+
+  .navbar-page-title {
+    font-size: 1rem !important;
+  }
+
+  .header-center-time,
+  .header-right-actions,
+  .user-profile-trigger {
+    display: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar-brand {
+    gap: 8px !important;
+  }
+
+  .navbar-logo {
+    height: 26px !important;
+    max-width: 100px !important;
+  }
+
+  .navbar-page-title {
+    font-size: 0.95rem !important;
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 220px !important;
+  }
+
+  .header-center-time,
+  .header-right-actions,
+  .user-profile-trigger {
+    display: none !important;
+  }
+}
+
+button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] { cursor: pointer; }

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <defs>
+    <linearGradient id="dairyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#063F78" />
+      <stop offset="100%" stop-color="#1976D2" />
+    </linearGradient>
+    <linearGradient id="milkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e3f2fd" />
+    </linearGradient>
+  </defs>
+  <!-- Bottle / Drop Icon -->
+  <g transform="translate(10, 8)">
+    <circle cx="22" cy="22" r="21" fill="url(#dairyGrad)" />
+    <!-- Milk Jug / Bottle Icon -->
+    <path d="M16 14 L28 14 L29 18 L32 23 L32 34 A2 2 0 0 1 30 36 L14 36 A2 2 0 0 1 12 34 L12 23 L15 18 Z" fill="url(#milkGrad)" />
+    <path d="M18 12 L26 12 L26 14 L18 14 Z" fill="#ffffff" />
+    <circle cx="22" cy="27" r="3" fill="#063F78" opacity="0.8" />
+  </g>
+  <!-- Brand Text -->
+  <text x="64" y="27" font-family="'Plus Jakarta Sans', 'Roboto', sans-serif" font-size="17" font-weight="800" fill="#063F78" letter-spacing="0.5">DAIRY</text>
+  <text x="122" y="27" font-family="'Plus Jakarta Sans', 'Roboto', sans-serif" font-size="17" font-weight="700" fill="#1976D2" letter-spacing="0.5">FARM</text>
+  <text x="64" y="44" font-family="'Plus Jakarta Sans', 'Roboto', sans-serif" font-size="9" font-weight="600" fill="#546E7A" letter-spacing="1.5">BUSINESS SYSTEM</text>
+</svg>
+

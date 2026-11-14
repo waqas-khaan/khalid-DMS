@@ -1,0 +1,123 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        getUserData().role == 'admin' || 
+        request.auth.token.role == 'admin'
+      );
+    }
+    
+    function isStaff() {
+      return isAuthenticated() && (
+        getUserData().role == 'staff' ||
+        request.auth.token.role == 'staff'
+      );
+    }
+    
+    function isStaffOrAdmin() {
+      return isAdmin() || isStaff();
+    }
+
+    // Users collection: users can read their own profile, admins can manage all
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+      allow create: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Settings: readable by all authenticated, write by admin
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Masters: Vehicles, Drivers, Areas, Shops
+    match /vehicles/{vehicleId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /drivers/{driverId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /areas/{areaId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /shops/{shopId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+
+    // Milk Arrivals
+    match /milkArrivals/{arrivalId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+
+    // Dispatches and Subcollection items
+    match /dispatches/{dispatchId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+
+      match /items/{itemId} {
+        allow read: if isAuthenticated();
+        allow write: if isStaffOrAdmin();
+      }
+    }
+
+    // Employees, Attendance, Advances, Salaries
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /advances/{advanceId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /salaries/{salaryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Expense Categories and Expenses
+    match /expenseCategories/{categoryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+
+    // Stats documents (daily and monthly aggregated)
+    match /stats/{statId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+  }
+}
+

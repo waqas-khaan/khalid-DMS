@@ -1,0 +1,220 @@
+/* Sidebar Styling */
+.demo-sidebar {
+  background-color: #f5f5f5 !important;
+}
+
+.demo-sidebar.v-navigation-drawer {
+  position: fixed !important;
+  top: 64px !important;
+  height: calc(100vh - 64px) !important;
+  width: 280px !important;
+  min-width: 280px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: none !important;
+  border-right: 1px solid #e0e0e0 !important;
+}
+
+.demo-sidebar :deep(.v-navigation-drawer__content) {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.sidebar-content-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+.sidebar-menu {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  min-height: 0 !important;
+  padding: 12px 12px 12px 0 !important;
+}
+
+.sidebar-menu-item {
+  margin: 3px 0 !important;
+  padding-inline-start: 20px !important;
+  padding-inline-end: 16px !important;
+  border-radius: 0 50px 50px 0 !important;
+  transition: background-color 0.18s ease, color 0.18s ease !important;
+  position: relative !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+.sidebar-menu-item :deep(.v-list-item__overlay) {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+.sidebar-menu-item :deep(.v-list-item-title) {
+  color: #334155 !important;
+  font-weight: 500 !important;
+  font-size: 0.92rem !important;
+}
+
+.sidebar-menu-item :deep(.v-icon) {
+  color: #64748b !important;
+  font-size: 20px !important;
+  opacity: 1 !important;
+}
+
+.sidebar-menu-item:hover {
+  background-color: #FFF4EC !important;
+}
+
+.sidebar-menu-item:hover :deep(.v-list-item-title) {
+  color: #FF7A1A !important;
+  font-weight: 600 !important;
+}
+
+.sidebar-menu-item:hover :deep(.v-icon) {
+  color: #FF7A1A !important;
+}
+
+/* Active route styling - Bright Left-flush half-pill (Falcon Softwares Orange #FF7A1A) */
+.sidebar-menu-item.router-link-active,
+.sidebar-menu-item.v-list-item--active {
+  background-color: #FFEFE3 !important;
+  border: 1px solid rgba(255, 122, 26, 0.35) !important;
+  border-left: none !important;
+  box-shadow: inset -4px 0 0 #FF7A1A !important;
+  color: #FF7A1A !important;
+}
+
+.sidebar-menu-item.router-link-active :deep(.v-list-item-title),
+.sidebar-menu-item.v-list-item--active :deep(.v-list-item-title) {
+  color: #FF7A1A !important;
+  font-weight: 700 !important;
+}
+
+.sidebar-menu-item.router-link-active :deep(.v-icon),
+.sidebar-menu-item.v-list-item--active :deep(.v-icon) {
+  color: #FF7A1A !important;
+  opacity: 1 !important;
+}
+
+/* Group headers */
+.sidebar-group-header {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  color: #90a4ae !important;
+  padding: 14px 16px 4px 20px !important;
+}
+
+/* Divider above Sign out */
+.sidebar-sign-out-divider {
+  margin: 12px 4px 8px 16px !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Sign out item */
+.sidebar-sign-out {
+  margin: 4px 0 4px 12px !important;
+  padding-inline-start: 16px !important;
+  border-radius: 50px !important;
+  border: 1px solid rgba(198, 40, 40, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.sidebar-sign-out:hover {
+  background-color: rgba(211, 47, 47, 0.1) !important;
+  border-color: rgba(183, 28, 28, 0.5) !important;
+}
+
+.sidebar-sign-out:hover :deep(.v-icon),
+.sidebar-sign-out:hover :deep(.v-list-item-title) {
+  color: #c62828 !important;
+}
+
+/* Bottom logo container */
+.sidebar-logo-container {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding: 14px 16px 14px !important;
+  box-sizing: border-box !important;
+  border-top: 1px solid #e0e0e0;
+  background: #ffffff;
+}
+
+.sidebar-logo {
+  width: 165px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.sidebar-logo-tagline {
+  margin: 7px 0 0 !important;
+  text-align: center !important;
+  font-size: 0.74rem !important;
+  color: #475569 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.sidebar-menu-item :deep(.sidebar-alert-badge),
+.sidebar-alert-badge {
+  margin-inline-start: 12px !important;
+  margin-left: 12px !important;
+  padding: 3px 8px !important;
+  font-size: 0.7rem !important;
+  border-radius: 999px !important;
+  line-height: 1.2 !important;
+}
+
+/* Collapsible Day Opening Accordion Group */
+.sidebar-group-accordion :deep(.v-list-group__items) {
+  --indent-padding: 0px !important;
+  padding-left: 0 !important;
+}
+
+.sidebar-group-accordion :deep(.v-list-group__items .v-list-item.sidebar-sub-item) {
+  margin-inline-start: 0 !important;
+  padding-inline-start: 38px !important;
+}
+
+.sidebar-menu-item.sidebar-accordion-activator.v-list-item--active:not(.router-link-active) {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.sidebar-menu-item.sidebar-accordion-activator.v-list-item--active:not(.router-link-active) :deep(.v-list-item-title),
+.sidebar-menu-item.sidebar-accordion-activator.v-list-item--active:not(.router-link-active) :deep(.v-icon) {
+  color: #FF7A1A !important;
+  font-weight: 700 !important;
+}
+
+.sidebar-menu-item.sidebar-accordion-activator:hover {
+  background-color: #FFF4EC !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .demo-sidebar.v-navigation-drawer {
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+    width: 270px !important;
+  }
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 80" width="160" height="80">
+  <defs>
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#063F78" />
+      <stop offset="100%" stop-color="#1976D2" />
+    </linearGradient>
+  </defs>
+  <rect x="10" y="5" width="140" height="70" rx="12" fill="#ffffff" stroke="rgba(6,63,120,0.15)" stroke-width="1.5" />
+  <circle cx="40" cy="40" r="20" fill="url(#badgeGrad)" />
+  <path d="M35 34 L45 34 L46 37 L48 41 L48 49 A2 2 0 0 1 46 51 L34 51 A2 2 0 0 1 32 49 L32 41 L34 37 Z" fill="#ffffff" />
+  <path d="M37 32 L43 32 L43 34 L37 34 Z" fill="#ffffff" />
+  <text x="70" y="37" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="700" fill="#063F78">Dairy Pro</text>
+  <text x="70" y="52" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="500" fill="#78909c">Management</text>
+</svg>
+
