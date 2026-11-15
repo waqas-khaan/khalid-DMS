@@ -527,13 +527,13 @@
           <div
             v-for="row in paginatedLedgerRows"
             :key="row.date"
-            class="mobile-ledger-card pa-3 bg-white border rounded-xl shadow-xs cursor-pointer"
+            class="mobile-ledger-card pa-3-5 bg-white rounded-xl cursor-pointer"
             :class="{ 'card-active-inspect': row.date === selectedDate }"
             @click="inspectMobileDay(row.date)"
           >
             <!-- Card Header: Date, Route, Milk & Status -->
-            <div class="d-flex align-center justify-space-between mb-2 pb-2 border-b">
-              <div class="d-flex align-center gap-2 min-w-0">
+            <div class="d-flex align-center justify-space-between mb-3">
+              <div class="d-flex align-center gap-2-5 min-w-0">
                 <div class="ledger-avatar flex-shrink-0" :class="row.isClosed ? 'avatar-closed' : 'avatar-open'">
                   <v-icon size="16">
                     {{ row.isClosed ? 'mdi-calendar-check' : 'mdi-calendar-clock' }}
@@ -541,21 +541,21 @@
                 </div>
                 <div class="min-w-0">
                   <div class="d-flex align-center gap-1-5 flex-wrap">
-                    <span class="font-weight-black text-body-2 text-slate-900 line-height-tight">
+                    <span class="font-weight-bold text-body-2 text-slate-900 line-height-tight">
                       {{ formatDate(row.date) }}
                     </span>
                     <span
                       v-if="row.date === selectedDate"
                       class="ledger-inspect-tag"
                     >
-                      Inspecting
+                      Selected
                     </span>
                   </div>
-                  <div class="text-caption text-slate-500 font-weight-medium mt-0-5 d-flex align-center gap-1 text-truncate" style="font-size: 0.68rem !important;">
+                  <div class="text-caption text-slate-500 font-weight-medium mt-0-5 d-flex align-center gap-1 text-truncate" style="font-size: 0.72rem !important;">
                     <span>{{ row.summary.dispatchesCount }} {{ row.summary.dispatchesCount === 1 ? 'Route' : 'Routes' }}</span>
                     <span class="text-slate-300">•</span>
-                    <span class="text-sky-800 font-weight-semibold">
-                      <v-icon size="11" class="me-0-5 text-sky-600">mdi-truck-outline</v-icon>
+                    <span class="text-slate-600 font-weight-semibold">
+                      <v-icon size="12" class="me-0-5 text-slate-400">mdi-truck-outline</v-icon>
                       {{ formatNumber(row.summary.milkDispatchedKg) }} Kg
                     </span>
                   </div>
@@ -568,65 +568,73 @@
                   class="ledger-status-pill"
                   :class="row.isClosed ? 'pill-closed' : (row.ledgerStatus === 'PendingClose' ? 'pill-error' : 'pill-warning')"
                 >
-                  <v-icon size="11" class="me-0-5">
-                    {{ row.isClosed ? 'mdi-check-circle' : 'mdi-clock-outline' }}
-                  </v-icon>
+                  <span class="ledger-status-dot"></span>
                   {{ getLedgerStatusLabel(row) }}
                 </span>
               </div>
             </div>
 
-            <!-- Financial Performance Flow -->
-            <!-- 1. Money In vs Money Out (Balanced 2-Card Row) -->
-            <div class="d-flex gap-2 mb-2">
-              <div class="flex-1 pa-2 rounded-lg bg-emerald-50 border border-emerald-100">
-                <div class="ledger-kpi-label text-emerald-800 d-flex align-center gap-0-5">
-                  <v-icon size="11" color="success">mdi-arrow-down-left</v-icon>
-                  <span>COLLECTION</span>
-                </div>
-                <div class="font-weight-black text-body-2 text-emerald-900 text-no-wrap mt-0-5" style="font-size: 0.82rem !important;">
-                  {{ formatCurrency(row.summary.totalCollection) }}
-                </div>
+            <!-- Unified Executive Financial Panel -->
+            <div class="ledger-financial-panel mb-2-5">
+              <div class="d-flex align-center justify-space-between mb-1">
+                <span class="ledger-kpi-subhead">NET CASH FLOW</span>
+                <span class="text-caption text-slate-400 font-weight-medium" style="font-size: 0.68rem !important;">
+                  Collected − Expenses
+                </span>
               </div>
 
-              <div class="flex-1 pa-2 rounded-lg bg-rose-50 border border-rose-100">
-                <div class="ledger-kpi-label text-rose-800 d-flex align-center gap-0-5">
-                  <v-icon size="11" color="error">mdi-arrow-up-right</v-icon>
-                  <span>EXPENSES</span>
+              <div class="d-flex align-baseline gap-1-5">
+                <span
+                  class="ledger-hero-amount"
+                  :class="((row.summary.totalCollection || 0) - (row.summary.totalExpenses || 0)) < 0 ? 'text-rose-600' : 'text-slate-900'"
+                >
+                  {{ formatCurrency((row.summary.totalCollection || 0) - (row.summary.totalExpenses || 0)) }}
+                </span>
+              </div>
+
+              <!-- Hairline Divider -->
+              <div class="ledger-panel-divider my-2"></div>
+
+              <!-- Breakdown Columns: Collection & Expenses -->
+              <div class="d-flex align-center justify-space-between">
+                <!-- Collection (Money In) -->
+                <div class="d-flex flex-column">
+                  <div class="d-flex align-center gap-1 text-slate-500 font-weight-medium mb-0-5" style="font-size: 0.68rem !important;">
+                    <span class="ledger-indicator-dot bg-emerald-500"></span>
+                    <span>Collection</span>
+                  </div>
+                  <span class="font-weight-black text-emerald-700" style="font-size: 0.84rem !important;">
+                    {{ formatCurrency(row.summary.totalCollection) }}
+                  </span>
                 </div>
-                <div class="font-weight-black text-body-2 text-rose-900 text-no-wrap mt-0-5" style="font-size: 0.82rem !important;">
-                  {{ formatCurrency(row.summary.totalExpenses) }}
+
+                <!-- Expenses (Money Out) -->
+                <div class="d-flex flex-column text-end">
+                  <div class="d-flex align-center justify-end gap-1 text-slate-500 font-weight-medium mb-0-5" style="font-size: 0.68rem !important;">
+                    <span class="ledger-indicator-dot bg-rose-500"></span>
+                    <span>Expenses</span>
+                  </div>
+                  <span class="font-weight-black text-rose-700" style="font-size: 0.84rem !important;">
+                    {{ formatCurrency(row.summary.totalExpenses) }}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <!-- 2. Net Cash Flow (Hero Result Banner) -->
-            <div class="ledger-net-strip d-flex align-center justify-space-between px-2-5 py-2 rounded-lg mb-2">
-              <div class="d-flex align-center gap-1-5">
-                <div class="net-icon-box">
-                  <v-icon size="14" color="primary">mdi-cash-multiple</v-icon>
-                </div>
-                <span class="ledger-net-label">NET CASH FLOW:</span>
-              </div>
-              <strong class="ledger-net-val">
-                {{ formatCurrency((row.summary.totalCollection || 0) - (row.summary.totalExpenses || 0)) }}
-              </strong>
-            </div>
-
-            <!-- 3. Allocation & Audit Footer (if closed) -->
-            <div v-if="row.isClosed && row.closing?.allocation" class="pt-2 border-t d-flex align-center justify-space-between text-caption">
-              <div class="d-flex align-center gap-1 font-weight-bold">
-                <span v-if="row.closing.allocation.type === 'bank'" class="ledger-handover-pill pill-bank">
-                  <v-icon size="12" class="me-0-5">mdi-bank</v-icon>
-                  Bank: {{ formatCurrency(row.closing.allocation.bankAmount) }}
+            <!-- Allocation & Audit Footer (if closed) -->
+            <div v-if="row.isClosed && row.closing?.allocation" class="pt-2 border-t border-slate-100 d-flex align-center justify-space-between text-caption">
+              <div class="d-flex align-center gap-1-5 font-weight-medium text-slate-600" style="font-size: 0.72rem !important;">
+                <v-icon size="13" class="text-slate-400">
+                  {{ row.closing.allocation.type === 'bank' ? 'mdi-bank-outline' : (row.closing.allocation.type === 'split' ? 'mdi-call-split' : 'mdi-cash') }}
+                </v-icon>
+                <span v-if="row.closing.allocation.type === 'bank'">
+                  Handover Bank: <strong class="text-slate-800 font-weight-bold">{{ formatCurrency(row.closing.allocation.bankAmount) }}</strong>
                 </span>
-                <span v-else-if="row.closing.allocation.type === 'cash'" class="ledger-handover-pill pill-cash">
-                  <v-icon size="12" class="me-0-5">mdi-cash</v-icon>
-                  Cash: {{ formatCurrency(row.closing.allocation.cashAmount) }}
+                <span v-else-if="row.closing.allocation.type === 'cash'">
+                  Handover Cash: <strong class="text-slate-800 font-weight-bold">{{ formatCurrency(row.closing.allocation.cashAmount) }}</strong>
                 </span>
-                <span v-else-if="row.closing.allocation.type === 'split'" class="ledger-handover-pill pill-split">
-                  <v-icon size="12" class="me-0-5">mdi-call-split</v-icon>
-                  Split Bank &amp; Cash
+                <span v-else-if="row.closing.allocation.type === 'split'">
+                  Split: Bank <strong class="text-slate-800 font-weight-bold">{{ formatCurrency(row.closing.allocation.bankAmount) }}</strong> / Cash <strong class="text-slate-800 font-weight-bold">{{ formatCurrency(row.closing.allocation.cashAmount) }}</strong>
                 </span>
               </div>
 
@@ -1279,139 +1287,128 @@ onMounted(async () => {
 }
 
 .mobile-ledger-card {
-  transition: all 0.18s ease;
+  position: relative;
+  transition: all 0.2s ease;
   background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.mobile-ledger-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.06);
 }
 
 .mobile-ledger-card.card-active-inspect {
-  border: 1.5px solid #0284c7 !important;
-  background-color: #f8fafc !important;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12) !important;
+  border-color: #cbd5e1 !important;
+  border-left: 4px solid #0284c7 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(2, 132, 199, 0.08) !important;
 }
 
 .ledger-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .ledger-avatar.avatar-closed {
-  background-color: #ecfdf5;
-  color: #059669;
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #dcfce7;
 }
 
 .ledger-avatar.avatar-open {
   background-color: #fffbeb;
   color: #d97706;
+  border: 1px solid #fef3c7;
 }
 
 .ledger-inspect-tag {
-  background: #0284c7;
-  color: #ffffff;
-  font-size: 0.58rem !important;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  font-size: 0.6rem !important;
   font-weight: 700;
-  padding: 1px 6px;
+  padding: 1px 7px;
   border-radius: 9999px;
   line-height: 1.2;
 }
 
 .ledger-status-pill {
   font-size: 0.66rem !important;
-  font-weight: 800;
-  padding: 3px 8px;
+  font-weight: 700;
+  padding: 3px 9px;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
+  gap: 5px;
   white-space: nowrap;
   letter-spacing: 0.2px;
 }
 
+.ledger-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
 .ledger-status-pill.pill-closed {
-  background: #16a34a;
-  color: #ffffff;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .ledger-status-pill.pill-warning {
-  background: #d97706;
-  color: #ffffff;
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
 .ledger-status-pill.pill-error {
-  background: #dc2626;
-  color: #ffffff;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }
 
-.ledger-net-strip {
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
+.ledger-financial-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
 }
 
-.net-icon-box {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  background: #e0f2fe;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ledger-net-label {
-  font-size: 0.68rem !important;
-  font-weight: 800;
-  color: #0369a1;
-  letter-spacing: 0.3px;
-}
-
-.ledger-net-val {
-  font-size: 0.88rem !important;
-  font-weight: 900;
-  color: #0c4a6e;
-  white-space: nowrap;
-}
-
-.ledger-handover-pill {
-  font-size: 0.68rem !important;
+.ledger-kpi-subhead {
+  font-size: 0.64rem !important;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.ledger-handover-pill.pill-bank {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
-}
-
-.ledger-handover-pill.pill-cash {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
-}
-
-.ledger-handover-pill.pill-split {
-  background: #eef2ff;
-  color: #4338ca;
-  border: 1px solid #c7d2fe;
-}
-
-.ledger-metrics-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 8px !important;
-}
-
-.ledger-kpi-label {
-  font-size: 0.62rem !important;
-  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  display: block;
+}
+
+.ledger-hero-amount {
+  font-size: 1.2rem !important;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.ledger-panel-divider {
+  height: 1px;
+  background: #e2e8f0;
+  width: 100%;
+}
+
+.ledger-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 /* Status Badges */
