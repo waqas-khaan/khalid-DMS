@@ -205,20 +205,20 @@
 
         <!-- Attendance Stats (2x2 Grid) -->
         <div class="mobile-kpi-grid mb-3">
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Present Staff</span>
-            <div class="text-subtitle-1 font-weight-black text-success line-height-tight mt-1">
-              {{ attendancePresentCount }} <span class="text-caption font-weight-bold">Present</span>
+          <div class="mobile-kpi-card income-card pa-3 bg-white">
+            <span class="kpi-label">Present Staff</span>
+            <div class="kpi-value text-emerald-600">
+              {{ attendancePresentCount }} <span class="kpi-unit">Present</span>
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">On duty today</span>
+            <span class="kpi-subtitle">On duty today</span>
           </div>
 
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Absent Staff</span>
-            <div class="text-subtitle-1 font-weight-black text-error line-height-tight mt-1">
-              {{ attendanceAbsentCount }} <span class="text-caption font-weight-bold">Absent</span>
+          <div class="mobile-kpi-card expense-card pa-3 bg-white">
+            <span class="kpi-label">Absent Staff</span>
+            <div class="kpi-value text-rose-600">
+              {{ attendanceAbsentCount }} <span class="kpi-unit">Absent</span>
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">Out of office</span>
+            <span class="kpi-subtitle">Out of office</span>
           </div>
         </div>
 
@@ -295,20 +295,20 @@
 
         <!-- 2 KPI Cards (2 in 1 row) -->
         <div class="mobile-kpi-grid mb-3">
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Total Advances</span>
-            <div class="text-subtitle-1 font-weight-black text-orange-darken-4 line-height-tight mt-1">
+          <div class="mobile-kpi-card arrears-card pa-3 bg-white">
+            <span class="kpi-label">Total Advances</span>
+            <div class="kpi-value text-orange-700">
               {{ formatCurrency(totalAdvancesAmount) }}
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">This month</span>
+            <span class="kpi-subtitle">This month</span>
           </div>
 
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Advances Count</span>
-            <div class="text-subtitle-1 font-weight-black text-primary line-height-tight mt-1">
-              {{ advancesList.length }} <span class="text-caption font-weight-bold">Trans</span>
+          <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
+            <span class="kpi-label">Advances Count</span>
+            <div class="kpi-value text-blue-700">
+              {{ advancesList.length }} <span class="kpi-unit">Trans</span>
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">Disbursements</span>
+            <span class="kpi-subtitle">Disbursements</span>
           </div>
         </div>
 

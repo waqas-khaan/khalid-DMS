@@ -277,22 +277,28 @@
       </div>
 
       <!-- 4. Section: Today's Expenses Breakdown (2 IN 1 ROW) -->
-      <div class="d-flex align-center justify-space-between mb-2 px-1">
-        <span class="text-caption font-weight-bold text-slate-700 text-uppercase" style="font-size: 0.72rem !important; letter-spacing: 0.03em;">
-          Today's Expenses by Category
-        </span>
+      <div class="d-flex align-center justify-space-between mb-2 px-1 pt-1">
+        <div class="d-flex align-center gap-1-5">
+          <v-icon color="orange-darken-3" size="18">mdi-shape</v-icon>
+          <span class="text-subtitle-2 font-weight-black text-slate-900 text-uppercase">
+            Today's Expenses by Category
+          </span>
+        </div>
+        <v-chip size="x-small" color="orange-darken-3" variant="tonal" class="font-weight-black">
+          Categories
+        </v-chip>
       </div>
 
       <div class="mobile-kpi-grid mb-3">
         <!-- Food Expense -->
-        <div class="mobile-kpi-card pa-3 bg-white">
+        <div class="mobile-kpi-card arrears-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Food Expense</span>
             <div class="kpi-icon-badge bg-amber-50 text-amber-700">
               <v-icon size="16">mdi-food</v-icon>
             </div>
           </div>
-          <div class="kpi-value text-slate-800">
+          <div class="kpi-value text-amber-800">
             {{ formatCurrency(dailyStats.foodExpense) }}
           </div>
           <div class="kpi-subtitle">
@@ -301,14 +307,14 @@
         </div>
 
         <!-- Home Expense -->
-        <div class="mobile-kpi-card pa-3 bg-white">
+        <div class="mobile-kpi-card cash-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Home Expense</span>
             <div class="kpi-icon-badge bg-teal-50 text-teal-700">
               <v-icon size="16">mdi-home-outline</v-icon>
             </div>
           </div>
-          <div class="kpi-value text-slate-800">
+          <div class="kpi-value text-teal-700">
             {{ formatCurrency(dailyStats.homeExpense) }}
           </div>
           <div class="kpi-subtitle">
@@ -357,7 +363,7 @@
 
       <div class="mobile-kpi-grid mb-4">
         <!-- Monthly Income -->
-        <div class="mobile-kpi-card pa-3 bg-white">
+        <div class="mobile-kpi-card income-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Monthly Income</span>
             <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
@@ -373,7 +379,7 @@
         </div>
 
         <!-- Monthly Milk Received -->
-        <div class="mobile-kpi-card pa-3 bg-white">
+        <div class="mobile-kpi-card milk-in-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Milk Received</span>
             <div class="kpi-icon-badge bg-sky-50 text-sky-600">
@@ -389,7 +395,7 @@
         </div>
 
         <!-- Monthly Milk Dispatched -->
-        <div class="mobile-kpi-card pa-3 bg-white">
+        <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Milk Dispatched</span>
             <div class="kpi-icon-badge bg-blue-50 text-blue-600">
@@ -405,7 +411,7 @@
         </div>
 
         <!-- Monthly Total Expenses -->
-        <div class="mobile-kpi-card pa-3 bg-white">
+        <div class="mobile-kpi-card expense-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Total Expenses</span>
             <div class="kpi-icon-badge bg-rose-50 text-rose-600">
@@ -421,7 +427,7 @@
         </div>
 
         <!-- Salaries Paid -->
-        <div class="mobile-kpi-card pa-3 bg-white">
+        <div class="mobile-kpi-card cash-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Salaries Paid</span>
             <div class="kpi-icon-badge bg-teal-50 text-teal-700">
@@ -437,7 +443,7 @@
         </div>
 
         <!-- Advances Given -->
-        <div class="mobile-kpi-card pa-3 bg-white">
+        <div class="mobile-kpi-card arrears-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Advances Given</span>
             <div class="kpi-icon-badge bg-orange-50 text-orange-700">

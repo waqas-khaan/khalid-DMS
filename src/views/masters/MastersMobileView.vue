@@ -124,12 +124,12 @@
             <div class="d-flex align-center justify-space-between mb-1">
               <div>
                 <span class="font-weight-black text-body-2 text-slate-900 d-block">{{ s.name }}</span>
-                <span class="text-caption text-grey font-weight-medium" style="font-size: 0.68rem !important;">
+                <span class="text-caption text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">
                   Owner: {{ s.ownerName || '-' }} • Route: <strong>{{ s.areaName || 'General' }}</strong>
                 </span>
               </div>
               <div class="text-end">
-                <span class="text-caption text-grey d-block" style="font-size: 0.62rem !important;">SELLING RATE</span>
+                <span class="text-caption text-slate-600 font-weight-bold d-block" style="font-size: 0.68rem !important;">SELLING RATE</span>
                 <span class="font-weight-black text-body-2 text-primary">
                   {{ formatCurrency(s.customRate || masterMilkPrice) }}/Kg
                 </span>
@@ -184,7 +184,7 @@
               </v-avatar>
               <div>
                 <span class="font-weight-black text-body-2 text-slate-900 d-block">{{ v.number || v.vehicleNumber }}</span>
-                <span class="text-caption text-grey" style="font-size: 0.68rem !important;">
+                <span class="text-caption text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">
                   {{ v.model || v.type || 'Delivery Truck' }}
                 </span>
               </div>

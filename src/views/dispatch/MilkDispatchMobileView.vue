@@ -383,14 +383,14 @@
                         <div class="font-weight-black text-body-2 text-slate-900 leading-tight">
                           {{ s.shopName }}
                         </div>
-                        <div class="text-caption text-grey-darken-1 font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+                        <div class="text-caption text-slate-600 font-weight-medium mt-0-5" style="font-size: 0.72rem !important;">
                           Rate: <strong class="text-slate-800">{{ formatCurrency(s.price || s.rate) }}</strong>/Kg
                         </div>
                       </div>
                     </div>
 
                     <div class="text-end">
-                      <span class="text-caption text-grey-darken-1 font-weight-bold d-block text-uppercase" style="font-size: 0.60rem !important;">
+                      <span class="text-caption text-slate-600 font-weight-bold d-block text-uppercase" style="font-size: 0.68rem !important;">
                         COLLECTED
                       </span>
                       <span class="text-body-2 font-weight-black text-success line-height-tight">

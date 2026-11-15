@@ -243,7 +243,7 @@
                   {{ item.category }}
                   <span v-if="item.subCategory" class="text-caption text-grey font-weight-medium">({{ item.subCategory }})</span>
                 </span>
-                <span class="text-caption text-grey-darken-1 font-weight-medium" style="font-size: 0.68rem !important;">
+                <span class="text-caption text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">
                   {{ formatDate(item.date) }}
                 </span>
               </div>

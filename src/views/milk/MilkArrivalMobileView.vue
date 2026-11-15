@@ -199,7 +199,7 @@
                 <span class="font-weight-black text-body-2 text-slate-900 line-height-tight d-block">
                   {{ item.source || 'Farm Collection' }}
                 </span>
-                <span class="text-caption text-grey-darken-1 font-weight-medium" style="font-size: 0.68rem !important;">
+                <span class="text-caption text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">
                   {{ formatDate(item.date) }}
                 </span>
               </div>
@@ -214,21 +214,21 @@
           <div class="p-3">
             <div class="mobile-stats-row d-flex align-center justify-space-between py-1 border-b">
               <div>
-                <span class="stat-mini-label text-grey">MILK QUANTITY</span>
-                <div class="font-weight-black text-body-1 text-info">
+                <span class="stat-mini-label text-slate-700">MILK QUANTITY</span>
+                <div class="font-weight-black text-body-1 text-sky-700">
                   {{ formatNumber(item.quantityKg) }} <span class="text-caption font-weight-bold">Kg</span>
                 </div>
-                <span class="text-caption text-grey" style="font-size: 0.68rem !important;">
+                <span class="text-caption text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">
                   Equiv: {{ formatNumber(item.quantityLiters) }} Liters
                 </span>
               </div>
 
               <div class="text-end">
-                <span class="stat-mini-label text-grey">AVAILABLE CASH</span>
-                <div class="font-weight-black text-body-1 text-teal">
+                <span class="stat-mini-label text-slate-700">AVAILABLE CASH</span>
+                <div class="font-weight-black text-body-1 text-teal-700">
                   {{ formatCurrency(item.availableCash) }}
                 </div>
-                <span class="text-caption text-grey" style="font-size: 0.68rem !important;">
+                <span class="text-caption text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">
                   Original: {{ formatNumber(item.quantity) }} {{ item.unit }}
                 </span>
               </div>

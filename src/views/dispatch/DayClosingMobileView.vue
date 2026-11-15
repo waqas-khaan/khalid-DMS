@@ -198,7 +198,7 @@
       <div class="net-flow-hero-card pa-3-5 bg-white border rounded-xl shadow-sm mb-4">
         <div class="d-flex align-center justify-space-between mb-2">
           <div>
-            <span class="text-caption font-weight-bold text-uppercase text-grey-darken-1" style="font-size: 0.68rem !important;">
+            <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.72rem !important;">
               Net Cash Flow to Finalize
             </span>
             <div class="text-h6 font-weight-black text-primary line-height-tight">
@@ -207,7 +207,7 @@
           </div>
 
           <div class="text-end">
-            <span class="text-caption font-weight-bold text-uppercase text-grey-darken-1" style="font-size: 0.68rem !important;">
+            <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.72rem !important;">
               Collection Efficiency
             </span>
             <div class="text-subtitle-1 font-weight-black" :class="collectionEfficiency >= 80 ? 'text-success' : 'text-warning'">
@@ -433,14 +433,14 @@
                         <div class="font-weight-black text-body-2 text-slate-900 leading-tight">
                           {{ row.shopName }}
                         </div>
-                        <div class="text-caption text-grey-darken-1 font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+                        <div class="text-caption text-slate-600 font-weight-medium mt-0-5" style="font-size: 0.72rem !important;">
                           Rate: <strong class="text-slate-800">Rs. {{ row.price }}</strong>/Kg
                         </div>
                       </div>
                     </div>
 
                     <div class="text-end">
-                      <span class="text-caption text-grey-darken-1 font-weight-bold d-block text-uppercase" style="font-size: 0.60rem !important;">
+                      <span class="text-caption text-slate-600 font-weight-bold d-block text-uppercase" style="font-size: 0.68rem !important;">
                         COLLECTED
                       </span>
                       <span class="text-body-2 font-weight-black text-success line-height-tight">
