@@ -467,7 +467,7 @@
       </div>
 
       <!-- 6. Mobile Segmented Tab Controller (Read-Only History & Treasury) -->
-      <div class="mobile-tabs-pill-bar mb-3 pa-1 bg-slate-200 rounded-lg d-flex gap-1">
+      <div class="mobile-tabs-pill-bar mb-3-5 pa-1 bg-slate-200 rounded-lg d-flex gap-1">
         <button
           type="button"
           class="mobile-tab-btn flex-grow-1"
@@ -492,7 +492,7 @@
       <!-- TAB 1: DAILY CLOSING LEDGER (Read-Only Audit Cards) -->
       <div v-if="activeClosingTab === 'ledger'" class="mobile-tab-content">
         <!-- Filter chips row -->
-        <div class="d-flex align-center gap-1 overflow-x-auto pb-2 mb-2 no-scrollbar">
+        <div class="d-flex align-center gap-1 overflow-x-auto pb-2 mb-3-5 no-scrollbar">
           <v-chip
             size="small"
             :variant="ledgerFilter === 'all' ? 'flat' : 'outlined'"
@@ -674,7 +674,7 @@
       <!-- TAB 2: CASH & BANK HANDOVER REGISTER (Treasury Audit Cards) -->
       <div v-if="activeClosingTab === 'allocation'" class="mobile-tab-content">
         <!-- Unified Executive Treasury Summary Panel -->
-        <div class="treasury-summary-panel mb-3">
+        <div class="treasury-summary-panel mb-3-5">
           <div class="d-flex align-center justify-space-between mb-1">
             <div class="d-flex align-center gap-1-5">
               <v-icon size="14" class="text-slate-500">mdi-safe</v-icon>
@@ -720,7 +720,7 @@
         </div>
 
         <!-- Method filter pills -->
-        <div class="handover-filter-bar mb-2-5 d-flex align-center gap-1-5 overflow-x-auto no-scrollbar">
+        <div class="handover-filter-bar mb-4 d-flex align-center gap-1-5 overflow-x-auto no-scrollbar">
           <button
             type="button"
             class="handover-filter-pill"
@@ -1707,7 +1707,9 @@ onMounted(async () => {
 
 /* Handover Filter Pills */
 .handover-filter-bar {
-  padding-bottom: 2px;
+  padding-top: 2px;
+  padding-bottom: 4px;
+  margin-bottom: 16px !important;
 }
 
 .handover-filter-pill {
