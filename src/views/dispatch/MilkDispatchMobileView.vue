@@ -394,28 +394,14 @@
                   :key="s.shopId || s.shopName"
                   class="shop-card-native pa-3 rounded-xl border bg-white shadow-xs"
                 >
-                  <!-- 1. Shop Header: Avatar, Name, Badges & Status Pill -->
+                  <!-- 1. Shop Header: Avatar, Name & Status Pill -->
                   <div class="d-flex align-center justify-space-between pb-2 mb-2 border-b">
                     <div class="d-flex align-center gap-2 min-w-0">
                       <div class="shop-avatar flex-shrink-0">
                         <v-icon size="16" color="primary">mdi-storefront</v-icon>
                       </div>
-                      <div class="min-w-0">
-                        <div class="font-weight-black text-body-2 text-slate-900 leading-tight text-truncate">
-                          {{ s.shopName }}
-                        </div>
-                        <div class="d-flex align-center gap-1 mt-1 flex-wrap">
-                          <span class="shop-badge-rate">
-                            Rate: <strong>Rs. {{ s.price || s.rate }}</strong>/Kg
-                          </span>
-                          <span class="shop-badge-milk">
-                            <v-icon size="11" class="me-0-5 text-sky-700">mdi-truck-outline</v-icon>
-                            <strong>{{ formatNumber(s.todayMilk || s.todaySupplyMilk || s.kgs) }}</strong> Kg
-                            <template v-if="(s.returnKgs || 0) > 0">
-                              <span class="text-orange-700 font-weight-bold">(-{{ formatNumber(s.returnKgs) }} ret)</span>
-                            </template>
-                          </span>
-                        </div>
+                      <div class="font-weight-black text-body-2 text-slate-900 leading-tight text-truncate">
+                        {{ s.shopName }}
                       </div>
                     </div>
 
@@ -434,6 +420,22 @@
                       >
                         <v-icon size="12" class="me-0-5">mdi-check-circle</v-icon>
                         Cleared
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- 2. Delivery & Rate Strip (Spans full width, clean & balanced) -->
+                  <div class="shop-delivery-strip d-flex align-center justify-space-between px-2-5 py-1-5 rounded-lg mb-2">
+                    <div class="d-flex align-center gap-1 font-weight-medium text-slate-600" style="font-size: 0.70rem;">
+                      <span>Rate:</span>
+                      <strong class="text-slate-800">Rs. {{ s.price || s.rate }}</strong>/Kg
+                    </div>
+                    <div class="d-flex align-center gap-1 text-sky-900 font-weight-bold" style="font-size: 0.72rem;">
+                      <v-icon size="13" color="primary" class="me-0-5">mdi-truck-outline</v-icon>
+                      <span>Sent:</span>
+                      <strong class="text-sky-950 font-weight-black">{{ formatNumber(s.todayMilk || s.todaySupplyMilk || s.kgs) }} Kg</strong>
+                      <span v-if="(s.returnKgs || 0) > 0" class="text-orange-700 font-weight-bold" style="font-size: 0.65rem;">
+                        (-{{ formatNumber(s.returnKgs) }} ret)
                       </span>
                     </div>
                   </div>
@@ -776,28 +778,9 @@ onMounted(async () => {
 }
 
 /* Sophisticated Shop Card Badges & Statement */
-.shop-badge-rate {
-  font-size: 0.68rem !important;
-  font-weight: 500;
-  color: #475569;
-  background: #f1f5f9;
-  padding: 1px 6px;
-  border-radius: 5px;
-  border: 1px solid #e2e8f0;
-  white-space: nowrap;
-}
-
-.shop-badge-milk {
-  font-size: 0.68rem !important;
-  font-weight: 500;
-  color: #0369a1;
+.shop-delivery-strip {
   background: #f0f9ff;
-  padding: 1px 6px;
-  border-radius: 5px;
-  border: 1px solid #bae6fd;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
+  border: 1px solid #e0f2fe;
 }
 
 .shop-status-pill {
