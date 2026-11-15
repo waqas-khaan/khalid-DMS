@@ -364,7 +364,7 @@ async function handleLogin() {
 .login-card-glow-wrapper {
   position: relative;
   width: 100%;
-  max-width: 580px;
+  max-width: 630px;
   display: flex;
   justify-content: center;
 }
@@ -401,8 +401,8 @@ async function handleLogin() {
     0 30px 60px -12px rgba(0, 0, 0, 0.65),
     0 0 0 1px rgba(255, 255, 255, 0.15) !important;
   width: 100%;
-  max-width: 580px;
-  min-height: 600px;
+  max-width: 630px;
+  min-height: 650px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -410,7 +410,7 @@ async function handleLogin() {
 }
 
 .login-card-content {
-  padding: 44px 44px 40px 44px !important;
+  padding: 48px 48px 44px 48px !important;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -418,7 +418,7 @@ async function handleLogin() {
 }
 
 .login-brand-logo {
-  max-width: 300px;
+  max-width: 320px;
   width: 100%;
   height: auto;
   object-fit: contain;
@@ -510,20 +510,20 @@ async function handleLogin() {
 /* Responsive Login Page */
 @media (max-width: 960px) {
   .login-container .login-v-card {
-    max-width: 520px;
-    min-height: 560px;
+    max-width: 550px;
+    min-height: 600px;
   }
 
   .login-card-content {
-    padding: 36px 32px 32px 32px !important;
+    padding: 38px 34px 34px 34px !important;
   }
 
   .login-brand-logo {
-    max-width: 260px;
+    max-width: 280px;
   }
 
   .login-title {
-    font-size: 2rem !important;
+    font-size: 2.1rem !important;
   }
 }
 
