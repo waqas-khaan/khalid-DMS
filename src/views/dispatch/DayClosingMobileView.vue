@@ -389,33 +389,13 @@
                   :key="row.shopId"
                   class="bg-white rounded-xl border pa-3 shadow-xs"
                 >
-                  <!-- 1. Shop Header: Avatar, Name & Status Pill -->
-                  <div class="d-flex align-center justify-space-between pb-2 mb-2 border-b">
-                    <div class="d-flex align-center gap-2 min-w-0">
-                      <div class="shop-avatar flex-shrink-0">
-                        <v-icon size="16" color="primary">mdi-storefront</v-icon>
-                      </div>
-                      <div class="font-weight-black text-body-2 text-slate-900 leading-tight text-truncate">
-                        {{ row.shopName }}
-                      </div>
+                  <!-- 1. Shop Header: Avatar & Name -->
+                  <div class="d-flex align-center gap-2 pb-2 mb-2 border-b">
+                    <div class="shop-avatar flex-shrink-0">
+                      <v-icon size="16" color="primary">mdi-storefront</v-icon>
                     </div>
-
-                    <!-- Status Pill (Top Right) -->
-                    <div class="flex-shrink-0 ps-2">
-                      <span
-                        v-if="(row.newArrears || 0) > 0"
-                        class="shop-status-pill pill-due"
-                      >
-                        <span class="status-dot-due"></span>
-                        {{ formatCurrency(row.newArrears) }} Due
-                      </span>
-                      <span
-                        v-else
-                        class="shop-status-pill pill-cleared"
-                      >
-                        <v-icon size="12" class="me-0-5">mdi-check-circle</v-icon>
-                        Cleared
-                      </span>
+                    <div class="font-weight-black text-body-2 text-slate-900 leading-tight">
+                      {{ row.shopName }}
                     </div>
                   </div>
 
@@ -466,16 +446,15 @@
                       <strong class="statement-val text-success">{{ formatCurrency(row.todayCollection) }}</strong>
                     </div>
 
-                    <!-- Remaining Balance Due (if previous arrears was present or still due) -->
+                    <!-- Remaining Balance Due -->
                     <div
-                      v-if="(row.previousArrears || 0) > 0 || (row.newArrears || 0) > 0"
                       class="statement-row statement-total"
-                      :class="(row.newArrears || 0) > 0 ? 'text-rose-700' : 'text-emerald-700'"
+                      :class="(row.newArrears || 0) > 0 ? 'is-due' : 'is-cleared'"
                     >
-                      <span class="statement-label font-weight-bold">
-                        {{ (row.newArrears || 0) > 0 ? 'Remaining Balance:' : 'Account Settled:' }}
+                      <span class="statement-label">
+                        {{ (row.newArrears || 0) > 0 ? 'Remaining Balance:' : 'Account Balance:' }}
                       </span>
-                      <strong class="statement-val" style="font-size: 0.78rem !important;">
+                      <strong class="statement-val" style="font-size: 0.82rem !important;">
                         {{ (row.newArrears || 0) > 0 ? formatCurrency(row.newArrears) : 'Rs. 0.00 (All Cleared)' }}
                       </strong>
                     </div>
@@ -1510,6 +1489,42 @@ onMounted(async () => {
   border-top: 1.5px solid #e2e8f0;
   padding-top: 4px;
   margin-top: 1px;
+}
+
+.statement-total.is-due {
+  background: #fef2f2;
+  border: 1px solid #fecdd3;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 3px;
+}
+
+.statement-total.is-due .statement-label {
+  color: #b91c1c !important;
+  font-weight: 700 !important;
+}
+
+.statement-total.is-due .statement-val {
+  color: #dc2626 !important;
+  font-weight: 900 !important;
+}
+
+.statement-total.is-cleared {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 3px;
+}
+
+.statement-total.is-cleared .statement-label {
+  color: #15803d !important;
+  font-weight: 700 !important;
+}
+
+.statement-total.is-cleared .statement-val {
+  color: #16a34a !important;
+  font-weight: 900 !important;
 }
 
 .shop-metrics-grid {
