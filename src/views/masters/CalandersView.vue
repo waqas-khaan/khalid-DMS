@@ -51,6 +51,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
+        v-if="authStore.isAdmin"
         :count="selectedIds.length"
         item-label="calander"
         @clear="selectedIds = []"
@@ -73,7 +74,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th class="table-checkbox-col">
+              <th v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -86,7 +87,7 @@
               <th>Phone</th>
               <th>Status</th>
               <th>Notes</th>
-              <th class="text-end">Actions</th>
+              <th v-if="authStore.isAdmin" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -95,7 +96,7 @@
               :key="item.id"
               :class="{ 'selected-row': selectedIds.includes(item.id) }"
             >
-              <td class="table-checkbox-col">
+              <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(item.id)"
                   color="primary"
@@ -124,7 +125,7 @@
                 </span>
               </td>
               <td class="text-caption text-grey-darken-1">{{ item.notes || '-' }}</td>
-              <td class="text-end">
+              <td v-if="authStore.isAdmin" class="text-end">
                 <v-btn
                   icon="mdi-pencil"
                   size="small"
@@ -144,7 +145,7 @@
               </td>
             </tr>
             <tr v-if="filteredCalanders.length === 0">
-              <td colspan="6" class="text-center pa-8">
+              <td :colspan="authStore.isAdmin ? 6 : 4" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-account-outline</v-icon>
                   <div class="empty-state-title">No Calanders Found</div>
@@ -257,6 +258,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { mastersService } from '@/services/mastersService';
 import { useSnackbarStore } from '@/stores/snackbar';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
@@ -267,6 +269,7 @@ defineProps({
   embedded: { type: Boolean, default: false },
 });
 
+const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
 const calanders = ref([]);
 const search = ref('');
@@ -348,6 +351,10 @@ async function loadCalanders() {
 }
 
 function openDialog(item = null) {
+  if (item && !authStore.isAdmin) {
+    snackbar.error('Staff cannot edit calanders. Only administrators have permission.');
+    return;
+  }
   if (item) {
     isEdit.value = true;
     form.value = { ...item };
@@ -366,6 +373,10 @@ function openDialog(item = null) {
 }
 
 async function saveCalander() {
+  if (isEdit.value && !authStore.isAdmin) {
+    snackbar.error('Staff cannot edit calanders. Only administrators have permission.');
+    return;
+  }
   if (!form.value.name?.trim()) {
     snackbar.error('Please enter calander name');
     return;
@@ -389,11 +400,16 @@ async function saveCalander() {
 }
 
 function confirmDelete(item) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete calanders. Only administrators have permission.');
+    return;
+  }
   targetCalander.value = item;
   deleteDialog.value = true;
 }
 
 async function executeDelete() {
+  if (!authStore.isAdmin) return;
   if (!targetCalander.value) return;
   deleting.value = true;
   try {
@@ -409,11 +425,16 @@ async function executeDelete() {
 }
 
 function confirmBulkDelete() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete calanders. Only administrators have permission.');
+    return;
+  }
   if (selectedIds.value.length === 0) return;
   bulkDeleteDialog.value = true;
 }
 
 async function executeBulkDelete() {
+  if (!authStore.isAdmin) return;
   bulkDeleting.value = true;
   try {
     const toDelete = [...selectedIds.value];

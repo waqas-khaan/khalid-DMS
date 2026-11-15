@@ -1563,8 +1563,7 @@ function isSameDay(dateStr) {
 function canEditDispatch(d) {
   if (!d) return false;
   if (settingsStore.settings.allowEditDispatch === false) return false;
-  if (authStore.isAdmin) return true;
-  return isSameDay(d.date);
+  return authStore.isAdmin;
 }
 
 function canDeleteDispatch(d) {
@@ -2105,6 +2104,10 @@ function printReceipt() {
 }
 
 function confirmDeleteDispatch(d) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete dispatches. Only administrators have permission.');
+    return;
+  }
   if (settingsStore.settings.allowDeleteDispatch === false) {
     snackbar.error('Deleting dispatches is disabled in Master settings.');
     return;
@@ -2134,6 +2137,10 @@ async function executeDeleteDispatch() {
 }
 
 function confirmBulkDeleteHistory() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete dispatches. Only administrators have permission.');
+    return;
+  }
   if (settingsStore.settings.allowDeleteDispatch === false) {
     snackbar.error('Deleting dispatches is disabled in Master settings.');
     return;

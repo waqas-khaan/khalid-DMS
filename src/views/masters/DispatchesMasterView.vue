@@ -375,8 +375,7 @@ async function toggleActionSetting(key, val) {
 function canEditDispatch(d) {
   if (!d) return false;
   if (settingsStore.settings.allowEditDispatch === false) return false;
-  if (authStore.isAdmin) return true;
-  return d.date === businessDayStore.activeBusinessDate && !businessDayStore.closedDates.includes(d.date);
+  return authStore.isAdmin;
 }
 
 function canDeleteDispatch(d) {

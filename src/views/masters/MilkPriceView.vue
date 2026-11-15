@@ -95,6 +95,7 @@
           />
 
           <v-btn
+            v-if="authStore.isAdmin"
             color="primary"
             variant="flat"
             prepend-icon="mdi-content-save-check"
@@ -143,6 +144,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
+        v-if="authStore.isAdmin"
         :count="selectedIds.length"
         item-label="shop"
         @clear="selectedIds = []"
@@ -177,7 +179,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th class="table-checkbox-col">
+              <th v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -192,7 +194,7 @@
               <th class="text-end">Price / Kg</th>
               <th class="text-end">Per Can ({{ savedCanWeightKg }} Kg)</th>
               <th>Sync Status</th>
-              <th class="text-end">Actions</th>
+              <th v-if="authStore.isAdmin" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -201,7 +203,7 @@
               :key="item.id"
               :class="{ 'selected-row': selectedIds.includes(item.id) }"
             >
-              <td class="table-checkbox-col">
+              <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(item.id)"
                   color="primary"
@@ -234,7 +236,7 @@
                   {{ Number(item.defaultPrice) === savedMasterPrice ? 'MASTER RATE' : 'CUSTOM RATE' }}
                 </span>
               </td>
-              <td class="text-end" style="white-space: nowrap;">
+              <td v-if="authStore.isAdmin" class="text-end" style="white-space: nowrap;">
                 <v-btn
                   v-if="Number(item.defaultPrice) !== savedMasterPrice"
                   size="x-small"
@@ -258,7 +260,7 @@
               </td>
             </tr>
             <tr v-if="filteredShops.length === 0">
-              <td colspan="8" class="text-center pa-8">
+              <td :colspan="authStore.isAdmin ? 8 : 6" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-store-off</v-icon>
                   <div class="empty-state-title">No Customer Shops Found</div>
@@ -320,6 +322,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
+import { useAuthStore } from '@/stores/auth';
 import { mastersService } from '@/services/mastersService';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { formatCurrency } from '@/utils/formatters';
@@ -328,6 +331,7 @@ import AppPagination from '@/components/common/AppPagination.vue';
 import BulkActionsBar from '@/components/common/BulkActionsBar.vue';
 
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
 
 const shops = ref([]);

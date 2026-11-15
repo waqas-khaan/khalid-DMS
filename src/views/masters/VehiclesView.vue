@@ -50,6 +50,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
+        v-if="authStore.isAdmin"
         :count="selectedIds.length"
         item-label="vehicle"
         @clear="selectedIds = []"
@@ -72,7 +73,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th class="table-checkbox-col">
+              <th v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -86,7 +87,7 @@
               <th>Capacity (Liters)</th>
               <th>Status</th>
               <th>Notes</th>
-              <th class="text-end">Actions</th>
+              <th v-if="authStore.isAdmin" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -95,7 +96,7 @@
               :key="item.id"
               :class="{ 'selected-row': selectedIds.includes(item.id) }"
             >
-              <td class="table-checkbox-col">
+              <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(item.id)"
                   color="primary"
@@ -119,7 +120,7 @@
                 </span>
               </td>
               <td class="text-caption text-grey-darken-1">{{ item.notes || '-' }}</td>
-              <td class="text-end">
+              <td v-if="authStore.isAdmin" class="text-end">
                 <v-btn
                   icon="mdi-pencil"
                   size="small"
@@ -139,7 +140,7 @@
               </td>
             </tr>
             <tr v-if="filteredVehicles.length === 0">
-              <td colspan="7" class="text-center pa-8">
+              <td :colspan="authStore.isAdmin ? 7 : 5" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-truck-remove-outline</v-icon>
                   <div class="empty-state-title">No Fleet Vehicles Found</div>
@@ -252,6 +253,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { mastersService } from '@/services/mastersService';
+import { useAuthStore } from '@/stores/auth';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { formatNumber } from '@/utils/formatters';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
@@ -263,6 +265,7 @@ defineProps({
 });
 
 const snackbar = useSnackbarStore();
+const authStore = useAuthStore();
 const vehicles = ref([]);
 const search = ref('');
 const page = ref(1);
@@ -343,6 +346,10 @@ async function loadVehicles() {
 }
 
 function openDialog(item = null) {
+  if (item && !authStore.isAdmin) {
+    snackbar.error('Staff members can only add new fleet vehicles, not edit existing records.');
+    return;
+  }
   if (item) {
     isEdit.value = true;
     form.value = { ...item };
@@ -384,6 +391,10 @@ async function saveVehicle() {
 }
 
 function confirmDelete(item) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff members are not permitted to delete records.');
+    return;
+  }
   targetVehicle.value = item;
   deleteDialog.value = true;
 }
@@ -404,6 +415,10 @@ async function executeDelete() {
 }
 
 function confirmBulkDelete() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff members are not permitted to delete records.');
+    return;
+  }
   if (selectedIds.value.length === 0) return;
   bulkDeleteDialog.value = true;
 }

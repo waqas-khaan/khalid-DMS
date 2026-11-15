@@ -88,6 +88,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
+        v-if="authStore.isAdmin"
         :count="selectedIds.length"
         item-label="record"
         @clear="selectedIds = []"
@@ -110,7 +111,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th class="table-checkbox-col">
+              <th v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -127,7 +128,7 @@
               <th class="text-end">Quantity (Liters)</th>
               <th class="text-end">Available Cash</th>
               <th>Notes</th>
-              <th class="text-end">Actions</th>
+              <th v-if="authStore.isAdmin" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -136,7 +137,7 @@
               :key="item.id"
               :class="{ 'selected-row': selectedIds.includes(item.id) }"
             >
-              <td class="table-checkbox-col">
+              <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(item.id)"
                   color="primary"
@@ -172,7 +173,7 @@
                 {{ formatCurrency(item.availableCash || 0) }}
               </td>
               <td class="text-caption text-grey-darken-1">{{ item.notes || '-' }}</td>
-              <td class="text-end">
+              <td v-if="authStore.isAdmin" class="text-end">
                 <v-btn
                   icon="mdi-pencil"
                   size="small"
@@ -190,7 +191,7 @@
               </td>
             </tr>
             <tr v-if="arrivals.length === 0">
-              <td colspan="10" class="text-center pa-8">
+              <td :colspan="authStore.isAdmin ? 10 : 8" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-bucket-outline</v-icon>
                   <div class="empty-state-title">No Milk Arrivals Found</div>
@@ -344,6 +345,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import MilkArrivalMobileView from './MilkArrivalMobileView.vue';
 import { milkService } from '@/services/milkService';
+import { useAuthStore } from '@/stores/auth';
 import { useSettingsStore } from '@/stores/settings';
 import { useBusinessDayStore } from '@/stores/businessDay';
 import { useSnackbarStore } from '@/stores/snackbar';
@@ -356,6 +358,7 @@ import BulkActionsBar from '@/components/common/BulkActionsBar.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
 
 const snackbar = useSnackbarStore();
+const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 const businessDayStore = useBusinessDayStore();
 const display = useDisplay();
@@ -493,6 +496,10 @@ function clearDateFilter() {
 }
 
 function openDialog(item = null) {
+  if (item && !authStore.isAdmin) {
+    snackbar.error('Staff members can only add new records, not edit existing records.');
+    return;
+  }
   if (!item && businessDayStore.isLockedOnPreviousDay) {
     snackbar.error(businessDayStore.lockReason);
     return;
@@ -557,6 +564,10 @@ async function saveArrival() {
 }
 
 function confirmDelete(item) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff members are not permitted to delete records.');
+    return;
+  }
   if (businessDayStore.closedDates.includes(item.date)) {
     snackbar.error(`${formatDate(item.date)} is closed. Reopen it in Day Closing before deleting.`);
     return;
@@ -566,6 +577,7 @@ function confirmDelete(item) {
 }
 
 async function executeDelete() {
+  if (!authStore.isAdmin) return;
   if (!targetArrival.value) return;
   deleting.value = true;
   try {
@@ -581,6 +593,10 @@ async function executeDelete() {
 }
 
 function confirmBulkDelete() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff members are not permitted to delete records.');
+    return;
+  }
   if (selectedIds.value.length === 0) return;
   const closedMatch = arrivals.value.find(
     (a) => selectedIds.value.includes(a.id) && businessDayStore.closedDates.includes(a.date)

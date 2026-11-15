@@ -115,6 +115,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
+        v-if="authStore.isAdmin"
         :count="selectedIds.length"
         item-label="staff member"
         @clear="selectedIds = []"
@@ -137,7 +138,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th class="table-checkbox-col">
+              <th v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -164,7 +165,7 @@
               :key="emp.employeeId"
               :class="{ 'selected-row': selectedIds.includes(emp.employeeId) }"
             >
-              <td class="table-checkbox-col">
+              <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(emp.employeeId)"
                   color="primary"
@@ -236,7 +237,7 @@
                   Slip
                 </v-btn>
                 <v-btn
-                  v-if="emp.status !== 'Paid'"
+                  v-if="emp.status !== 'Paid' && authStore.isAdmin"
                   size="small"
                   variant="flat"
                   color="success"
@@ -249,7 +250,7 @@
               </td>
             </tr>
             <tr v-if="salaryRecords.length === 0">
-              <td colspan="11" class="text-center pa-8">
+              <td :colspan="authStore.isAdmin ? 11 : 10" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-currency-pkr</v-icon>
                   <div class="empty-state-title">No Active Staff Found</div>
@@ -261,7 +262,7 @@
               </td>
             </tr>
             <tr v-else-if="displayedSalaryRecords.length === 0">
-              <td colspan="11" class="text-center py-6 text-grey">
+              <td :colspan="authStore.isAdmin ? 11 : 10" class="text-center py-6 text-grey">
                 No staff members match "{{ searchStaff }}".
               </td>
             </tr>
@@ -374,6 +375,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { employeeService, SALARY_PAYMENT_METHODS } from '@/services/employeeService';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { formatCurrency, getCurrentMonthString, getMonthDaysCount } from '@/utils/formatters';
@@ -387,6 +389,7 @@ defineProps({
   embedded: { type: Boolean, default: false },
 });
 
+const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
 
 const selectedMonth = ref(getCurrentMonthString());
@@ -509,6 +512,10 @@ function openSlipDialog(emp) {
 }
 
 function promptPaySalary(emp) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot disburse salaries. Only administrators have permission.');
+    return;
+  }
   payingEmployee.value = emp;
   paymentMethod.value = 'Cash';
   paymentNotes.value = '';
@@ -549,6 +556,10 @@ async function executeSalaryPayment(salary) {
 }
 
 function confirmBulkPay() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot disburse salaries. Only administrators have permission.');
+    return;
+  }
   if (selectedIds.value.length === 0) return;
   bulkPaymentMethod.value = 'Cash';
   bulkPaymentNotes.value = 'Bulk payroll disbursement';

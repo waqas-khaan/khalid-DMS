@@ -1,117 +1,61 @@
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-} from 'firebase/auth';
-import { auth, isConfigured } from './firebase';
-import { storageAdapter } from './storageAdapter';
-
 export const authService = {
-  async login(email, password) {
-    const trimmedEmail = (email || '').trim().toLowerCase();
+  /**
+   * Hardcoded authentication service
+   * - admin / falconadmin2021 -> Full admin access (Add, Edit, Delete)
+   * - staff / staff12345      -> Staff access (Add only, No Edit, No Delete)
+   */
+  async login(username, password) {
+    const cleanUser = (username || '').trim().toLowerCase();
+    const cleanPass = (password || '').trim();
 
-    // 1. If Firebase is active and configured
-    if (isConfigured && auth) {
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, trimmedEmail, password);
-        const fbUser = userCredential.user;
-        let profile = await storageAdapter.getDoc('users', fbUser.uid);
-        if (!profile) {
-          // If no profile yet, create one
-          profile = {
-            id: fbUser.uid,
-            uid: fbUser.uid,
-            email: fbUser.email,
-            name: fbUser.displayName || trimmedEmail.split('@')[0],
-            role: trimmedEmail.includes('admin') ? 'admin' : 'staff',
-            createdAt: new Date().toISOString(),
-          };
-          await storageAdapter.setDoc('users', fbUser.uid, profile);
-        }
-        return profile;
-      } catch (err) {
-        console.warn('Firebase auth attempt failed, checking database users:', err.message);
+    if (!cleanUser) {
+      throw new Error('Please select a username.');
+    }
+    if (!cleanPass) {
+      throw new Error('Please enter your password.');
+    }
+
+    if (cleanUser === 'admin') {
+      if (cleanPass === 'falconadmin2021') {
+        const adminProfile = {
+          id: 'user_admin',
+          uid: 'user_admin',
+          username: 'admin',
+          name: 'Administrator',
+          role: 'admin',
+          createdAt: new Date().toISOString(),
+        };
+        return adminProfile;
       }
+      throw new Error('Invalid password for Admin.');
     }
 
-    // 2. Local fallback / Offline mode with predefined or registered users
-    const users = await storageAdapter.getCollection('users');
-    const matched = users.find(
-      (u) => u.email.toLowerCase() === trimmedEmail && (u.password === password || !u.password)
-    );
-
-    if (matched) {
-      return matched;
+    if (cleanUser === 'staff') {
+      if (cleanPass === 'staff12345') {
+        const staffProfile = {
+          id: 'user_staff',
+          uid: 'user_staff',
+          username: 'staff',
+          name: 'Staff User',
+          role: 'staff',
+          createdAt: new Date().toISOString(),
+        };
+        return staffProfile;
+      }
+      throw new Error('Invalid password for Staff.');
     }
 
-    // Default system accounts fallback
-    if (trimmedEmail === 'admin@dairy.com' && password === 'admin123') {
-      const adminProfile = {
-        id: 'user_admin_default',
-        uid: 'user_admin_default',
-        email: 'admin@dairy.com',
-        name: 'Dairy Admin',
-        role: 'admin',
-        createdAt: new Date().toISOString(),
-      };
-      await storageAdapter.setDoc('users', adminProfile.id, adminProfile);
-      return adminProfile;
-    }
-
-    if (trimmedEmail === 'staff@dairy.com' && password === 'staff123') {
-      const staffProfile = {
-        id: 'user_staff_default',
-        uid: 'user_staff_default',
-        email: 'staff@dairy.com',
-        name: 'Dairy Staff',
-        role: 'staff',
-        createdAt: new Date().toISOString(),
-      };
-      await storageAdapter.setDoc('users', staffProfile.id, staffProfile);
-      return staffProfile;
-    }
-
-    throw new Error('Invalid email or password. Please use admin@dairy.com / admin123 or staff@dairy.com / staff123');
+    throw new Error('Invalid username. Please select either "admin" or "staff".');
   },
 
   async logout() {
-    if (isConfigured && auth) {
-      try {
-        await signOut(auth);
-      } catch (e) {
-        console.error('Logout error:', e);
-      }
-    }
     localStorage.removeItem('dairy_current_user');
   },
 
-  async createUser({ email, password, name, role }) {
-    let uid = `user_${Date.now()}`;
-    if (isConfigured && auth) {
-      try {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        uid = cred.user.uid;
-      } catch (err) {
-        console.warn('Firebase user creation fallback:', err.message);
-      }
-    }
-
-    const profile = {
-      id: uid,
-      uid,
-      email,
-      name,
-      role: role || 'staff',
-      password, // stored locally for offline fallback
-      createdAt: new Date().toISOString(),
-    };
-    await storageAdapter.setDoc('users', uid, profile);
-    return profile;
-  },
-
   async getAllUsers() {
-    return await storageAdapter.getCollection('users', [], 'createdAt', 'desc');
+    return [
+      { id: 'user_admin', username: 'admin', name: 'Administrator', role: 'admin' },
+      { id: 'user_staff', username: 'staff', name: 'Staff User', role: 'staff' },
+    ];
   },
 };
-

@@ -149,6 +149,7 @@
       >
         <template #actions>
           <v-btn
+            v-if="authStore.isAdmin"
             size="small"
             variant="flat"
             color="success"
@@ -160,6 +161,7 @@
             Apply Master Rate ({{ formatCurrency(masterMilkPrice) }})
           </v-btn>
           <v-btn
+            v-if="authStore.isAdmin"
             size="small"
             variant="flat"
             color="primary"
@@ -282,6 +284,7 @@
                   Sync
                 </v-btn>
                 <v-btn
+                  v-if="authStore.isAdmin"
                   icon="mdi-pencil"
                   size="small"
                   variant="text"
@@ -737,6 +740,10 @@ async function saveCustomPrice() {
 }
 
 function openDialog(item = null) {
+  if (item && !authStore.isAdmin) {
+    snackbar.error('Staff members can only register new shops, not edit existing records.');
+    return;
+  }
   if (item) {
     isEdit.value = true;
     form.value = {

@@ -25,22 +25,40 @@
       </v-alert>
 
       <v-form @submit.prevent="handleLogin" v-model="formValid">
-        <v-text-field
-          v-model="email"
-          label="Email Address"
+        <!-- Username Dropdown (Staff / Admin) -->
+        <v-select
+          v-model="username"
+          :items="userOptions"
+          item-title="title"
+          item-value="value"
+          label="Select Username *"
           variant="outlined"
           density="comfortable"
-          prepend-inner-icon="mdi-email-outline"
-          :rules="[rules.required, rules.email]"
+          prepend-inner-icon="mdi-account-circle-outline"
+          :rules="[rules.required]"
           class="mb-3"
-          placeholder="admin@dairy.com"
-          autocomplete="username"
-        />
+        >
+          <template #item="{ props, item }">
+            <v-list-item v-bind="props">
+              <template #prepend>
+                <v-icon :color="item.raw.value === 'admin' ? 'primary' : 'blue-grey'">
+                  {{ item.raw.value === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}
+                </v-icon>
+              </template>
+              <template #subtitle>
+                <span class="text-caption text-grey">
+                  {{ item.raw.value === 'admin' ? 'Full access (Add, Edit, Delete)' : 'Staff access (Add data only)' }}
+                </span>
+              </template>
+            </v-list-item>
+          </template>
+        </v-select>
 
+        <!-- Password Input Field -->
         <v-text-field
           v-model="password"
           :type="showPassword ? 'text' : 'password'"
-          label="Password"
+          label="Password *"
           variant="outlined"
           density="comfortable"
           prepend-inner-icon="mdi-lock-outline"
@@ -48,8 +66,9 @@
           @click:append-inner="showPassword = !showPassword"
           :rules="[rules.required]"
           class="mb-4"
-          placeholder="••••••••"
+          placeholder="Enter password"
           autocomplete="current-password"
+          @keyup.enter="handleLogin"
         />
 
         <v-btn
@@ -65,29 +84,29 @@
         </v-btn>
       </v-form>
 
-      <!-- Quick Demo Login Presets -->
+      <!-- Quick User Selector Chips -->
       <div class="mt-6 pt-4 border-t text-center">
-        <div class="text-caption text-grey mb-2 font-weight-medium">Quick Demo Accounts:</div>
+        <div class="text-caption text-grey-darken-1 mb-2 font-weight-medium">Quick Select User:</div>
         <div class="d-flex justify-center gap-2">
           <v-chip
-            color="primary"
-            variant="tonal"
+            :color="username === 'admin' ? 'primary' : 'grey-darken-1'"
+            :variant="username === 'admin' ? 'flat' : 'outlined'"
             size="small"
             class="cursor-pointer font-weight-bold"
             prepend-icon="mdi-shield-crown"
-            @click="fillCredentials('admin@dairy.com', 'admin123')"
+            @click="selectAccount('admin')"
           >
-            Admin Demo
+            Admin
           </v-chip>
           <v-chip
-            color="blue-grey"
-            variant="tonal"
+            :color="username === 'staff' ? 'primary' : 'grey-darken-1'"
+            :variant="username === 'staff' ? 'flat' : 'outlined'"
             size="small"
             class="cursor-pointer font-weight-bold"
-            prepend-icon="mdi-account-hard-hat"
-            @click="fillCredentials('staff@dairy.com', 'staff123')"
+            prepend-icon="mdi-account"
+            @click="selectAccount('staff')"
           >
-            Staff Demo
+            Staff
           </v-chip>
         </div>
       </div>
@@ -97,16 +116,22 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useSnackbarStore } from '@/stores/snackbar';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
 
-const email = ref('admin@dairy.com');
-const password = ref('admin123');
+const userOptions = [
+  { title: 'admin', value: 'admin' },
+  { title: 'staff', value: 'staff' },
+];
+
+const username = ref('admin');
+const password = ref('');
 const showPassword = ref(false);
 const loading = ref(false);
 const errorMessage = ref('');
@@ -114,24 +139,26 @@ const formValid = ref(true);
 
 const rules = {
   required: (v) => !!v || 'This field is required',
-  email: (v) => /.+@.+\..+/.test(v) || 'Must be a valid email',
 };
 
-function fillCredentials(e, p) {
-  email.value = e;
-  password.value = p;
+function selectAccount(val) {
+  username.value = val;
   errorMessage.value = '';
 }
 
 async function handleLogin() {
-  if (!email.value || !password.value) return;
+  if (!username.value || !password.value) {
+    errorMessage.value = 'Please select a username and enter your password.';
+    return;
+  }
   loading.value = true;
   errorMessage.value = '';
 
   try {
-    const user = await authStore.login(email.value, password.value);
-    snackbar.success(`Welcome back, ${user.name || user.email}!`);
-    router.push('/dashboard');
+    const user = await authStore.login(username.value, password.value);
+    snackbar.success(`Signed in as ${user.name}!`);
+    const redirect = route.query.redirect || '/dashboard';
+    router.push(redirect);
   } catch (err) {
     errorMessage.value = err.message || 'Login failed. Please check credentials.';
   } finally {
@@ -140,3 +167,9 @@ async function handleLogin() {
 }
 </script>
 
+<style scoped>
+.login-card {
+  border-radius: 10px !important;
+  border: 1px solid #000000 !important;
+}
+</style>

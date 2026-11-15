@@ -66,7 +66,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
-        v-if="!readonly"
+        v-if="!readonly && authStore.isAdmin"
         :count="selectedIds.length"
         item-label="staff member"
         @clear="selectedIds = []"
@@ -89,7 +89,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th v-if="!readonly" class="table-checkbox-col">
+              <th v-if="!readonly && authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -113,7 +113,7 @@
               :key="item.id"
               :class="{ 'selected-row': !readonly && selectedIds.includes(item.id) }"
             >
-              <td v-if="!readonly" class="table-checkbox-col">
+              <td v-if="!readonly && authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(item.id)"
                   color="primary"
@@ -159,7 +159,7 @@
                   title="Monthly Record (Attendance, Advances & Salary)"
                   :to="{ path: '/employees', query: { tab: 'record', employeeId: item.id } }"
                 />
-                <template v-if="!readonly">
+                <template v-if="!readonly && authStore.isAdmin">
                   <v-btn
                     icon="mdi-pencil"
                     size="small"
@@ -180,7 +180,7 @@
               </td>
             </tr>
             <tr v-if="filteredEmployees.length === 0">
-              <td :colspan="readonly ? 7 : 8" class="text-center pa-8">
+              <td :colspan="!readonly && authStore.isAdmin ? 8 : 7" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-account-multiple-remove-outline</v-icon>
                   <div class="empty-state-title">No Staff Members Found</div>
@@ -356,6 +356,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import { employeeService } from '@/services/employeeService';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { formatCurrency, formatDate, getCurrentDateString } from '@/utils/formatters';
@@ -370,6 +371,7 @@ const props = defineProps({
 });
 
 const route = useRoute();
+const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
 const employees = ref([]);
 const search = ref('');
@@ -526,6 +528,10 @@ async function loadEmployees() {
 
 function openDialog(item = null) {
   if (props.readonly) return;
+  if (item && !authStore.isAdmin) {
+    snackbar.error('Staff members can only add new employees, not edit existing records.');
+    return;
+  }
   customDesignation.value = '';
   if (item) {
     isEdit.value = true;
@@ -594,6 +600,10 @@ async function saveEmployee() {
 }
 
 function confirmDelete(item) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff members are not permitted to delete records.');
+    return;
+  }
   targetEmployee.value = item;
   deleteDialog.value = true;
 }
@@ -614,6 +624,10 @@ async function executeDelete() {
 }
 
 function confirmBulkDelete() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff members are not permitted to delete records.');
+    return;
+  }
   if (selectedIds.value.length === 0) return;
   bulkDeleteDialog.value = true;
 }

@@ -2213,6 +2213,10 @@ const dispatchToDelete = ref(null);
 const deletingDispatch = ref(false);
 
 function confirmDeleteDispatchFromClosing(d) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete dispatches. Only administrators have permission.');
+    return;
+  }
   if (settingsStore.settings.allowDeleteDispatch === false) {
     snackbar.error('Deleting dispatches is disabled in Master settings.');
     return;
@@ -2587,11 +2591,19 @@ async function executeReopenDay() {
 }
 
 function confirmDeleteClosing(row) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete day closing records. Only administrators have permission.');
+    return;
+  }
   pendingDeleteRows.value = [row];
   deleteStep1Dialog.value = true;
 }
 
 function confirmBulkDelete() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete day closing records. Only administrators have permission.');
+    return;
+  }
   if (selectedDates.value.length === 0) return;
   pendingDeleteRows.value = allLedgerRows.value.filter((row) =>
     selectedDates.value.includes(row.date)

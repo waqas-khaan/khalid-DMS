@@ -50,6 +50,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
+        v-if="authStore.isAdmin"
         :count="selectedIds.length"
         item-label="route"
         @clear="selectedIds = []"
@@ -72,7 +73,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th class="table-checkbox-col">
+              <th v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -85,7 +86,7 @@
               <th>Route Code</th>
               <th>Description</th>
               <th>Status</th>
-              <th class="text-end">Actions</th>
+              <th v-if="authStore.isAdmin" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +95,7 @@
               :key="item.id"
               :class="{ 'selected-row': selectedIds.includes(item.id) }"
             >
-              <td class="table-checkbox-col">
+              <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(item.id)"
                   color="primary"
@@ -122,7 +123,7 @@
                   {{ item.active !== false ? 'Active' : 'Inactive' }}
                 </v-chip>
               </td>
-              <td class="text-end">
+              <td v-if="authStore.isAdmin" class="text-end">
                 <v-btn
                   icon="mdi-pencil"
                   size="small"
@@ -140,7 +141,7 @@
               </td>
             </tr>
             <tr v-if="filteredAreas.length === 0">
-              <td colspan="6" class="text-center pa-8">
+              <td :colspan="authStore.isAdmin ? 6 : 4" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-map-marker-remove-outline</v-icon>
                   <div class="empty-state-title">No Delivery Routes Found</div>
@@ -244,6 +245,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { mastersService } from '@/services/mastersService';
+import { useAuthStore } from '@/stores/auth';
 import { useSnackbarStore } from '@/stores/snackbar';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
@@ -254,6 +256,7 @@ defineProps({
 });
 
 const snackbar = useSnackbarStore();
+const authStore = useAuthStore();
 const areas = ref([]);
 const search = ref('');
 const page = ref(1);
@@ -333,6 +336,10 @@ async function loadAreas() {
 }
 
 function openDialog(item = null) {
+  if (item && !authStore.isAdmin) {
+    snackbar.error('Staff members can only add new areas, not edit existing records.');
+    return;
+  }
   if (item) {
     isEdit.value = true;
     form.value = { ...item, active: item.active !== false };
@@ -373,6 +380,10 @@ async function saveArea() {
 }
 
 function confirmDelete(item) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff members are not permitted to delete records.');
+    return;
+  }
   targetArea.value = item;
   deleteDialog.value = true;
 }
@@ -393,6 +404,10 @@ async function executeDelete() {
 }
 
 function confirmBulkDelete() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff members are not permitted to delete records.');
+    return;
+  }
   if (selectedIds.value.length === 0) return;
   bulkDeleteDialog.value = true;
 }

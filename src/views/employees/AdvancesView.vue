@@ -100,6 +100,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
+        v-if="authStore.isAdmin"
         :count="selectedIds.length"
         item-label="advance record"
         @clear="selectedIds = []"
@@ -122,7 +123,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th class="table-checkbox-col">
+              <th v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -136,7 +137,7 @@
               <th class="text-end">Advance Amount</th>
               <th>Reason / Kis Kaam Ke Liye</th>
               <th>Month Applied</th>
-              <th class="text-end">Actions</th>
+              <th v-if="authStore.isAdmin" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -145,7 +146,7 @@
               :key="item.id"
               :class="{ 'selected-row': selectedIds.includes(item.id) }"
             >
-              <td class="table-checkbox-col">
+              <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(item.id)"
                   color="primary"
@@ -173,7 +174,7 @@
                   {{ item.month }}
                 </span>
               </td>
-              <td class="text-end">
+              <td v-if="authStore.isAdmin" class="text-end">
                 <v-btn
                   icon="mdi-delete"
                   size="small"
@@ -184,7 +185,7 @@
               </td>
             </tr>
             <tr v-if="filteredAdvances.length === 0">
-              <td colspan="7" class="text-center pa-8">
+              <td :colspan="authStore.isAdmin ? 7 : 5" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-currency-pkr</v-icon>
                   <div class="empty-state-title">No Advances Recorded</div>
@@ -298,6 +299,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { employeeService } from '@/services/employeeService';
 import { useBusinessDayStore } from '@/stores/businessDay';
 import { useSnackbarStore } from '@/stores/snackbar';
@@ -313,6 +315,7 @@ defineProps({
   embedded: { type: Boolean, default: false },
 });
 
+const authStore = useAuthStore();
 const businessDayStore = useBusinessDayStore();
 const snackbar = useSnackbarStore();
 
@@ -463,6 +466,10 @@ async function saveAdvance() {
 }
 
 function confirmDelete(item) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete advances. Only administrators have permission.');
+    return;
+  }
   targetAdvance.value = item;
   deleteDialog.value = true;
 }
@@ -483,6 +490,10 @@ async function executeDelete() {
 }
 
 function confirmBulkDelete() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete advances. Only administrators have permission.');
+    return;
+  }
   if (selectedIds.value.length === 0) return;
   bulkDeleteDialog.value = true;
 }

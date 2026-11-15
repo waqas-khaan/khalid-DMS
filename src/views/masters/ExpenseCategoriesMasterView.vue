@@ -50,6 +50,7 @@
 
       <!-- Bulk Actions Bar -->
       <BulkActionsBar
+        v-if="authStore.isAdmin"
         :count="selectedIds.length"
         item-label="category"
         @clear="selectedIds = []"
@@ -72,7 +73,7 @@
         <v-table hover>
           <thead>
             <tr>
-              <th class="table-checkbox-col">
+              <th v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="isAllSelected"
                   :indeterminate="isSomeSelected"
@@ -85,7 +86,7 @@
               <th>Category Name</th>
               <th>Sub-Types</th>
               <th>Source</th>
-              <th class="text-end">Actions</th>
+              <th v-if="authStore.isAdmin" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +95,7 @@
               :key="item.id"
               :class="{ 'selected-row': selectedIds.includes(item.id) }"
             >
-              <td class="table-checkbox-col">
+              <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
                   :model-value="selectedIds.includes(item.id)"
                   :disabled="item.isDefault"
@@ -116,7 +117,7 @@
                   {{ item.isDefault ? 'System Default' : 'Custom' }}
                 </span>
               </td>
-              <td class="text-end">
+              <td v-if="authStore.isAdmin" class="text-end">
                 <template v-if="!item.isDefault">
                   <v-btn
                     icon="mdi-pencil"
@@ -139,7 +140,7 @@
               </td>
             </tr>
             <tr v-if="filteredCategories.length === 0">
-              <td colspan="5" class="text-center pa-8">
+              <td :colspan="authStore.isAdmin ? 5 : 3" class="text-center pa-8">
                 <div class="empty-state-box">
                   <v-icon class="empty-state-icon">mdi-shape-plus-outline</v-icon>
                   <div class="empty-state-title">No Expense Categories Found</div>
@@ -227,6 +228,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { expenseService } from '@/services/expenseService';
 import { useSnackbarStore } from '@/stores/snackbar';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
@@ -237,6 +239,7 @@ defineProps({
   embedded: { type: Boolean, default: false },
 });
 
+const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
 
 const categories = ref([]);
@@ -327,6 +330,10 @@ function parseSubTypes(text) {
 }
 
 function openDialog(item = null) {
+  if (item && !authStore.isAdmin) {
+    snackbar.error('Staff cannot edit expense categories. Only administrators have permission.');
+    return;
+  }
   if (item) {
     isEdit.value = true;
     form.value = {
@@ -346,6 +353,10 @@ function openDialog(item = null) {
 }
 
 async function saveCategory() {
+  if (isEdit.value && !authStore.isAdmin) {
+    snackbar.error('Staff cannot edit expense categories. Only administrators have permission.');
+    return;
+  }
   const cleanName = form.value.name?.trim();
   if (!cleanName) {
     snackbar.error('Please enter category name');
@@ -371,12 +382,17 @@ async function saveCategory() {
 }
 
 function confirmDelete(item) {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete expense categories. Only administrators have permission.');
+    return;
+  }
   if (item.isDefault) return;
   targetCategory.value = item;
   deleteDialog.value = true;
 }
 
 async function executeDelete() {
+  if (!authStore.isAdmin) return;
   if (!targetCategory.value) return;
   deleting.value = true;
   try {
@@ -392,11 +408,16 @@ async function executeDelete() {
 }
 
 function confirmBulkDelete() {
+  if (!authStore.isAdmin) {
+    snackbar.error('Staff cannot delete expense categories. Only administrators have permission.');
+    return;
+  }
   if (selectedIds.value.length === 0) return;
   bulkDeleteDialog.value = true;
 }
 
 async function executeBulkDelete() {
+  if (!authStore.isAdmin) return;
   bulkDeleting.value = true;
   try {
     const toDelete = [...selectedIds.value];

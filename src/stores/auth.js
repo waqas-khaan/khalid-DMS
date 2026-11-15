@@ -13,21 +13,16 @@ export const useAuthStore = defineStore('auth', {
     role: (state) => (state.user ? state.user.role : null),
     isAdmin: (state) => state.user && state.user.role === 'admin',
     isStaff: (state) => state.user && state.user.role === 'staff',
+    canEdit: (state) => state.user && state.user.role === 'admin',
+    canDelete: (state) => state.user && state.user.role === 'admin',
+    canAdd: (state) => Boolean(state.user),
     userName: (state) => {
       if (!state.user) return '';
-      if (state.user.name) return state.user.name;
-      if (state.user.email) {
-        const prefix = state.user.email.split('@')[0];
-        return prefix.charAt(0).toUpperCase() + prefix.slice(1);
-      }
-      return 'User';
+      return state.user.name || (state.user.role === 'admin' ? 'Administrator' : 'Staff');
     },
     userRoleText: (state) => {
       if (!state.user) return '';
-      const r = state.user.role;
-      if (r === 'admin') return 'Admin';
-      if (r === 'staff') return 'Staff';
-      return r ? r.toUpperCase() : 'USER';
+      return state.user.role === 'admin' ? 'Admin' : 'Staff';
     },
   },
 
@@ -36,29 +31,23 @@ export const useAuthStore = defineStore('auth', {
       try {
         const saved = localStorage.getItem('dairy_current_user');
         if (saved) {
-          this.user = JSON.parse(saved);
-        } else {
-          // Auto-initialize with default Admin for immediate out-of-the-box dashboard access
-          const defaultAdmin = {
-            id: 'user_admin_default',
-            uid: 'user_admin_default',
-            email: 'admin@dairy.com',
-            name: 'Dairy Admin',
-            role: 'admin',
-          };
-          this.user = defaultAdmin;
-          localStorage.setItem('dairy_current_user', JSON.stringify(defaultAdmin));
+          const parsed = JSON.parse(saved);
+          if (parsed && (parsed.role === 'admin' || parsed.role === 'staff')) {
+            this.user = parsed;
+            return;
+          }
         }
       } catch (e) {
         console.error('Failed to parse saved user:', e);
       }
+      this.user = null;
     },
 
-    async login(email, password) {
+    async login(username, password) {
       this.loading = true;
       this.error = null;
       try {
-        const profile = await authService.login(email, password);
+        const profile = await authService.login(username, password);
         this.user = profile;
         localStorage.setItem('dairy_current_user', JSON.stringify(profile));
         return profile;
