@@ -634,7 +634,7 @@
                     <v-icon class="empty-state-icon">mdi-store-off</v-icon>
                     <div class="empty-state-title">No Shops in {{ wizardHeader.areaName }}</div>
                     <div class="empty-state-subtitle">There are currently no active customer shops assigned to this delivery route.</div>
-                    <v-btn color="primary" variant="flat" size="small" :to="{ path: '/masters', query: { tab: 'shops' } }" prepend-icon="mdi-plus">
+                    <v-btn v-if="authStore.isAdmin" color="primary" variant="flat" size="small" :to="{ path: '/masters', query: { tab: 'shops' } }" prepend-icon="mdi-plus">
                       Register Shops for this Route
                     </v-btn>
                   </div>

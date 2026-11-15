@@ -103,10 +103,11 @@
           title="Employees"
         />
 
-        <!-- Masters Section Header -->
-        <div class="sidebar-group-header">Masters & Fleet</div>
+        <!-- Masters Section Header (Admin Only) -->
+        <div v-if="authStore.isAdmin" class="sidebar-group-header">Masters & Fleet</div>
 
         <v-list-item
+          v-if="authStore.isAdmin"
           to="/masters"
           link
           class="sidebar-menu-item"

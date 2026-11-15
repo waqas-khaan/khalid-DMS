@@ -188,7 +188,7 @@
                     {{ readonly ? 'Add staff, drivers, and calanders in Masters to display them here.' : 'Register farm staff, drivers, calanders, and caretakers to use across dispatch, attendance, and payroll.' }}
                   </div>
                   <v-btn
-                    v-if="readonly"
+                    v-if="readonly && authStore.isAdmin"
                     color="primary"
                     variant="flat"
                     size="small"

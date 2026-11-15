@@ -40,39 +40,47 @@ const routes = [
     path: '/masters',
     name: 'Masters',
     component: () => import('@/views/masters/MastersView.vue'),
-    meta: { requiresAuth: true, title: 'Masters & Fleet' },
+    meta: { requiresAuth: true, requiresAdmin: true, title: 'Masters & Fleet' },
   },
   {
     path: '/masters/vehicles',
     redirect: { path: '/masters', query: { tab: 'vehicles' } },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/masters/drivers',
     redirect: { path: '/masters', query: { tab: 'employees', role: 'driver' } },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/masters/calanders',
     redirect: { path: '/masters', query: { tab: 'employees', role: 'calander' } },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/masters/calenders',
     redirect: { path: '/masters', query: { tab: 'employees', role: 'calander' } },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/masters/areas',
     redirect: { path: '/masters', query: { tab: 'areas' } },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/masters/shops',
     redirect: { path: '/masters', query: { tab: 'shops' } },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/masters/milk-price',
     redirect: { path: '/masters', query: { tab: 'shops' } },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/masters/dispatches',
     redirect: { path: '/masters', query: { tab: 'dispatches' } },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/employees',
