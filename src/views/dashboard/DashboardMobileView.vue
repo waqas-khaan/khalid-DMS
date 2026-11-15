@@ -82,42 +82,6 @@
           <v-icon size="20" :color="isNextDayDisabled ? 'grey-lighten-1' : 'default'">mdi-chevron-right</v-icon>
         </button>
       </div>
-
-      <!-- Period Shortcut Pills -->
-      <div class="d-flex align-center gap-1 overflow-x-auto no-scrollbar pt-1">
-        <button
-          type="button"
-          class="filter-pill-btn"
-          :class="{ active: selectedDate === businessDayStore.activeBusinessDate }"
-          @click="setDateActive"
-        >
-          Active Day
-        </button>
-        <button
-          type="button"
-          class="filter-pill-btn"
-          :class="{ active: selectedDate === yesterdayDateStr }"
-          @click="setDateYesterday"
-        >
-          Yesterday
-        </button>
-        <button
-          type="button"
-          class="filter-pill-btn"
-          :class="{ active: selectedMonth === currentMonthStr }"
-          @click="setThisMonth"
-        >
-          This Month
-        </button>
-        <button
-          type="button"
-          class="filter-pill-btn"
-          :class="{ active: selectedMonth === lastMonthStr }"
-          @click="setLastMonth"
-        >
-          Last Month
-        </button>
-      </div>
     </header>
 
     <div class="px-3 pt-3">
