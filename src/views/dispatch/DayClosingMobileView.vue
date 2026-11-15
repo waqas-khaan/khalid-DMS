@@ -194,49 +194,18 @@
         </div>
       </div>
 
-      <!-- Net Cash Flow Hero Banner with Clear Math Breakdown & Collection Rate -->
-      <div class="net-flow-hero-card pa-3-5 bg-white border rounded-xl shadow-sm mb-4">
-        <div class="d-flex align-center justify-space-between mb-2-5">
-          <div>
-            <div class="d-flex align-center gap-1-5">
-              <v-icon size="16" color="primary">mdi-cash-check</v-icon>
-              <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.70rem !important; letter-spacing: 0.03em;">
-                Net Cash in Hand
-              </span>
-              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold" style="height: 18px; font-size: 0.60rem !important; padding: 0 6px;">
-                To Finalize
-              </v-chip>
-            </div>
-            <div class="text-h6 font-weight-black text-sky-800 line-height-tight mt-1">
-              {{ formatCurrency(summary.netCashFlow) }}
-            </div>
-          </div>
-
-          <div class="text-end">
-            <span class="text-caption font-weight-bold text-uppercase text-slate-500 d-block" style="font-size: 0.68rem !important; letter-spacing: 0.03em;">
-              Collection Rate
-            </span>
-            <div class="text-subtitle-1 font-weight-black line-height-tight mt-1" :class="collectionEfficiency >= 80 ? 'text-success' : 'text-warning'">
-              {{ collectionEfficiency }}%
-            </div>
+      <!-- Net Cash in Hand Executive Card -->
+      <div class="net-flow-hero-card pa-3-5 bg-white border rounded-xl shadow-sm mb-4 d-flex align-center justify-space-between">
+        <div>
+          <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.70rem !important; letter-spacing: 0.03em;">
+            Net Cash in Hand
+          </span>
+          <div class="text-h6 font-weight-black text-sky-800 line-height-tight mt-1">
+            {{ formatCurrency(summary.netCashFlow) }}
           </div>
         </div>
-
-        <!-- Math Breakdown Pill: Collection - Expenses = Net Cash -->
-        <div class="px-2-5 py-2 rounded-lg bg-slate-50 border d-flex align-center justify-space-between text-caption text-slate-700 font-weight-medium" style="font-size: 0.70rem !important;">
-          <div class="d-flex align-center gap-1 text-no-wrap">
-            <span class="text-slate-500">Collected:</span>
-            <strong class="text-success font-weight-bold">{{ formatCurrency(summary.totalCollection) }}</strong>
-          </div>
-          <span class="text-slate-400 font-weight-bold mx-1">−</span>
-          <div class="d-flex align-center gap-1 text-no-wrap">
-            <span class="text-slate-500">Expenses:</span>
-            <strong class="text-error font-weight-bold">{{ formatCurrency(summary.totalExpenses) }}</strong>
-          </div>
-          <span class="text-slate-400 font-weight-bold mx-1">=</span>
-          <div class="text-no-wrap">
-            <strong class="text-sky-800 font-weight-black">{{ formatCurrency(summary.netCashFlow) }}</strong>
-          </div>
+        <div class="kpi-icon-badge bg-sky-50 text-sky-700 pa-2 rounded-lg">
+          <v-icon size="22" color="primary">mdi-cash-check</v-icon>
         </div>
       </div>
 
