@@ -77,7 +77,12 @@
         <!-- Master Price Highlight Cards (2 in 1 row) -->
         <div class="mobile-kpi-grid mb-3">
           <div class="mobile-kpi-card milk-in-card pa-3 bg-white">
-            <span class="kpi-label">Master Milk Rate</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Master Milk Rate</span>
+              <div class="kpi-icon-badge bg-sky-50 text-sky-600">
+                <v-icon size="16">mdi-cash-lock</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-sky-700">
               {{ formatCurrency(masterMilkPrice) }} <span class="kpi-unit">/ Kg</span>
             </div>
@@ -85,7 +90,12 @@
           </div>
 
           <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
-            <span class="kpi-label">Standard Can (50Kg)</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Standard Can (50Kg)</span>
+              <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+                <v-icon size="16">mdi-cup-water</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-blue-700">
               {{ formatCurrency(masterMilkPrice * canWeightKg) }}
             </div>
@@ -461,6 +471,13 @@ onMounted(async () => {
   border: 1px solid #e2e8f0 !important;
   border-radius: 14px !important;
 }
+
+.income-card { border-top: 3px solid #10b981 !important; }
+.cash-card { border-top: 3px solid #0d9488 !important; }
+.arrears-card { border-top: 3px solid #f59e0b !important; }
+.milk-in-card { border-top: 3px solid #0284c7 !important; }
+.milk-out-card { border-top: 3px solid #3b82f6 !important; }
+.expense-card { border-top: 3px solid #ef4444 !important; }
 
 .mobile-item-card {
   border: 1px solid #e2e8f0 !important;

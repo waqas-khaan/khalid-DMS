@@ -93,7 +93,7 @@
         </div>
 
         <!-- Card 2: Food Expenses -->
-        <div class="mobile-kpi-card pa-3 bg-white" style="border-top: 3px solid #f59e0b !important;">
+        <div class="mobile-kpi-card arrears-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Food & Staff</span>
             <div class="kpi-icon-badge bg-amber-50 text-amber-700">
@@ -109,7 +109,7 @@
         </div>
 
         <!-- Card 3: Home & Farm -->
-        <div class="mobile-kpi-card pa-3 bg-white" style="border-top: 3px solid #0d9488 !important;">
+        <div class="mobile-kpi-card cash-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="kpi-label">Home & Farm</span>
             <div class="kpi-icon-badge bg-teal-50 text-teal-700">
@@ -495,6 +495,14 @@ onMounted(async () => {
   border: 1px solid #e2e8f0 !important;
   border-radius: 14px !important;
 }
+
+.income-card { border-top: 3px solid #10b981 !important; }
+.cash-card { border-top: 3px solid #0d9488 !important; }
+.arrears-card { border-top: 3px solid #f59e0b !important; }
+.milk-in-card { border-top: 3px solid #0284c7 !important; }
+.milk-out-card { border-top: 3px solid #3b82f6 !important; }
+.expense-card { border-top: 3px solid #ef4444 !important; }
+.transport-kpi-card { border-top: 3px solid #6366f1 !important; }
 
 .filter-pill-btn {
   padding: 4px 12px;

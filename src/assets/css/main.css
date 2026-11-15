@@ -1227,13 +1227,13 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
 }
 
 /* Subtle accent tints for top border */
-.income-card { border-top: 3px solid #10b981 !important; }
-.cash-card { border-top: 3px solid #0d9488 !important; }
-.arrears-card { border-top: 3px solid #f59e0b !important; }
-.milk-in-card { border-top: 3px solid #0284c7 !important; }
-.milk-out-card { border-top: 3px solid #3b82f6 !important; }
-.expense-card { border-top: 3px solid #ef4444 !important; }
-.transport-kpi-card { border-top: 3px solid #6366f1 !important; }
+.mobile-kpi-card.income-card, .income-card { border-top: 3px solid #10b981 !important; }
+.mobile-kpi-card.cash-card, .cash-card { border-top: 3px solid #0d9488 !important; }
+.mobile-kpi-card.arrears-card, .arrears-card { border-top: 3px solid #f59e0b !important; }
+.mobile-kpi-card.milk-in-card, .milk-in-card { border-top: 3px solid #0284c7 !important; }
+.mobile-kpi-card.milk-out-card, .milk-out-card { border-top: 3px solid #3b82f6 !important; }
+.mobile-kpi-card.expense-card, .expense-card { border-top: 3px solid #ef4444 !important; }
+.mobile-kpi-card.transport-kpi-card, .transport-kpi-card { border-top: 3px solid #6366f1 !important; }
 
 /* Utility badge backgrounds */
 .bg-emerald-50 { background-color: #ecfdf5 !important; }

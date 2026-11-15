@@ -1269,9 +1269,19 @@ onMounted(async () => {
   border-radius: 14px !important;
 }
 
+.income-card { border-top: 3px solid #10b981 !important; }
+.cash-card { border-top: 3px solid #0d9488 !important; }
+.arrears-card { border-top: 3px solid #f59e0b !important; }
+.milk-in-card { border-top: 3px solid #0284c7 !important; }
+.milk-out-card { border-top: 3px solid #3b82f6 !important; }
+.expense-card { border-top: 3px solid #ef4444 !important; }
+
 .net-flow-hero-card {
-  border-color: #bfdbfe !important;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #cbd5e1 !important;
+  border-top: 3px solid #0284c7 !important;
+  border-radius: 14px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
 }
 
 .shop-read-only-grid {

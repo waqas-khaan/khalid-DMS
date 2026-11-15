@@ -91,7 +91,12 @@
         <!-- 4 KPI Cards (2x2 Grid) -->
         <div class="mobile-kpi-grid mb-3">
           <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
-            <span class="kpi-label">Gross Payroll</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Gross Payroll</span>
+              <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+                <v-icon size="16">mdi-cash-multiple</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-blue-700">
               {{ formatCurrency(payrollTotals.gross) }}
             </div>
@@ -99,7 +104,12 @@
           </div>
 
           <div class="mobile-kpi-card income-card pa-3 bg-white">
-            <span class="kpi-label">Net Payable</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Net Payable</span>
+              <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
+                <v-icon size="16">mdi-cash-check</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-emerald-600">
               {{ formatCurrency(payrollTotals.net) }}
             </div>
@@ -107,7 +117,12 @@
           </div>
 
           <div class="mobile-kpi-card expense-card pa-3 bg-white">
-            <span class="kpi-label">Attendance Cuts</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Attendance Cuts</span>
+              <div class="kpi-icon-badge bg-rose-50 text-rose-600">
+                <v-icon size="16">mdi-account-minus</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-rose-600">
               {{ formatCurrency(payrollTotals.payCut) }}
             </div>
@@ -115,7 +130,12 @@
           </div>
 
           <div class="mobile-kpi-card arrears-card pa-3 bg-white">
-            <span class="kpi-label">Advances Cleared</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Advances Cleared</span>
+              <div class="kpi-icon-badge bg-amber-50 text-amber-700">
+                <v-icon size="16">mdi-hand-coin</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-orange-700">
               {{ formatCurrency(payrollTotals.advances) }}
             </div>
@@ -206,7 +226,12 @@
         <!-- Attendance Stats (2x2 Grid) -->
         <div class="mobile-kpi-grid mb-3">
           <div class="mobile-kpi-card income-card pa-3 bg-white">
-            <span class="kpi-label">Present Staff</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Present Staff</span>
+              <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
+                <v-icon size="16">mdi-account-check</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-emerald-600">
               {{ attendancePresentCount }} <span class="kpi-unit">Present</span>
             </div>
@@ -214,7 +239,12 @@
           </div>
 
           <div class="mobile-kpi-card expense-card pa-3 bg-white">
-            <span class="kpi-label">Absent Staff</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Absent Staff</span>
+              <div class="kpi-icon-badge bg-rose-50 text-rose-600">
+                <v-icon size="16">mdi-account-remove</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-rose-600">
               {{ attendanceAbsentCount }} <span class="kpi-unit">Absent</span>
             </div>
@@ -296,7 +326,12 @@
         <!-- 2 KPI Cards (2 in 1 row) -->
         <div class="mobile-kpi-grid mb-3">
           <div class="mobile-kpi-card arrears-card pa-3 bg-white">
-            <span class="kpi-label">Total Advances</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Total Advances</span>
+              <div class="kpi-icon-badge bg-amber-50 text-amber-700">
+                <v-icon size="16">mdi-cash-minus</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-orange-700">
               {{ formatCurrency(totalAdvancesAmount) }}
             </div>
@@ -304,7 +339,12 @@
           </div>
 
           <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
-            <span class="kpi-label">Advances Count</span>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Advances Count</span>
+              <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+                <v-icon size="16">mdi-format-list-numbered</v-icon>
+              </div>
+            </div>
             <div class="kpi-value text-blue-700">
               {{ advancesList.length }} <span class="kpi-unit">Trans</span>
             </div>
@@ -722,6 +762,13 @@ onMounted(async () => {
   border: 1px solid #e2e8f0 !important;
   border-radius: 14px !important;
 }
+
+.income-card { border-top: 3px solid #10b981 !important; }
+.cash-card { border-top: 3px solid #0d9488 !important; }
+.arrears-card { border-top: 3px solid #f59e0b !important; }
+.milk-in-card { border-top: 3px solid #0284c7 !important; }
+.milk-out-card { border-top: 3px solid #3b82f6 !important; }
+.expense-card { border-top: 3px solid #ef4444 !important; }
 
 .stepper-arrow-btn {
   width: 34px;
