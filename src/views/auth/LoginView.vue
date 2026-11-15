@@ -65,7 +65,10 @@
 
                   <!-- Dropdown Menu Item (Clearly Visible & Styled) -->
                   <template #item="{ props, item }">
-                    <v-list-item v-bind="props" class="login-dropdown-item py-2 px-3">
+                    <v-list-item
+                      v-bind="{ ...props, title: undefined, subtitle: undefined }"
+                      class="login-dropdown-item py-2 px-3"
+                    >
                       <template #prepend>
                         <div class="user-role-badge mr-3" :class="item.raw.value">
                           <v-icon size="18" :color="item.raw.value === 'admin' ? '#0284c7' : '#64748b'">
