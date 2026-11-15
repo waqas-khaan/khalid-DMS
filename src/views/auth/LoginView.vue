@@ -360,7 +360,7 @@ async function handleLogin() {
   min-height: 100vh;
 }
 
-/* Card Glow Wrapper - Soft Ambient Brand Backlight */
+/* Card Glow Wrapper - Directional 3D Floating Shadow Behind Card */
 .login-card-glow-wrapper {
   position: relative;
   width: 100%;
@@ -369,37 +369,61 @@ async function handleLogin() {
   justify-content: center;
 }
 
+/* Deep soft shadow layer extending behind and downward */
 .login-card-glow-wrapper::before {
   content: '';
   position: absolute;
-  top: -12px;
-  left: -12px;
-  right: -12px;
-  bottom: -12px;
+  top: 30px;
+  left: 20px;
+  right: 20px;
+  bottom: -40px;
   background: radial-gradient(
-    circle at center,
-    rgba(2, 132, 199, 0.22) 0%,
-    rgba(6, 63, 120, 0.3) 45%,
-    transparent 72%
+    ellipse at 50% 60%,
+    rgba(2, 132, 199, 0.4) 0%,
+    rgba(6, 63, 120, 0.6) 40%,
+    rgba(5, 12, 26, 0.9) 75%,
+    transparent 100%
   );
-  filter: blur(32px);
-  border-radius: 24px;
+  filter: blur(45px);
+  border-radius: 40px;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Card Styling - Razor-Sharp Executive Card with Premium Realistic Depth */
+/* Soft ambient light aura directly behind the card */
+.login-card-glow-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -15px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(147, 197, 253, 0.18) 35%,
+    rgba(6, 63, 120, 0.3) 60%,
+    transparent 78%
+  );
+  filter: blur(28px);
+  border-radius: 28px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Card Styling - High-End 3D Elevated Card with Visible Depth Behind */
 .login-container .login-v-card {
   position: relative;
   z-index: 2;
   background-color: #ffffff !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 12px 28px -4px rgba(0, 0, 0, 0.35),
-    0 30px 60px -12px rgba(0, 0, 0, 0.65),
-    0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 10px 24px -4px rgba(0, 0, 0, 0.25),
+    0 25px 50px -10px rgba(0, 0, 0, 0.5),
+    0 45px 90px -15px rgba(6, 63, 120, 0.5),
+    0 0 20px rgba(255, 255, 255, 0.12) !important;
   width: 100%;
   max-width: 630px;
   min-height: 650px;
