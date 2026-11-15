@@ -138,18 +138,23 @@ router.beforeEach((to, from, next) => {
     ? `${to.meta.title} | Dairy Business Management System`
     : 'Dairy Business Management System';
 
-  if (requiresAuth && !isAuthenticated) {
-    return next({ path: '/login', query: { redirect: to.fullPath } });
+  // If not authenticated: user MUST login first. No other part of the app is accessible.
+  if (!isAuthenticated) {
+    if (to.path !== '/login') {
+      const hasSpecificRedirect = to.fullPath && to.fullPath !== '/' && to.fullPath !== '/dashboard';
+      return next({ path: '/login', query: hasSpecificRedirect ? { redirect: to.fullPath } : {} });
+    }
+    return next();
   }
 
-  if (to.path === '/login' && isAuthenticated) {
+  // If already authenticated and trying to visit /login, redirect to /dashboard
+  if (to.path === '/login') {
     return next({ path: '/dashboard' });
   }
 
+  // Admin-only route guard (e.g., Settings)
   if (requiresAdmin && !authStore.isAdmin) {
-    if (to.path !== '/dashboard') {
-      return next({ path: '/dashboard' });
-    }
+    return next({ path: '/dashboard' });
   }
 
   next();

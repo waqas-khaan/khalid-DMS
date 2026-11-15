@@ -1,18 +1,6 @@
 <template>
   <div class="login-page-wrapper">
     <v-card class="login-card" elevation="0">
-      <!-- Go To Home Link -->
-      <div class="d-flex align-center mb-3">
-        <button
-          type="button"
-          class="go-home-link d-inline-flex align-center"
-          @click="goToHome"
-        >
-          <v-icon size="18" class="me-1">mdi-arrow-left</v-icon>
-          <span>Go To Home</span>
-        </button>
-      </div>
-
       <!-- Falcon Softwares Logo -->
       <div class="text-center mb-4">
         <img
@@ -176,14 +164,6 @@ function selectAccount(val) {
   errorMessage.value = '';
 }
 
-function goToHome() {
-  if (authStore.isAuthenticated) {
-    router.push('/dashboard');
-  } else {
-    router.push('/');
-  }
-}
-
 async function handleLogin() {
   if (!username.value || !password.value) {
     errorMessage.value = 'Please select a username and enter your password.';
@@ -206,22 +186,6 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-.go-home-link {
-  background: none;
-  border: none;
-  color: #475569;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 4px 0;
-  transition: color 0.15s ease, transform 0.15s ease;
-}
-
-.go-home-link:hover {
-  color: #0f172a;
-  transform: translateX(-2px);
-}
-
 .login-logo {
   max-width: 220px;
   height: auto;
