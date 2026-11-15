@@ -13,6 +13,7 @@
     "@capacitor/android": "^6.1.0",
     "@capacitor/cli": "^6.1.0",
     "@capacitor/core": "^6.1.0",
+    "@capacitor/splash-screen": "^6.0.4",
     "@mdi/font": "^7.4.47",
     "chart.js": "^4.4.3",
     "core-js": "^3.8.3",

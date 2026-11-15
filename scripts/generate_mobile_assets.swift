@@ -9,7 +9,7 @@ guard let sourceImage = NSImage(contentsOfFile: "src/assets/falcon-softwares-log
 let aspectRatio = sourceImage.size.width / sourceImage.size.height
 
 // =========================================================================
-// 1. MINIMALIST BRANDED SPLASH SCREEN RENDERER
+// 1. MINIMALIST BRANDED SPLASH SCREEN RENDERER (LARGER LOGO + DISTINCT LOADER)
 // =========================================================================
 func renderMinimalistSplash(width: Int, height: Int) -> Data? {
     let rep = NSBitmapImageRep(
@@ -39,17 +39,17 @@ func renderMinimalistSplash(width: Int, height: Int) -> Data? {
     cg.setFillColor(CGColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0))
     cg.fill(CGRect(x: 0, y: 0, width: w, height: h))
     
-    // 2. Centered Logo
+    // 2. Centered Logo (Increased size by ~16%)
     var logoW: CGFloat
     if isPortrait {
-        logoW = min(w * 0.72, w - 48.0)
+        logoW = min(w * 0.84, w - 32.0)
     } else {
-        logoW = min(w * 0.44, h * 1.25)
+        logoW = min(w * 0.52, h * 1.45)
     }
     let logoH = logoW / aspectRatio
     
-    // Position logo slightly above vertical center (53.5% from bottom in Cocoa coords)
-    let logoCenterY = isPortrait ? (h * 0.535) : (h * 0.58)
+    // Position logo slightly above vertical center (54% from bottom in Cocoa coords)
+    let logoCenterY = isPortrait ? (h * 0.54) : (h * 0.58)
     let logoX = (w - logoW) / 2.0
     let logoY = logoCenterY - (logoH / 2.0)
     let logoRect = CGRect(x: logoX, y: logoY, width: logoW, height: logoH)
@@ -58,34 +58,33 @@ func renderMinimalistSplash(width: Int, height: Int) -> Data? {
         cg.draw(cgImage, in: logoRect)
     }
     
-    // 3. Circular Loading Spinner Below Logo (Exact Chickado Style with Falcon Theme)
+    // 3. Circular Loading Spinner Below Logo
     let spinnerDiameter: CGFloat
     if isPortrait {
-        spinnerDiameter = min(w * 0.115, h * 0.058)
+        spinnerDiameter = min(w * 0.125, h * 0.062)
     } else {
-        spinnerDiameter = min(h * 0.13, 64.0)
+        spinnerDiameter = min(h * 0.14, 68.0)
     }
     let spinnerRadius = spinnerDiameter / 2.0
-    let strokeW = max(2.5, spinnerDiameter * 0.085)
+    let strokeW = max(3.0, spinnerDiameter * 0.09)
     
-    let spinnerGap = max(16.0, isPortrait ? (h * 0.065) : (h * 0.075))
+    let spinnerGap = max(20.0, isPortrait ? (h * 0.065) : (h * 0.075))
     let spinnerCenterY = logoY - spinnerGap - spinnerRadius
     let spinnerCenterX = w / 2.0
     
-    // 3a. Faint Background Track Circle
+    // 3a. Faint Background Track Circle (Slate-200 #e2e8f0)
     cg.saveGState()
     cg.setLineCap(.round)
     cg.setLineWidth(strokeW)
     
-    // Light sky-blue / cyan tint for track
-    cg.setStrokeColor(CGColor(red: 2/255.0, green: 107/255.0, blue: 160/255.0, alpha: 0.14))
+    cg.setStrokeColor(CGColor(red: 226/255.0, green: 232/255.0, blue: 240/255.0, alpha: 1.0))
     cg.addArc(center: CGPoint(x: spinnerCenterX, y: spinnerCenterY), radius: spinnerRadius, startAngle: 0, endAngle: .pi * 2, clockwise: false)
     cg.strokePath()
     
     // 3b. Active Vivid Arc (Falcon Blue #026ba0)
     cg.setStrokeColor(CGColor(red: 2/255.0, green: 107/255.0, blue: 160/255.0, alpha: 1.0))
-    let startAngle: CGFloat = -.pi * 0.18
-    let endAngle: CGFloat = .pi * 0.42
+    let startAngle: CGFloat = -.pi * 0.20
+    let endAngle: CGFloat = .pi * 0.45
     cg.addArc(center: CGPoint(x: spinnerCenterX, y: spinnerCenterY), radius: spinnerRadius, startAngle: startAngle, endAngle: endAngle, clockwise: false)
     cg.strokePath()
     cg.restoreGState()
@@ -170,7 +169,7 @@ let splashTargets: [(String, Int, Int)] = [
     ("android/app/src/main/res/drawable-land-xxxhdpi/splash.png", 1920, 1280)
 ]
 
-print("--- Generating Minimalist White Splash Screens ---")
+print("--- Generating Splash Screens with Increased Logo Size & Distinct Loader ---")
 for (path, w, h) in splashTargets {
     if let data = renderMinimalistSplash(width: w, height: h) {
         let url = URL(fileURLWithPath: path)
@@ -192,21 +191,18 @@ let iconDensities: [(String, Int, Int)] = [
 
 print("--- Generating Mobile App Icons ---")
 for (density, iconSize, fgSize) in iconDensities {
-    // ic_launcher.png
     let launcherPath = "android/app/src/main/res/mipmap-\(density)/ic_launcher.png"
     if let data = renderIconImage(width: iconSize, height: iconSize) {
         try? data.write(to: URL(fileURLWithPath: launcherPath))
         print("Generated Icon: \(launcherPath)")
     }
     
-    // ic_launcher_round.png
     let roundPath = "android/app/src/main/res/mipmap-\(density)/ic_launcher_round.png"
     if let data = renderIconImage(width: iconSize, height: iconSize, isRound: true) {
         try? data.write(to: URL(fileURLWithPath: roundPath))
         print("Generated Round Icon: \(roundPath)")
     }
     
-    // ic_launcher_foreground.png
     let fgPath = "android/app/src/main/res/mipmap-\(density)/ic_launcher_foreground.png"
     if let data = renderIconImage(width: fgSize, height: fgSize, isForeground: true) {
         try? data.write(to: URL(fileURLWithPath: fgPath))
