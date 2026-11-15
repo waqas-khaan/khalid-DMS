@@ -152,30 +152,42 @@ async function handleLogin() {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #eef2f6 0%, #e2e8f0 50%, #f8fafc 100%);
-  padding: 40px 16px;
+  padding: 48px 24px;
   box-sizing: border-box;
 }
 
 .login-card-container {
   width: 100%;
-  max-width: 560px;
-  min-height: 580px;
+  max-width: 680px;
+  min-height: 700px;
   background-color: #ffffff;
   border-radius: 10px;
   border: 1px solid #000000;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-  padding: 44px 50px 48px 50px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.09);
+  padding: 56px 64px 60px 64px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
+@media (max-width: 960px) {
+  .login-card-container {
+    max-width: 580px;
+    min-height: 620px;
+    padding: 44px 44px 48px 44px;
+  }
+}
+
 @media (max-width: 600px) {
+  .login-page-wrapper {
+    padding: 20px 12px;
+  }
+
   .login-card-container {
     max-width: 100%;
     min-height: auto;
-    padding: 30px 22px 36px 22px;
+    padding: 28px 20px 32px 20px;
     border-radius: 8px;
   }
 }
@@ -189,7 +201,7 @@ async function handleLogin() {
   background: transparent;
   border: none;
   color: #4b5563;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
@@ -209,30 +221,48 @@ async function handleLogin() {
 }
 
 .falcon-logo {
-  max-width: 270px;
+  max-width: 320px;
   height: auto;
   object-fit: contain;
   display: block;
 }
 
+@media (max-width: 960px) {
+  .falcon-logo {
+    max-width: 270px;
+  }
+}
+
 @media (max-width: 480px) {
   .falcon-logo {
-    max-width: 210px;
+    max-width: 220px;
   }
 }
 
 .card-title {
-  font-size: 30px;
+  font-size: 34px;
   font-weight: 700;
   color: #1f2937;
   margin: 0 0 8px 0;
   letter-spacing: -0.02em;
 }
 
+@media (max-width: 600px) {
+  .card-title {
+    font-size: 28px;
+  }
+}
+
 .card-subtitle {
-  font-size: 15px;
+  font-size: 16px;
   color: #6b7280;
   margin: 0;
+}
+
+@media (max-width: 600px) {
+  .card-subtitle {
+    font-size: 14px;
+  }
 }
 
 .form-group {
@@ -242,7 +272,7 @@ async function handleLogin() {
 .field-label {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #374151;
 }
@@ -254,13 +284,13 @@ async function handleLogin() {
 
 .custom-field {
   width: 100%;
-  height: 52px;
+  height: 56px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
   background-color: #ffffff;
-  font-size: 15px;
+  font-size: 16px;
   color: #111827;
-  padding: 12px 16px;
+  padding: 14px 18px;
   box-sizing: border-box;
   font-family: inherit;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -280,24 +310,24 @@ async function handleLogin() {
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
-  padding-right: 42px;
+  padding-right: 44px;
 }
 
 .select-chevron {
   position: absolute;
-  right: 14px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
 }
 
 .password-field {
-  padding-right: 48px;
+  padding-right: 50px;
 }
 
 .toggle-eye-btn {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
@@ -317,19 +347,19 @@ async function handleLogin() {
 
 .submit-button {
   width: 100%;
-  height: 52px;
+  height: 56px;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
   background-color: #f3f4f6;
   color: #9ca3af;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   cursor: not-allowed;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .submit-button.btn-active {
@@ -351,9 +381,9 @@ async function handleLogin() {
   background-color: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 6px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   color: #b91c1c;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .close-error {
