@@ -673,97 +673,86 @@
 
       <!-- TAB 2: CASH & BANK HANDOVER REGISTER (Treasury Audit Cards) -->
       <div v-if="activeClosingTab === 'allocation'" class="mobile-tab-content">
-        <!-- 3 Highlight Metric Cards (2 in 1 row grid) -->
-        <div class="mobile-kpi-grid mb-3">
-          <!-- Total Allocated to Bank -->
-          <div class="pa-3 rounded-xl d-flex align-center gap-2-5 handover-stat-card card-bank border shadow-xs bg-white">
-            <v-avatar color="primary" size="32" variant="tonal">
-              <v-icon color="primary" size="18">mdi-bank</v-icon>
-            </v-avatar>
-            <div style="min-width: 0;">
-              <div class="text-caption font-weight-bold text-primary text-uppercase text-truncate" style="font-size: 0.65rem !important;">
-                Allocated to Bank
-              </div>
-              <div class="text-subtitle-2 font-weight-black text-primary line-height-tight text-truncate">
-                {{ formatCurrency(totalBankAllocated) }}
-              </div>
+        <!-- Unified Executive Treasury Summary Panel -->
+        <div class="treasury-summary-panel mb-3">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <div class="d-flex align-center gap-1-5">
+              <v-icon size="14" class="text-slate-500">mdi-safe</v-icon>
+              <span class="treasury-kpi-subhead">TREASURY HANDOVER SUMMARY</span>
             </div>
-          </div>
-
-          <!-- Total Retained in Cash -->
-          <div class="pa-3 rounded-xl d-flex align-center gap-2-5 handover-stat-card card-cash border shadow-xs bg-white">
-            <v-avatar color="success" size="32" variant="tonal">
-              <v-icon color="success" size="18">mdi-cash-multiple</v-icon>
-            </v-avatar>
-            <div style="min-width: 0;">
-              <div class="text-caption font-weight-bold text-success text-uppercase text-truncate" style="font-size: 0.65rem !important;">
-                Retained in Cash
-              </div>
-              <div class="text-subtitle-2 font-weight-black text-success line-height-tight text-truncate">
-                {{ formatCurrency(totalCashAllocated) }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Total Cash Flow Finalized -->
-          <div class="pa-3 rounded-xl d-flex align-center justify-space-between handover-stat-card card-net border shadow-xs bg-white" style="grid-column: 1 / -1;">
-            <div class="d-flex align-center gap-2-5">
-              <v-avatar color="indigo-darken-3" size="32" variant="tonal">
-                <v-icon color="indigo-darken-3" size="18">mdi-check-decagram</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-caption font-weight-bold text-indigo-darken-3 text-uppercase" style="font-size: 0.68rem !important;">
-                  Total Cash Flow Finalized
-                </div>
-                <div class="text-subtitle-1 font-weight-black text-indigo-darken-3 line-height-tight">
-                  {{ formatCurrency(totalNetAllocated) }}
-                </div>
-              </div>
-            </div>
-            <v-chip size="x-small" color="indigo-darken-3" variant="flat" class="font-weight-black">
+            <span class="treasury-finalized-pill">
+              <span class="treasury-dot"></span>
               Finalized
-            </v-chip>
+            </span>
+          </div>
+
+          <div class="treasury-hero-val mt-0-5">
+            {{ formatCurrency(totalNetAllocated) }}
+          </div>
+
+          <!-- Hairline Divider -->
+          <div class="treasury-divider my-2"></div>
+
+          <!-- Split Breakdown Row -->
+          <div class="d-flex align-center justify-space-between">
+            <!-- Allocated to Bank -->
+            <div class="d-flex flex-column">
+              <div class="d-flex align-center gap-1 text-slate-500 font-weight-medium mb-0-5" style="font-size: 0.68rem !important;">
+                <span class="treasury-indicator-dot bg-sky-500"></span>
+                <span>Allocated to Bank</span>
+              </div>
+              <span class="font-weight-black text-sky-800" style="font-size: 0.84rem !important;">
+                {{ formatCurrency(totalBankAllocated) }}
+              </span>
+            </div>
+
+            <!-- Retained in Cash -->
+            <div class="d-flex flex-column text-end">
+              <div class="d-flex align-center justify-end gap-1 text-slate-500 font-weight-medium mb-0-5" style="font-size: 0.68rem !important;">
+                <span class="treasury-indicator-dot bg-emerald-500"></span>
+                <span>Retained in Cash</span>
+              </div>
+              <span class="font-weight-black text-emerald-800" style="font-size: 0.84rem !important;">
+                {{ formatCurrency(totalCashAllocated) }}
+              </span>
+            </div>
           </div>
         </div>
 
-        <!-- Method filter chips -->
-        <div class="d-flex align-center gap-1 overflow-x-auto pb-2 mb-2 no-scrollbar">
-          <v-chip
-            size="small"
-            :variant="allocationTypeFilter === 'all' ? 'flat' : 'outlined'"
-            :color="allocationTypeFilter === 'all' ? 'primary' : 'default'"
-            class="font-weight-bold"
+        <!-- Method filter pills -->
+        <div class="handover-filter-bar mb-3 d-flex align-center gap-1-5 overflow-x-auto no-scrollbar">
+          <button
+            type="button"
+            class="handover-filter-pill"
+            :class="{ active: allocationTypeFilter === 'all' }"
             @click="allocationTypeFilter = 'all'"
           >
-            All Methods ({{ closedAllocationRows.length }})
-          </v-chip>
-          <v-chip
-            size="small"
-            :variant="allocationTypeFilter === 'bank' ? 'flat' : 'outlined'"
-            :color="allocationTypeFilter === 'bank' ? 'primary' : 'default'"
-            class="font-weight-bold"
+            All Methods <span class="pill-count">({{ closedAllocationRows.length }})</span>
+          </button>
+          <button
+            type="button"
+            class="handover-filter-pill"
+            :class="{ active: allocationTypeFilter === 'bank' }"
             @click="allocationTypeFilter = 'bank'"
           >
-            Bank ({{ allocationBankCount }})
-          </v-chip>
-          <v-chip
-            size="small"
-            :variant="allocationTypeFilter === 'cash' ? 'flat' : 'outlined'"
-            :color="allocationTypeFilter === 'cash' ? 'success' : 'default'"
-            class="font-weight-bold"
+            Bank <span class="pill-count">({{ allocationBankCount }})</span>
+          </button>
+          <button
+            type="button"
+            class="handover-filter-pill"
+            :class="{ active: allocationTypeFilter === 'cash' }"
             @click="allocationTypeFilter = 'cash'"
           >
-            Cash ({{ allocationCashCount }})
-          </v-chip>
-          <v-chip
-            size="small"
-            :variant="allocationTypeFilter === 'split' ? 'flat' : 'outlined'"
-            :color="allocationTypeFilter === 'split' ? 'indigo' : 'default'"
-            class="font-weight-bold"
+            Cash <span class="pill-count">({{ allocationCashCount }})</span>
+          </button>
+          <button
+            type="button"
+            class="handover-filter-pill"
+            :class="{ active: allocationTypeFilter === 'split' }"
             @click="allocationTypeFilter = 'split'"
           >
-            Split ({{ allocationSplitCount }})
-          </v-chip>
+            Split <span class="pill-count">({{ allocationSplitCount }})</span>
+          </button>
         </div>
 
         <!-- Handover Record Cards List -->
@@ -771,69 +760,73 @@
           <div
             v-for="row in paginatedAllocationRows"
             :key="row.date"
-            class="mobile-ledger-card pa-3 bg-white border rounded-xl shadow-xs cursor-pointer"
+            class="mobile-ledger-card pa-3-5 bg-white rounded-xl cursor-pointer"
+            :class="{ 'card-active-inspect': row.date === selectedDate }"
             @click="inspectMobileDay(row.date)"
           >
-            <div class="d-flex align-center justify-space-between mb-2 pb-1 border-b">
-              <span class="font-weight-black text-body-2 text-slate-800">
-                {{ formatDate(row.date) }}
-              </span>
-
-              <v-chip
-                v-if="row.type === 'bank'"
-                size="x-small"
-                color="primary"
-                variant="tonal"
-                class="font-weight-bold"
-              >
-                Bank Deposit
-              </v-chip>
-              <v-chip
-                v-else-if="row.type === 'cash'"
-                size="x-small"
-                color="success"
-                variant="tonal"
-                class="font-weight-bold"
-              >
-                Cash in Hand
-              </v-chip>
-              <v-chip
-                v-else-if="row.type === 'split'"
-                size="x-small"
-                color="indigo"
-                variant="tonal"
-                class="font-weight-bold"
-              >
-                Custom Split
-              </v-chip>
-            </div>
-
-            <div class="d-flex align-center justify-space-between mb-2">
-              <div>
-                <span class="text-caption text-grey d-block" style="font-size: 0.65rem !important;">FINAL AMOUNT</span>
-                <strong class="text-subtitle-2 font-weight-black text-primary">
-                  {{ formatCurrency(row.remainingAmount) }}
-                </strong>
+            <!-- Card Header: Date, Closed By & Method Pill -->
+            <div class="d-flex align-center justify-space-between mb-2-5">
+              <div class="d-flex align-center gap-2 min-w-0">
+                <div class="handover-avatar flex-shrink-0" :class="row.type === 'bank' ? 'avatar-bank' : (row.type === 'split' ? 'avatar-split' : 'avatar-cash')">
+                  <v-icon size="16">
+                    {{ row.type === 'bank' ? 'mdi-bank' : (row.type === 'split' ? 'mdi-call-split' : 'mdi-cash') }}
+                  </v-icon>
+                </div>
+                <div class="min-w-0">
+                  <span class="font-weight-bold text-body-2 text-slate-900 line-height-tight d-block">
+                    {{ formatDate(row.date) }}
+                  </span>
+                  <span class="text-caption text-slate-400 font-weight-medium mt-0-5 d-block" style="font-size: 0.7rem !important;">
+                    Closed by {{ row.closedBy }}
+                  </span>
+                </div>
               </div>
 
-              <div class="text-end">
-                <span class="text-caption text-grey d-block" style="font-size: 0.65rem !important;">CLOSED BY</span>
-                <span class="text-caption font-weight-bold text-slate-800">
-                  {{ row.closedBy }}
+              <!-- Method Pill -->
+              <div class="flex-shrink-0 ps-2">
+                <span
+                  class="handover-method-pill"
+                  :class="row.type === 'bank' ? 'method-bank' : (row.type === 'split' ? 'method-split' : 'method-cash')"
+                >
+                  <span class="method-dot"></span>
+                  {{ row.type === 'bank' ? 'Bank Deposit' : (row.type === 'split' ? 'Custom Split' : 'Cash in Hand') }}
                 </span>
               </div>
             </div>
 
-            <!-- Bank / Cash breakdown -->
-            <div v-if="row.type === 'bank' || row.type === 'split'" class="pa-2 bg-slate-50 rounded border text-caption mb-1">
-              <div v-if="row.bankName || row.bankRef">
-                Bank: <strong>{{ row.bankName || '-' }}</strong> (Ref: {{ row.bankRef || '-' }})
+            <!-- Financial Summary Panel -->
+            <div class="handover-detail-panel">
+              <div class="d-flex align-center justify-space-between mb-1">
+                <span class="ledger-kpi-subhead">HANDOVER AMOUNT</span>
+                <span v-if="row.remarks" class="text-caption text-slate-400 text-truncate font-weight-medium ms-2" style="font-size: 0.66rem !important;">
+                  {{ row.remarks }}
+                </span>
               </div>
-              <div>Bank Amount: <strong class="text-primary">{{ formatCurrency(row.bankAmount) }}</strong></div>
-            </div>
 
-            <div v-if="row.type === 'cash' || row.type === 'split'" class="pa-2 bg-slate-50 rounded border text-caption">
-              <div>Cash Amount: <strong class="text-success">{{ formatCurrency(row.cashAmount) }}</strong></div>
+              <div class="ledger-hero-amount text-slate-900">
+                {{ formatCurrency(row.remainingAmount) }}
+              </div>
+
+              <!-- Split Breakdown (Only shown if split) -->
+              <div v-if="row.type === 'split'" class="mt-2 pt-2 border-t border-slate-200/80 d-flex align-center justify-space-between text-caption">
+                <div class="d-flex align-center gap-1 font-weight-semibold text-sky-800">
+                  <v-icon size="12" class="text-sky-600">mdi-bank</v-icon>
+                  <span>Bank:</span>
+                  <strong class="text-sky-950 font-weight-bold">{{ formatCurrency(row.bankAmount) }}</strong>
+                </div>
+                <div class="d-flex align-center gap-1 font-weight-semibold text-emerald-800">
+                  <v-icon size="12" class="text-emerald-600">mdi-cash</v-icon>
+                  <span>Cash:</span>
+                  <strong class="text-emerald-950 font-weight-bold">{{ formatCurrency(row.cashAmount) }}</strong>
+                </div>
+              </div>
+
+              <!-- Bank details if bank deposit and metadata exists -->
+              <div v-else-if="row.type === 'bank' && (row.bankName || row.bankRef)" class="mt-2 pt-2 border-t border-slate-200/80 text-caption text-slate-500 d-flex align-center gap-1-5">
+                <v-icon size="12" class="text-slate-400">mdi-information-outline</v-icon>
+                <span>{{ row.bankName || 'Bank' }}</span>
+                <span v-if="row.bankRef" class="text-slate-400">• Ref: {{ row.bankRef }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1651,25 +1644,170 @@ onMounted(async () => {
   white-space: nowrap !important;
 }
 
-/* Handover Register Metric Cards with Crisp Borders */
-.handover-stat-card {
-  border-radius: 8px !important;
-  box-sizing: border-box;
+/* Treasury Handover Summary Panel */
+.treasury-summary-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
 }
 
-.handover-stat-card.card-bank {
-  background: #eff6ff !important;
-  border: 1px solid #60a5fa !important;
+.treasury-kpi-subhead {
+  font-size: 0.64rem !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  text-transform: uppercase;
 }
 
-.handover-stat-card.card-cash {
-  background: #f0fdf4 !important;
-  border: 1px solid #4ade80 !important;
+.treasury-finalized-pill {
+  font-size: 0.64rem !important;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.handover-stat-card.card-net {
-  background: #eef2ff !important;
-  border: 1px solid #818cf8 !important;
+.treasury-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.treasury-hero-val {
+  font-size: 1.25rem !important;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.treasury-divider {
+  height: 1px;
+  background: #e2e8f0;
+  width: 100%;
+}
+
+.treasury-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Handover Filter Pills */
+.handover-filter-bar {
+  padding-bottom: 2px;
+}
+
+.handover-filter-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.handover-filter-pill:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.handover-filter-pill.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+}
+
+.handover-filter-pill .pill-count {
+  opacity: 0.75;
+  font-size: 0.68rem;
+}
+
+/* Handover Record Card Avatars & Pills */
+.handover-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.handover-avatar.avatar-cash {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #dcfce7;
+}
+
+.handover-avatar.avatar-bank {
+  background-color: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #e0f2fe;
+}
+
+.handover-avatar.avatar-split {
+  background-color: #eef2ff;
+  color: #4f46e5;
+  border: 1px solid #e0e7ff;
+}
+
+.handover-method-pill {
+  font-size: 0.66rem !important;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.method-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.handover-method-pill.method-cash {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.handover-method-pill.method-bank {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.handover-method-pill.method-split {
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+
+.handover-detail-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
 }
 
 .no-scrollbar::-webkit-scrollbar {
