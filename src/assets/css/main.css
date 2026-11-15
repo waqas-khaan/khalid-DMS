@@ -322,6 +322,139 @@ body {
   letter-spacing: 0.6px;
 }
 
+/* Desktop Themed Stat Cards - Distinct Accent Borders */
+.stat-card-themed {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.stat-card-themed.stat-card--primary,
+.dashboard-card.stat-card--primary,
+.dispatch-metric-card.stat-card--primary {
+  border: 1.5px solid #2563eb !important;
+}
+.stat-card-themed.stat-card--primary:hover,
+.dashboard-card.stat-card--primary:hover,
+.dispatch-metric-card.stat-card--primary:hover {
+  border-color: #1d4ed8 !important;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--success,
+.dashboard-card.stat-card--success,
+.dispatch-metric-card.stat-card--success {
+  border: 1.5px solid #10b981 !important;
+}
+.stat-card-themed.stat-card--success:hover,
+.dashboard-card.stat-card--success:hover,
+.dispatch-metric-card.stat-card--success:hover {
+  border-color: #059669 !important;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--teal,
+.dashboard-card.stat-card--teal,
+.dispatch-metric-card.stat-card--teal {
+  border: 1.5px solid #0d9488 !important;
+}
+.stat-card-themed.stat-card--teal:hover,
+.dashboard-card.stat-card--teal:hover,
+.dispatch-metric-card.stat-card--teal:hover {
+  border-color: #0f766e !important;
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--warning,
+.dashboard-card.stat-card--warning,
+.dispatch-metric-card.stat-card--warning {
+  border: 1.5px solid #f59e0b !important;
+}
+.stat-card-themed.stat-card--warning:hover,
+.dashboard-card.stat-card--warning:hover,
+.dispatch-metric-card.stat-card--warning:hover {
+  border-color: #d97706 !important;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--orange,
+.dashboard-card.stat-card--orange,
+.dispatch-metric-card.stat-card--orange {
+  border: 1.5px solid #f97316 !important;
+}
+.stat-card-themed.stat-card--orange:hover,
+.dashboard-card.stat-card--orange:hover,
+.dispatch-metric-card.stat-card--orange:hover {
+  border-color: #ea580c !important;
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--error,
+.stat-card-themed.stat-card--red,
+.dashboard-card.stat-card--error,
+.dashboard-card.stat-card--red,
+.dispatch-metric-card.stat-card--error {
+  border: 1.5px solid #ef4444 !important;
+}
+.stat-card-themed.stat-card--error:hover,
+.stat-card-themed.stat-card--red:hover,
+.dashboard-card.stat-card--error:hover,
+.dashboard-card.stat-card--red:hover,
+.dispatch-metric-card.stat-card--error:hover {
+  border-color: #dc2626 !important;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--info,
+.dashboard-card.stat-card--info,
+.dispatch-metric-card.stat-card--info {
+  border: 1.5px solid #0284c7 !important;
+}
+.stat-card-themed.stat-card--info:hover,
+.dashboard-card.stat-card--info:hover,
+.dispatch-metric-card.stat-card--info:hover {
+  border-color: #0369a1 !important;
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--indigo,
+.dashboard-card.stat-card--indigo,
+.dispatch-metric-card.stat-card--indigo {
+  border: 1.5px solid #6366f1 !important;
+}
+.stat-card-themed.stat-card--indigo:hover,
+.dashboard-card.stat-card--indigo:hover,
+.dispatch-metric-card.stat-card--indigo:hover {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--purple,
+.dashboard-card.stat-card--purple,
+.dispatch-metric-card.stat-card--purple {
+  border: 1.5px solid #8b5cf6 !important;
+}
+.stat-card-themed.stat-card--purple:hover,
+.dashboard-card.stat-card--purple:hover,
+.dispatch-metric-card.stat-card--purple:hover {
+  border-color: #7c3aed !important;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.12) !important;
+}
+
+.stat-card-themed.stat-card--grey,
+.stat-card-themed.stat-card--secondary,
+.dashboard-card.stat-card--grey,
+.dashboard-card.stat-card--secondary,
+.dispatch-metric-card.stat-card--grey {
+  border: 1.5px solid #94a3b8 !important;
+}
+.stat-card-themed.stat-card--grey:hover,
+.stat-card-themed.stat-card--secondary:hover,
+.dashboard-card.stat-card--grey:hover,
+.dashboard-card.stat-card--secondary:hover,
+.dispatch-metric-card.stat-card--grey:hover {
+  border-color: #64748b !important;
+  box-shadow: 0 8px 24px rgba(148, 163, 184, 0.12) !important;
+}
+
 /* Segmented High-Contrast App Tabs */
 .erp-tabs.v-tabs,
 .erp-tabs.v-tabs.v-tabs--grow {

@@ -124,7 +124,7 @@
       <div class="text-caption text-grey-darken-1 font-weight-bold mt-2 mb-2">Today's Expenses by Category:</div>
       <v-row dense>
         <v-col cols="6" sm="6" md="4">
-          <v-card class="modern-card pa-3 h-100" elevation="0">
+          <v-card class="modern-card stat-card-themed stat-card--primary pa-3 h-100" elevation="0">
             <div>
               <div class="text-caption text-grey font-weight-bold uppercase" style="font-size: 0.68rem !important;">Food Expense</div>
               <div class="text-subtitle-1 font-weight-bold text-dark mt-1">{{ formatCurrency(dailyStats.foodExpense) }}</div>
@@ -134,7 +134,7 @@
         </v-col>
 
         <v-col cols="6" sm="6" md="4">
-          <v-card class="modern-card pa-3 h-100" elevation="0">
+          <v-card class="modern-card stat-card-themed stat-card--teal pa-3 h-100" elevation="0">
             <div>
               <div class="text-caption text-grey font-weight-bold uppercase" style="font-size: 0.68rem !important;">Home Expense</div>
               <div class="text-subtitle-1 font-weight-bold text-dark mt-1">{{ formatCurrency(dailyStats.homeExpense) }}</div>
@@ -144,7 +144,7 @@
         </v-col>
 
         <v-col cols="12" sm="12" md="4">
-          <v-card class="modern-card pa-3 h-100" elevation="0">
+          <v-card class="modern-card stat-card-themed stat-card--orange pa-3 h-100" elevation="0">
             <div>
               <div class="text-caption text-grey font-weight-bold uppercase" style="font-size: 0.68rem !important;">Transport Total</div>
               <div class="text-subtitle-1 font-weight-bold text-dark mt-1">{{ formatCurrency(dailyStats.transportExpense) }}</div>

@@ -394,27 +394,27 @@
 
         <!-- Grand Totals Cards Banner (5-Column Responsive Grid) -->
         <div class="dispatch-metrics-grid mb-3 flex-shrink-0">
-          <div class="dispatch-metric-card text-center">
+          <div class="dispatch-metric-card stat-card-themed stat-card--primary text-center">
             <div class="metric-card-label">TOTAL CANS</div>
             <div class="metric-card-value text-primary">{{ grandTotals.totalCans }}</div>
           </div>
 
-          <div class="dispatch-metric-card text-center">
+          <div class="dispatch-metric-card stat-card-themed stat-card--info text-center">
             <div class="metric-card-label">TOTAL MILK (KG)</div>
             <div class="metric-card-value text-info">{{ formatNumber(grandTotals.totalMilk) }}</div>
           </div>
 
-          <div class="dispatch-metric-card text-center">
+          <div class="dispatch-metric-card stat-card-themed stat-card--success text-center">
             <div class="metric-card-label">TODAY AMOUNT</div>
             <div class="metric-card-value text-dark">{{ formatCurrency(grandTotals.totalAmount) }}</div>
           </div>
 
-          <div class="dispatch-metric-card text-center">
+          <div class="dispatch-metric-card stat-card-themed stat-card--grey text-center">
             <div class="metric-card-label text-grey-darken-3">PREVIOUS ARREARS</div>
             <div class="metric-card-value text-grey-darken-3">{{ formatCurrency(grandTotals.totalPreviousArrears) }}</div>
           </div>
 
-          <div class="dispatch-metric-card card-arrears text-center">
+          <div class="dispatch-metric-card stat-card-themed card-arrears stat-card--warning text-center">
             <div class="metric-card-label text-amber-darken-4">TOTAL PAYABLE</div>
             <div class="metric-card-value text-amber-darken-4">{{ formatCurrency(grandTotals.totalPayable) }}</div>
             <div class="metric-card-sub text-caption text-grey-darken-2">
@@ -966,26 +966,26 @@
 
         <!-- Live Settlement Totals Summary -->
         <div class="dispatch-metrics-grid my-3">
-          <div class="dispatch-metric-card text-center">
+          <div class="dispatch-metric-card stat-card-themed stat-card--primary text-center">
             <div class="metric-card-label">SENT MILK (KG)</div>
             <div class="metric-card-value text-primary">{{ formatNumber(markBackTotals.totalKgs) }} Kg</div>
           </div>
-          <div class="dispatch-metric-card text-center">
+          <div class="dispatch-metric-card stat-card-themed stat-card--orange text-center">
             <div class="metric-card-label text-orange-darken-3">TODAY RETURNS (KG)</div>
             <div class="metric-card-value text-orange-darken-3">{{ formatNumber(markBackTotals.totalReturnMilk) }} Kg</div>
           </div>
-          <div class="dispatch-metric-card text-center">
+          <div class="dispatch-metric-card stat-card-themed stat-card--info text-center">
             <div class="metric-card-label text-info">NET MILK &amp; AMOUNT</div>
             <div class="metric-card-value text-dark">{{ formatCurrency(markBackTotals.totalAmount) }}</div>
             <div class="metric-card-sub text-caption text-info font-weight-bold">
               Net: {{ formatNumber(markBackTotals.totalMilk) }} Kg
             </div>
           </div>
-          <div class="dispatch-metric-card text-center">
+          <div class="dispatch-metric-card stat-card-themed stat-card--success text-center">
             <div class="metric-card-label text-success">TODAY COLLECTION</div>
             <div class="metric-card-value text-success">{{ formatCurrency(markBackTotals.totalCollection) }}</div>
           </div>
-          <div class="dispatch-metric-card card-arrears text-center">
+          <div class="dispatch-metric-card stat-card-themed card-arrears stat-card--warning text-center">
             <div class="metric-card-label text-amber-darken-4">UPDATED NEW ARREARS</div>
             <div class="metric-card-value text-amber-darken-4">{{ formatCurrency(markBackTotals.totalNewArrears) }}</div>
             <div class="metric-card-sub text-caption text-grey-darken-2">
@@ -2602,7 +2602,7 @@ onMounted(async () => {
 
 .dispatch-metric-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0 !important;
+  border: 1.5px solid #e2e8f0;
   border-radius: 12px;
   padding: 14px 12px;
   display: flex;
