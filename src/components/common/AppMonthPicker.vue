@@ -183,29 +183,47 @@ function handleClear() {
   width: 100%;
 }
 
-.app-month-picker-wrapper {
-  display: inline-block;
-  width: 100%;
-}
-
 :deep(.app-month-input input) {
   cursor: pointer !important;
   font-size: 0.88rem !important;
-  font-weight: 500 !important;
-  letter-spacing: -0.2px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  letter-spacing: normal !important;
   white-space: nowrap !important;
   text-overflow: clip !important;
   overflow: visible !important;
+  opacity: 1 !important;
 }
 
 :deep(.app-month-input .v-field) {
   cursor: pointer !important;
+  background: #ffffff !important;
+}
+
+:deep(.app-month-input .v-field-label),
+:deep(.app-month-input .v-label) {
+  color: #475569 !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+:deep(.app-month-input .v-field-label--floating),
+:deep(.app-month-input .v-label--floating) {
+  color: #0f172a !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+  font-size: 0.80rem !important;
+}
+
+:deep(.app-month-input .v-field--focused .v-field-label--floating) {
+  color: #0284c7 !important;
 }
 
 :deep(.app-month-input .v-field__input) {
-  padding-inline-start: 4px !important;
-  padding-inline-end: 4px !important;
+  padding-inline-start: 6px !important;
+  padding-inline-end: 6px !important;
   overflow: visible !important;
+  color: #0f172a !important;
 }
 
 :deep(.app-month-input .v-field__clearable) {
@@ -214,20 +232,25 @@ function handleClear() {
 }
 
 :deep(.app-month-input .v-field__prepend-inner) {
-  padding-inline-end: 4px !important;
+  padding-inline-end: 8px !important;
+}
+
+:deep(.app-month-input .v-field__prepend-inner .v-icon) {
+  color: #475569 !important;
+  opacity: 1 !important;
 }
 
 .calendar-card {
   border-radius: 16px !important;
   background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
   box-shadow: 0 10px 30px rgba(6, 63, 120, 0.15) !important;
 }
 
 .month-header-year {
   font-weight: 800;
   font-size: 1.15rem;
-  color: #063f78;
+  color: #0f172a !important;
   letter-spacing: -0.3px;
 }
 
@@ -246,30 +269,31 @@ function handleClear() {
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  color: #37474f;
+  color: #0f172a !important;
   background: #f8fafc;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid #cbd5e1 !important;
   transition: all 0.15s ease;
   user-select: none;
 }
 
 .month-cell:hover:not(.month-selected) {
-  background: rgba(25, 118, 210, 0.1);
-  color: #1976d2;
-  border-color: rgba(25, 118, 210, 0.2);
+  background: rgba(2, 132, 199, 0.12);
+  color: #0284c7;
+  border-color: #0284c7;
 }
 
 .month-current {
-  border: 1.5px solid #1976d2;
-  color: #1976d2;
+  border: 1.5px solid #0284c7;
+  color: #0284c7 !important;
+  font-weight: 700;
 }
 
 .month-selected {
-  background: #1976d2 !important;
+  background: #0284c7 !important;
   color: #ffffff !important;
-  border-color: #1976d2 !important;
+  border-color: #0284c7 !important;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.35);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
 }
 </style>
 

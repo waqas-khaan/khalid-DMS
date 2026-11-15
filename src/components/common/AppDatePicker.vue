@@ -170,6 +170,10 @@ const monthNames = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
+const shortMonthNames = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
 const dayHeaders = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 // Current viewing year and month in the calendar dialog
@@ -210,21 +214,10 @@ const displayValue = computed(() => {
   const parts = props.modelValue.split('-');
   if (parts.length !== 3) return props.modelValue;
   const [y, m, d] = parts.map(Number);
-  const dateObj = new Date(y, m - 1, d);
-  if (isNaN(dateObj.getTime())) return props.modelValue;
-  if (props.format === 'short') {
-    return dateObj.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  }
-  // Complete date format: e.g. "November 11, 2026"
-  return dateObj.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  if (!y || !m || !d || m < 1 || m > 12) return props.modelValue;
+
+  const monthStr = props.format === 'short' ? shortMonthNames[m - 1] : monthNames[m - 1];
+  return `${monthStr} ${d}, ${y}`;
 });
 
 const calendarCells = computed(() => {
@@ -364,21 +357,44 @@ function handleClear() {
 :deep(.app-date-input input) {
   cursor: pointer !important;
   font-size: 0.88rem !important;
-  font-weight: 500 !important;
-  letter-spacing: -0.2px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  letter-spacing: normal !important;
   white-space: nowrap !important;
   text-overflow: clip !important;
   overflow: visible !important;
+  opacity: 1 !important;
 }
 
 :deep(.app-date-input .v-field) {
   cursor: pointer !important;
+  background: #ffffff !important;
+}
+
+:deep(.app-date-input .v-field-label),
+:deep(.app-date-input .v-label) {
+  color: #475569 !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+:deep(.app-date-input .v-field-label--floating),
+:deep(.app-date-input .v-label--floating) {
+  color: #0f172a !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+  font-size: 0.80rem !important;
+}
+
+:deep(.app-date-input .v-field--focused .v-field-label--floating) {
+  color: #0284c7 !important;
 }
 
 :deep(.app-date-input .v-field__input) {
-  padding-inline-start: 4px !important;
-  padding-inline-end: 4px !important;
+  padding-inline-start: 6px !important;
+  padding-inline-end: 6px !important;
   overflow: visible !important;
+  color: #0f172a !important;
 }
 
 :deep(.app-date-input .v-field__clearable) {
@@ -387,20 +403,25 @@ function handleClear() {
 }
 
 :deep(.app-date-input .v-field__prepend-inner) {
-  padding-inline-end: 4px !important;
+  padding-inline-end: 8px !important;
+}
+
+:deep(.app-date-input .v-field__prepend-inner .v-icon) {
+  color: #475569 !important;
+  opacity: 1 !important;
 }
 
 .calendar-card {
   border-radius: 16px !important;
   background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
   box-shadow: 0 10px 30px rgba(6, 63, 120, 0.15) !important;
 }
 
 .calendar-header-title {
   font-weight: 700;
   font-size: 0.95rem;
-  color: #063f78;
+  color: #0f172a !important;
   letter-spacing: -0.2px;
 }
 
@@ -413,7 +434,7 @@ function handleClear() {
 .weekday-cell {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #78909c;
+  color: #475569 !important;
   text-transform: uppercase;
   padding: 4px 0;
 }
@@ -432,34 +453,35 @@ function handleClear() {
   align-items: center;
   justify-content: center;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 50%;
   cursor: pointer;
-  color: #263238;
+  color: #0f172a !important;
   transition: all 0.15s ease;
   user-select: none;
 }
 
 .day-cell:hover:not(.day-selected):not(.day-disabled) {
-  background-color: rgba(25, 118, 210, 0.12);
-  color: #1976d2;
+  background-color: rgba(2, 132, 199, 0.12);
+  color: #0284c7;
 }
 
 .day-other-month {
-  color: #cfd8dc;
+  color: #94a3b8 !important;
   font-weight: 400;
 }
 
 .day-today {
-  border: 1.5px solid #1976d2;
+  border: 1.5px solid #0284c7;
   font-weight: 700;
+  color: #0284c7 !important;
 }
 
 .day-selected {
-  background-color: #1976d2 !important;
+  background-color: #0284c7 !important;
   color: #ffffff !important;
   font-weight: 700 !important;
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.4);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
 }
 
 .day-disabled {

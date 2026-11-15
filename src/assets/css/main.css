@@ -963,9 +963,37 @@ body {
   border-radius: 10px !important;
 }
 
-.v-field--variant-outlined:not(.v-field--focused):not(.v-field--error) .v-field__outline {
-  color: #cbd5e1 !important;
-  --v-field-border-opacity: 0.75 !important;
+.v-field--variant-outlined:not(.v-field--focused):not(.v-field--error) :is(.v-field__outline__start, .v-field__outline__notch, .v-field__outline__end) {
+  border-color: #cbd5e1 !important;
+  --v-field-border-opacity: 0.85 !important;
+}
+
+/* Ensure all inputs and datepicker labels are high-contrast and legible */
+.v-field-label,
+.v-label {
+  color: #475569 !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+.v-field-label--floating,
+.v-label--floating {
+  color: #0f172a !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+}
+
+.v-field--focused .v-field-label--floating,
+.v-field--focused .v-label--floating {
+  color: #0284c7 !important;
+}
+
+/* Input value text must always be sharp, dark, and clearly visible */
+.v-field__input input,
+.v-field__input {
+  color: #0f172a !important;
+  opacity: 1 !important;
 }
 
 /* Login Page Styling */
