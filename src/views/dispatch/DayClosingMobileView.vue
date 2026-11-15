@@ -196,49 +196,47 @@
 
       <!-- Net Cash Flow Hero Banner with Clear Math Breakdown & Collection Rate -->
       <div class="net-flow-hero-card pa-3-5 bg-white border rounded-xl shadow-sm mb-4">
-        <div class="d-flex align-center justify-space-between mb-2">
+        <div class="d-flex align-center justify-space-between mb-2-5">
           <div>
             <div class="d-flex align-center gap-1-5">
-              <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.72rem !important;">
+              <v-icon size="16" color="primary">mdi-cash-check</v-icon>
+              <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.70rem !important; letter-spacing: 0.03em;">
                 Net Cash in Hand
               </span>
-              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold" style="height: 18px; font-size: 0.62rem !important;">
+              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold" style="height: 18px; font-size: 0.60rem !important; padding: 0 6px;">
                 To Finalize
               </v-chip>
             </div>
-            <div class="text-h6 font-weight-black text-sky-700 line-height-tight mt-0-5">
+            <div class="text-h6 font-weight-black text-sky-800 line-height-tight mt-1">
               {{ formatCurrency(summary.netCashFlow) }}
             </div>
           </div>
 
           <div class="text-end">
-            <span class="text-caption font-weight-bold text-uppercase text-slate-600 d-block" style="font-size: 0.72rem !important;">
+            <span class="text-caption font-weight-bold text-uppercase text-slate-500 d-block" style="font-size: 0.68rem !important; letter-spacing: 0.03em;">
               Collection Rate
             </span>
-            <div class="text-subtitle-1 font-weight-black line-height-tight" :class="collectionEfficiency >= 80 ? 'text-success' : 'text-warning'">
+            <div class="text-subtitle-1 font-weight-black line-height-tight mt-1" :class="collectionEfficiency >= 80 ? 'text-success' : 'text-warning'">
               {{ collectionEfficiency }}%
             </div>
           </div>
         </div>
 
         <!-- Math Breakdown Pill: Collection - Expenses = Net Cash -->
-        <div class="px-2-5 py-1-5 rounded-lg bg-slate-50 border d-flex align-center justify-space-between text-caption mb-2 text-slate-700 font-weight-medium" style="font-size: 0.70rem !important;">
-          <span>Collected: <strong class="text-success">{{ formatCurrency(summary.totalCollection) }}</strong></span>
-          <span class="text-slate-400">−</span>
-          <span>Expenses: <strong class="text-error">{{ formatCurrency(summary.totalExpenses) }}</strong></span>
-          <span class="text-slate-400">=</span>
-          <span class="text-sky-700 font-weight-black">{{ formatCurrency(summary.netCashFlow) }}</span>
-        </div>
-
-        <!-- Progress bar -->
-        <div class="w-100 bg-slate-100 rounded-pill overflow-hidden" style="height: 6px;">
-          <div
-            class="h-100 rounded-pill transition-all"
-            :style="{
-              width: `${Math.min(100, Math.max(0, collectionEfficiency))}%`,
-              backgroundColor: collectionEfficiency >= 80 ? '#10b981' : '#f59e0b'
-            }"
-          ></div>
+        <div class="px-2-5 py-2 rounded-lg bg-slate-50 border d-flex align-center justify-space-between text-caption text-slate-700 font-weight-medium" style="font-size: 0.70rem !important;">
+          <div class="d-flex align-center gap-1 text-no-wrap">
+            <span class="text-slate-500">Collected:</span>
+            <strong class="text-success font-weight-bold">{{ formatCurrency(summary.totalCollection) }}</strong>
+          </div>
+          <span class="text-slate-400 font-weight-bold mx-1">−</span>
+          <div class="d-flex align-center gap-1 text-no-wrap">
+            <span class="text-slate-500">Expenses:</span>
+            <strong class="text-error font-weight-bold">{{ formatCurrency(summary.totalExpenses) }}</strong>
+          </div>
+          <span class="text-slate-400 font-weight-bold mx-1">=</span>
+          <div class="text-no-wrap">
+            <strong class="text-sky-800 font-weight-black">{{ formatCurrency(summary.netCashFlow) }}</strong>
+          </div>
         </div>
       </div>
 
@@ -1321,6 +1319,7 @@ onMounted(async () => {
   border-top: 3px solid #0284c7 !important;
   border-radius: 14px !important;
   background: #ffffff !important;
+  padding: 14px !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
 }
 

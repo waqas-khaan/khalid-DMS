@@ -1299,3 +1299,9 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
 .bg-orange-50 { background-color: #fff7ed !important; }
 .text-orange-700 { color: #c2410c !important; }
 .text-orange-800 { color: #9a3412 !important; }
+
+/* Spacing helpers */
+.pa-3-5 { padding: 14px !important; }
+.px-3-5 { padding-left: 14px !important; padding-right: 14px !important; }
+.py-3-5 { padding-top: 14px !important; padding-bottom: 14px !important; }
+
