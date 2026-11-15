@@ -11,6 +11,13 @@
     {
       "pattern": "khalid-dms.falconsoftwares.com",
       "custom_domain": true
+    },
+    {
+      "pattern": "preview-dms.falconsoftwares.com",
+      "custom_domain": true,
+      "previews_enabled": true
     }
-  ]
+  ],
+  "preview_urls": true,
+  "previews": {}
 }

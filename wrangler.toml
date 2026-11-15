@@ -9,3 +9,12 @@ html_handling = "auto-trailing-slash"
 [[routes]]
 pattern = "khalid-dms.falconsoftwares.com"
 custom_domain = true
+
+[[routes]]
+pattern = "preview-dms.falconsoftwares.com"
+custom_domain = true
+previews_enabled = true
+
+preview_urls = true
+
+[previews]
