@@ -1,134 +1,100 @@
 <template>
   <div class="login-page-wrapper">
-    <v-card class="login-card" elevation="0">
+    <div class="login-card-container">
+      <!-- Go To Home Link -->
+      <div class="go-home-row mb-4">
+        <button type="button" class="go-home-btn" @click="goToHome">
+          <v-icon size="16" class="me-1">mdi-arrow-left</v-icon>
+          <span>Go To Home</span>
+        </button>
+      </div>
+
       <!-- Falcon Softwares Logo -->
-      <div class="text-center mb-4">
+      <div class="logo-row text-center mb-5">
         <img
           src="@/assets/falcon-softwares-logo.png"
           alt="Falcon Softwares"
-          class="login-logo"
+          class="falcon-logo"
         />
       </div>
 
-      <!-- Header Title & Subtitle -->
-      <div class="text-center mb-6">
-        <h1 class="login-title mb-1">Sign in</h1>
-        <p class="login-subtitle">Welcome back! Please enter your details.</p>
+      <!-- Title & Subtitle -->
+      <div class="header-row text-center mb-6">
+        <h1 class="card-title">Sign in</h1>
+        <p class="card-subtitle">Welcome back! Please enter your details.</p>
       </div>
 
       <!-- Error Alert -->
-      <v-alert
-        v-if="errorMessage"
-        type="error"
-        variant="tonal"
-        density="compact"
-        class="mb-4 text-caption rounded-lg"
-        closable
-        @click:close="errorMessage = ''"
-      >
-        {{ errorMessage }}
-      </v-alert>
+      <div v-if="errorMessage" class="error-banner mb-4">
+        <v-icon size="18" color="#ef4444" class="me-2">mdi-alert-circle-outline</v-icon>
+        <span class="error-text">{{ errorMessage }}</span>
+        <button type="button" class="close-error" @click="errorMessage = ''">×</button>
+      </div>
 
-      <v-form @submit.prevent="handleLogin" v-model="formValid">
-        <!-- Username Field -->
-        <div class="field-group mb-4">
-          <label class="field-label mb-1 d-flex align-center">
-            <v-icon size="16" class="me-1 text-grey-darken-2">mdi-account-outline</v-icon>
+      <!-- Login Form -->
+      <form @submit.prevent="handleLogin" class="login-form">
+        <!-- Field 1: Username / Role Selection -->
+        <div class="form-group mb-4">
+          <label class="field-label mb-1">
+            <v-icon size="16" color="#4b5563" class="me-1">mdi-account-outline</v-icon>
             <span>Username</span>
           </label>
-          <v-select
-            v-model="username"
-            :items="userOptions"
-            item-title="title"
-            item-value="value"
-            placeholder="Select Username"
-            variant="outlined"
-            density="comfortable"
-            :rules="[rules.required]"
-            hide-details="auto"
-            class="custom-field"
-          >
-            <template #item="{ props, item }">
-              <v-list-item v-bind="props">
-                <template #prepend>
-                  <v-icon :color="item.raw.value === 'admin' ? 'primary' : 'blue-grey'">
-                    {{ item.raw.value === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}
-                  </v-icon>
-                </template>
-                <template #subtitle>
-                  <span class="text-caption text-grey">
-                    {{ item.raw.value === 'admin' ? 'Admin (Add, Edit, Delete)' : 'Staff (Add data only)' }}
-                  </span>
-                </template>
-              </v-list-item>
-            </template>
-          </v-select>
+          <div class="input-relative">
+            <select
+              v-model="username"
+              class="custom-field select-field"
+              required
+            >
+              <option value="" disabled>Select Username</option>
+              <option value="admin">admin</option>
+              <option value="staff">staff</option>
+            </select>
+            <v-icon size="18" color="#6b7280" class="select-chevron">mdi-chevron-down</v-icon>
+          </div>
         </div>
 
-        <!-- Password Field -->
-        <div class="field-group mb-6">
-          <label class="field-label mb-1 d-flex align-center">
-            <v-icon size="16" class="me-1 text-grey-darken-2">mdi-lock-outline</v-icon>
+        <!-- Field 2: Password -->
+        <div class="form-group mb-6">
+          <label class="field-label mb-1">
+            <v-icon size="16" color="#4b5563" class="me-1">mdi-lock-outline</v-icon>
             <span>Password</span>
           </label>
-          <v-text-field
-            v-model="password"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="Enter Password"
-            variant="outlined"
-            density="comfortable"
-            :append-inner-icon="showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
-            @click:append-inner="showPassword = !showPassword"
-            :rules="[rules.required]"
-            hide-details="auto"
-            class="custom-field"
-            autocomplete="current-password"
-            @keyup.enter="handleLogin"
-          />
+          <div class="input-relative">
+            <input
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              class="custom-field password-field"
+              placeholder="Enter Password"
+              autocomplete="current-password"
+              required
+              @keyup.enter="handleLogin"
+            />
+            <button
+              type="button"
+              class="toggle-eye-btn"
+              @click="showPassword = !showPassword"
+              tabindex="-1"
+              aria-label="Toggle password visibility"
+            >
+              <v-icon size="19" color="#6b7280">
+                {{ showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline' }}
+              </v-icon>
+            </button>
+          </div>
         </div>
 
         <!-- Sign In Button -->
-        <v-btn
+        <button
           type="submit"
-          block
-          height="48"
-          class="sign-in-btn text-capitalize font-weight-bold"
-          :class="{ 'btn-filled': username && password && formValid }"
-          :loading="loading"
-          :disabled="!username || !password || !formValid"
-          elevation="0"
+          class="submit-button"
+          :class="{ 'btn-active': username && password.length > 0 }"
+          :disabled="!username || !password || loading"
         >
-          Sign In
-        </v-btn>
-      </v-form>
-
-      <!-- Quick User Selector Chips -->
-      <div class="mt-6 pt-4 border-t text-center">
-        <div class="text-caption text-grey-darken-1 mb-2 font-weight-medium">Quick Select User:</div>
-        <div class="d-flex justify-center gap-2">
-          <v-chip
-            :color="username === 'admin' ? 'primary' : 'grey-lighten-1'"
-            :variant="username === 'admin' ? 'flat' : 'outlined'"
-            size="small"
-            class="cursor-pointer font-weight-bold"
-            prepend-icon="mdi-shield-crown"
-            @click="selectAccount('admin')"
-          >
-            Admin
-          </v-chip>
-          <v-chip
-            :color="username === 'staff' ? 'primary' : 'grey-lighten-1'"
-            :variant="username === 'staff' ? 'flat' : 'outlined'"
-            size="small"
-            class="cursor-pointer font-weight-bold"
-            prepend-icon="mdi-account"
-            @click="selectAccount('staff')"
-          >
-            Staff
-          </v-chip>
-        </div>
-      </div>
-    </v-card>
+          <span v-if="!loading">Sign In</span>
+          <v-progress-circular v-else indeterminate size="18" width="2" color="white" />
+        </button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -143,25 +109,18 @@ const route = useRoute();
 const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
 
-const userOptions = [
-  { title: 'admin', value: 'admin' },
-  { title: 'staff', value: 'staff' },
-];
-
 const username = ref('admin');
 const password = ref('');
 const showPassword = ref(false);
 const loading = ref(false);
 const errorMessage = ref('');
-const formValid = ref(true);
 
-const rules = {
-  required: (v) => !!v || 'This field is required',
-};
-
-function selectAccount(val) {
-  username.value = val;
-  errorMessage.value = '';
+function goToHome() {
+  if (authStore.isAuthenticated) {
+    router.push('/dashboard');
+  } else {
+    router.push('/');
+  }
 }
 
 async function handleLogin() {
@@ -186,71 +145,212 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-.login-logo {
+.login-page-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eef2f6 0%, #e2e8f0 50%, #f8fafc 100%);
+  padding: 32px 16px;
+  box-sizing: border-box;
+}
+
+.login-card-container {
+  width: 100%;
+  max-width: 480px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  padding: 32px 40px 40px 40px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 520px) {
+  .login-card-container {
+    padding: 24px 20px 28px 20px;
+    border-radius: 12px;
+  }
+}
+
+.go-home-row {
+  display: flex;
+  align-items: center;
+}
+
+.go-home-btn {
+  background: transparent;
+  border: none;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.go-home-btn:hover {
+  color: #111827;
+  transform: translateX(-2px);
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+}
+
+.falcon-logo {
   max-width: 220px;
   height: auto;
   object-fit: contain;
-  display: inline-block;
+  display: block;
 }
 
-.login-title {
-  font-size: 2rem;
+.card-title {
+  font-size: 28px;
   font-weight: 700;
-  color: #1e293b;
+  color: #1f2937;
+  margin: 0 0 6px 0;
   letter-spacing: -0.02em;
 }
 
-.login-subtitle {
-  font-size: 0.9rem;
-  color: #64748b;
+.card-subtitle {
+  font-size: 14px;
+  color: #6b7280;
   margin: 0;
 }
 
-.field-group {
+.form-group {
   text-align: left;
 }
 
 .field-label {
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.input-relative {
+  position: relative;
+  width: 100%;
+}
+
+.custom-field {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 14px;
+  color: #111827;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.custom-field:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.custom-field::placeholder {
+  color: #9ca3af;
+}
+
+.select-field {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 38px;
+}
+
+.select-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.password-field {
+  padding-right: 44px;
+}
+
+.toggle-eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: opacity 0.15s ease;
+}
+
+.toggle-eye-btn:hover {
+  opacity: 0.8;
+}
+
+.submit-button {
+  width: 100%;
+  height: 46px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
-}
-
-:deep(.custom-field .v-field) {
-  border-radius: 8px !important;
-  background-color: #ffffff !important;
-  font-size: 0.92rem !important;
-}
-
-:deep(.custom-field .v-field__outline) {
-  --v-field-border-opacity: 0.25 !important;
-  color: #64748b !important;
-}
-
-:deep(.custom-field.v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1 !important;
-  color: #063f78 !important;
-}
-
-.sign-in-btn {
-  border-radius: 8px !important;
-  font-size: 0.95rem !important;
-  letter-spacing: 0.01em;
-  background-color: #f1f5f9 !important;
-  color: #94a3b8 !important;
-  border: 1px solid #e2e8f0;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
+  margin-top: 8px;
 }
 
-.sign-in-btn.btn-filled {
-  background-color: #063f78 !important;
-  color: #ffffff !important;
-  border-color: #063f78 !important;
-  box-shadow: 0 4px 12px rgba(6, 63, 120, 0.25) !important;
+.submit-button.btn-active {
+  background-color: #063f78;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(6, 63, 120, 0.25);
 }
 
-.sign-in-btn.btn-filled:hover {
-  background-color: #053361 !important;
-  box-shadow: 0 6px 16px rgba(6, 63, 120, 0.35) !important;
+.submit-button.btn-active:hover {
+  background-color: #053361;
+  box-shadow: 0 6px 16px rgba(6, 63, 120, 0.35);
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.close-error {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 18px;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0 4px;
+  line-height: 1;
 }
 </style>
