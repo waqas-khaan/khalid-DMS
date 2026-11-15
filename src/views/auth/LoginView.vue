@@ -34,8 +34,8 @@
       <!-- Login Form -->
       <form @submit.prevent="handleLogin" class="login-form">
         <!-- Field 1: Username / Role Selection -->
-        <div class="form-group mb-4">
-          <label class="field-label mb-1">
+        <div class="form-group mb-5">
+          <label class="field-label mb-2">
             <v-icon size="16" color="#4b5563" class="me-1">mdi-account-outline</v-icon>
             <span>Username</span>
           </label>
@@ -49,13 +49,13 @@
               <option value="admin">admin</option>
               <option value="staff">staff</option>
             </select>
-            <v-icon size="18" color="#6b7280" class="select-chevron">mdi-chevron-down</v-icon>
+            <v-icon size="20" color="#6b7280" class="select-chevron">mdi-chevron-down</v-icon>
           </div>
         </div>
 
         <!-- Field 2: Password -->
         <div class="form-group mb-6">
-          <label class="field-label mb-1">
+          <label class="field-label mb-2">
             <v-icon size="16" color="#4b5563" class="me-1">mdi-lock-outline</v-icon>
             <span>Password</span>
           </label>
@@ -76,7 +76,7 @@
               tabindex="-1"
               aria-label="Toggle password visibility"
             >
-              <v-icon size="19" color="#6b7280">
+              <v-icon size="20" color="#6b7280">
                 {{ showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline' }}
               </v-icon>
             </button>
@@ -91,7 +91,7 @@
           :disabled="!username || !password || loading"
         >
           <span v-if="!loading">Sign In</span>
-          <v-progress-circular v-else indeterminate size="18" width="2" color="white" />
+          <v-progress-circular v-else indeterminate size="20" width="2" color="white" />
         </button>
       </form>
     </div>
@@ -152,25 +152,31 @@ async function handleLogin() {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #eef2f6 0%, #e2e8f0 50%, #f8fafc 100%);
-  padding: 32px 16px;
+  padding: 40px 16px;
   box-sizing: border-box;
 }
 
 .login-card-container {
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
+  min-height: 580px;
   background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
-  padding: 32px 40px 40px 40px;
+  border-radius: 10px;
+  border: 1px solid #000000;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  padding: 44px 50px 48px 50px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 600px) {
   .login-card-container {
-    padding: 24px 20px 28px 20px;
-    border-radius: 12px;
+    max-width: 100%;
+    min-height: auto;
+    padding: 30px 22px 36px 22px;
+    border-radius: 8px;
   }
 }
 
@@ -203,22 +209,28 @@ async function handleLogin() {
 }
 
 .falcon-logo {
-  max-width: 220px;
+  max-width: 270px;
   height: auto;
   object-fit: contain;
   display: block;
 }
 
+@media (max-width: 480px) {
+  .falcon-logo {
+    max-width: 210px;
+  }
+}
+
 .card-title {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   color: #1f2937;
-  margin: 0 0 6px 0;
+  margin: 0 0 8px 0;
   letter-spacing: -0.02em;
 }
 
 .card-subtitle {
-  font-size: 14px;
+  font-size: 15px;
   color: #6b7280;
   margin: 0;
 }
@@ -231,7 +243,7 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: #374151;
 }
 
@@ -242,22 +254,22 @@ async function handleLogin() {
 
 .custom-field {
   width: 100%;
-  height: 48px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  height: 52px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
   background-color: #ffffff;
-  font-size: 14px;
+  font-size: 15px;
   color: #111827;
-  padding: 10px 14px;
+  padding: 12px 16px;
   box-sizing: border-box;
   font-family: inherit;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .custom-field:focus {
-  border-color: #2563eb;
+  border-color: #063f78;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(6, 63, 120, 0.15);
 }
 
 .custom-field::placeholder {
@@ -268,7 +280,7 @@ async function handleLogin() {
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
-  padding-right: 38px;
+  padding-right: 42px;
 }
 
 .select-chevron {
@@ -280,7 +292,7 @@ async function handleLogin() {
 }
 
 .password-field {
-  padding-right: 44px;
+  padding-right: 48px;
 }
 
 .toggle-eye-btn {
@@ -291,7 +303,7 @@ async function handleLogin() {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 6px;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,31 +317,32 @@ async function handleLogin() {
 
 .submit-button {
   width: 100%;
-  height: 46px;
-  border-radius: 8px;
-  border: none;
+  height: 52px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
   background-color: #f3f4f6;
   color: #9ca3af;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: not-allowed;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .submit-button.btn-active {
   background-color: #063f78;
   color: #ffffff;
+  border-color: #063f78;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(6, 63, 120, 0.25);
+  box-shadow: 0 4px 14px rgba(6, 63, 120, 0.28);
 }
 
 .submit-button.btn-active:hover {
   background-color: #053361;
-  box-shadow: 0 6px 16px rgba(6, 63, 120, 0.35);
+  box-shadow: 0 6px 18px rgba(6, 63, 120, 0.38);
 }
 
 .error-banner {
@@ -337,8 +350,8 @@ async function handleLogin() {
   align-items: center;
   background-color: #fef2f2;
   border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 10px 14px;
+  border-radius: 6px;
+  padding: 12px 14px;
   color: #b91c1c;
   font-size: 13px;
 }
