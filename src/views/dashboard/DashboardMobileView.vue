@@ -172,112 +172,105 @@
 
       <div class="mobile-kpi-grid mb-3">
         <!-- 1. Today Income (Collection) -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card income-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Today Income
-            </span>
-            <v-avatar color="success" size="26" variant="tonal">
-              <v-icon size="14" color="success">mdi-cash-plus</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Today Income</span>
+            <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
+              <v-icon size="16">mdi-cash-plus</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-success line-height-tight">
+          <div class="kpi-value text-emerald-600">
             {{ formatCurrency(dailyStats.totalIncome) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Cash collected from shops
           </div>
         </div>
 
         <!-- 2. Available Cash -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card cash-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Available Cash
-            </span>
-            <v-avatar :color="dailyStats.availableCashToday >= 0 ? 'teal' : 'error'" size="26" variant="tonal">
-              <v-icon size="14" :color="dailyStats.availableCashToday >= 0 ? 'teal' : 'error'">mdi-cash-register</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Available Cash</span>
+            <div
+              class="kpi-icon-badge"
+              :class="dailyStats.availableCashToday >= 0 ? 'bg-teal-50 text-teal-600' : 'bg-rose-50 text-rose-600'"
+            >
+              <v-icon size="16">
+                {{ dailyStats.availableCashToday >= 0 ? 'mdi-cash-register' : 'mdi-alert-circle-outline' }}
+              </v-icon>
+            </div>
           </div>
           <div
-            class="text-subtitle-1 font-weight-black line-height-tight"
-            :class="dailyStats.availableCashToday >= 0 ? 'text-teal' : 'text-error'"
+            class="kpi-value"
+            :class="dailyStats.availableCashToday >= 0 ? 'text-teal-700' : 'text-rose-600'"
           >
             {{ formatCurrency(dailyStats.availableCashToday) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Remaining cash on hand
           </div>
         </div>
 
         <!-- 3. Total Shop Arrears -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card arrears-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Total Arrears
-            </span>
-            <v-avatar color="warning" size="26" variant="tonal">
-              <v-icon size="14" color="warning">mdi-account-cash</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Total Arrears</span>
+            <div class="kpi-icon-badge bg-amber-50 text-amber-700">
+              <v-icon size="16">mdi-account-cash</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-amber-darken-4 line-height-tight">
+          <div class="kpi-value text-amber-800">
             {{ formatCurrency(dailyStats.totalArrears) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Outstanding balance
           </div>
         </div>
 
         <!-- 4. Milk Received Today -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card milk-in-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Milk Received
-            </span>
-            <v-avatar color="info" size="26" variant="tonal">
-              <v-icon size="14" color="info">mdi-water-outline</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Milk Received</span>
+            <div class="kpi-icon-badge bg-sky-50 text-sky-600">
+              <v-icon size="16">mdi-water-outline</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-info line-height-tight">
-            {{ formatNumber(dailyStats.milkReceivedToday) }} <span class="text-caption font-weight-bold">Kg</span>
+          <div class="kpi-value text-sky-700">
+            {{ formatNumber(dailyStats.milkReceivedToday) }} <span class="kpi-unit">Kg</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             {{ formatNumber(dailyStats.milkReceivedTodayLiters) }} Liters received
           </div>
         </div>
 
         <!-- 5. Milk Dispatched Today -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Milk Dispatched
-            </span>
-            <v-avatar color="primary" size="26" variant="tonal">
-              <v-icon size="14" color="primary">mdi-truck-fast</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Milk Dispatched</span>
+            <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+              <v-icon size="16">mdi-truck-fast</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-primary line-height-tight">
-            {{ formatNumber(dailyStats.milkDispatchedToday) }} <span class="text-caption font-weight-bold">Kg</span>
+          <div class="kpi-value text-blue-700">
+            {{ formatNumber(dailyStats.milkDispatchedToday) }} <span class="kpi-unit">Kg</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Valued at {{ formatCurrency(dailyStats.todayDispatchAmount) }}
           </div>
         </div>
 
         <!-- 6. Total Expenses Today -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card expense-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Today Expenses
-            </span>
-            <v-avatar color="error" size="26" variant="tonal">
-              <v-icon size="14" color="error">mdi-cash-minus</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Today Expenses</span>
+            <div class="kpi-icon-badge bg-rose-50 text-rose-600">
+              <v-icon size="16">mdi-cash-minus</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-error line-height-tight">
+          <div class="kpi-value text-rose-600">
             {{ formatCurrency(dailyStats.totalExpenseToday) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Expenses recorded today
           </div>
         </div>
@@ -285,60 +278,66 @@
 
       <!-- 4. Section: Today's Expenses Breakdown (2 IN 1 ROW) -->
       <div class="d-flex align-center justify-space-between mb-2 px-1">
-        <span class="text-caption font-weight-bold text-grey-darken-2 text-uppercase" style="font-size: 0.7rem !important;">
+        <span class="text-caption font-weight-bold text-slate-700 text-uppercase" style="font-size: 0.72rem !important; letter-spacing: 0.03em;">
           Today's Expenses by Category
         </span>
       </div>
 
       <div class="mobile-kpi-grid mb-3">
         <!-- Food Expense -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Food Expense
-            </span>
-            <v-icon size="16" color="amber-darken-3">mdi-food</v-icon>
+            <span class="kpi-label">Food Expense</span>
+            <div class="kpi-icon-badge bg-amber-50 text-amber-700">
+              <v-icon size="16">mdi-food</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-slate-800 line-height-tight">
+          <div class="kpi-value text-slate-800">
             {{ formatCurrency(dailyStats.foodExpense) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.65rem !important;">
+          <div class="kpi-subtitle">
             Staff meals & tea
           </div>
         </div>
 
         <!-- Home Expense -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Home Expense
-            </span>
-            <v-icon size="16" color="teal">mdi-home-outline</v-icon>
+            <span class="kpi-label">Home Expense</span>
+            <div class="kpi-icon-badge bg-teal-50 text-teal-700">
+              <v-icon size="16">mdi-home-outline</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-slate-800 line-height-tight">
+          <div class="kpi-value text-slate-800">
             {{ formatCurrency(dailyStats.homeExpense) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.65rem !important;">
+          <div class="kpi-subtitle">
             Farm maintenance
           </div>
         </div>
 
         <!-- Transport Total (Spans 2 columns) -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs" style="grid-column: 1 / -1;">
-          <div class="d-flex align-center justify-space-between mb-1">
+        <div class="mobile-kpi-card transport-kpi-card pa-3 bg-white" style="grid-column: 1 / -1;">
+          <div class="d-flex align-center justify-space-between mb-2">
             <div class="d-flex align-center gap-1-5">
-              <v-icon size="16" color="primary">mdi-truck</v-icon>
-              <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-                Transport Total
-              </span>
+              <div class="kpi-icon-badge bg-indigo-50 text-indigo-600">
+                <v-icon size="16">mdi-truck</v-icon>
+              </div>
+              <span class="kpi-label font-weight-bold">Transport Total</span>
             </div>
-            <span class="text-subtitle-1 font-weight-black text-primary line-height-tight">
+            <span class="kpi-value text-indigo-700 mb-0">
               {{ formatCurrency(dailyStats.transportExpense) }}
             </span>
           </div>
-          <div class="d-flex align-center justify-space-between text-caption text-grey-darken-2 pt-1 border-t mt-1" style="font-size: 0.68rem !important;">
-            <span>Diesel: <strong>{{ formatCurrency(dailyStats.dieselExpense) }}</strong></span>
-            <span>Maintenance: <strong>{{ formatCurrency(dailyStats.maintenanceExpense) }}</strong></span>
+          <div class="transport-sub-grid pt-2 border-t d-flex align-center gap-2">
+            <div class="transport-sub-pill flex-grow-1">
+              <span class="sub-pill-label">⛽ Diesel:</span>
+              <span class="sub-pill-val">{{ formatCurrency(dailyStats.dieselExpense) }}</span>
+            </div>
+            <div class="transport-sub-pill flex-grow-1">
+              <span class="sub-pill-label">🔧 Maint:</span>
+              <span class="sub-pill-val">{{ formatCurrency(dailyStats.maintenanceExpense) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -358,79 +357,97 @@
 
       <div class="mobile-kpi-grid mb-4">
         <!-- Monthly Income -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-          <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-            Monthly Income
-          </span>
-          <div class="text-subtitle-1 font-weight-black text-success line-height-tight mt-1">
+        <div class="mobile-kpi-card pa-3 bg-white">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-label">Monthly Income</span>
+            <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
+              <v-icon size="16">mdi-cash-multiple</v-icon>
+            </div>
+          </div>
+          <div class="kpi-value text-emerald-600">
             {{ formatCurrency(monthlyStats.monthlyIncome) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.65rem !important;">
+          <div class="kpi-subtitle">
             Month collections
           </div>
         </div>
 
         <!-- Monthly Milk Received -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-          <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-            Milk Received
-          </span>
-          <div class="text-subtitle-1 font-weight-black text-info line-height-tight mt-1">
-            {{ formatNumber(monthlyStats.monthlyReceivedKg) }} <span class="text-caption font-weight-bold">Kg</span>
+        <div class="mobile-kpi-card pa-3 bg-white">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-label">Milk Received</span>
+            <div class="kpi-icon-badge bg-sky-50 text-sky-600">
+              <v-icon size="16">mdi-water-check</v-icon>
+            </div>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.65rem !important;">
+          <div class="kpi-value text-sky-700">
+            {{ formatNumber(monthlyStats.monthlyReceivedKg) }} <span class="kpi-unit">Kg</span>
+          </div>
+          <div class="kpi-subtitle">
             {{ formatNumber(monthlyStats.monthlyReceivedLiters) }} L total
           </div>
         </div>
 
         <!-- Monthly Milk Dispatched -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-          <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-            Milk Dispatched
-          </span>
-          <div class="text-subtitle-1 font-weight-black text-primary line-height-tight mt-1">
-            {{ formatNumber(monthlyStats.monthlyDispatched) }} <span class="text-caption font-weight-bold">Kg</span>
+        <div class="mobile-kpi-card pa-3 bg-white">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-label">Milk Dispatched</span>
+            <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+              <v-icon size="16">mdi-truck-check</v-icon>
+            </div>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.65rem !important;">
+          <div class="kpi-value text-blue-700">
+            {{ formatNumber(monthlyStats.monthlyDispatched) }} <span class="kpi-unit">Kg</span>
+          </div>
+          <div class="kpi-subtitle">
             Dispatched to shops
           </div>
         </div>
 
         <!-- Monthly Total Expenses -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-          <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-            Total Expenses
-          </span>
-          <div class="text-subtitle-1 font-weight-black text-error line-height-tight mt-1">
+        <div class="mobile-kpi-card pa-3 bg-white">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-label">Total Expenses</span>
+            <div class="kpi-icon-badge bg-rose-50 text-rose-600">
+              <v-icon size="16">mdi-cash-remove</v-icon>
+            </div>
+          </div>
+          <div class="kpi-value text-rose-600">
             {{ formatCurrency(monthlyStats.totalMonthlyExpense) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.65rem !important;">
+          <div class="kpi-subtitle">
             All month expenses
           </div>
         </div>
 
         <!-- Salaries Paid -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-          <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-            Salaries Paid
-          </span>
-          <div class="text-subtitle-1 font-weight-black text-teal line-height-tight mt-1">
+        <div class="mobile-kpi-card pa-3 bg-white">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-label">Salaries Paid</span>
+            <div class="kpi-icon-badge bg-teal-50 text-teal-700">
+              <v-icon size="16">mdi-account-cash</v-icon>
+            </div>
+          </div>
+          <div class="kpi-value text-teal-700">
             {{ formatCurrency(monthlyStats.salariesPaid) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.65rem !important;">
+          <div class="kpi-subtitle">
             Staff salaries
           </div>
         </div>
 
         <!-- Advances Given -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-          <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-            Advances Given
-          </span>
-          <div class="text-subtitle-1 font-weight-black text-orange-darken-4 line-height-tight mt-1">
+        <div class="mobile-kpi-card pa-3 bg-white">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-label">Advances Given</span>
+            <div class="kpi-icon-badge bg-orange-50 text-orange-700">
+              <v-icon size="16">mdi-hand-coin</v-icon>
+            </div>
+          </div>
+          <div class="kpi-value text-orange-800">
             {{ formatCurrency(monthlyStats.advancesGiven) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.65rem !important;">
+          <div class="kpi-subtitle">
             Advances issued
           </div>
         </div>
@@ -702,15 +719,133 @@ onMounted(async () => {
 .mobile-kpi-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 10px !important;
+  gap: 12px !important;
 }
 
 .mobile-kpi-card {
-  transition: transform 0.12s ease;
-  background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  position: relative;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  padding: 13px 13px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 104px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
+
+.mobile-kpi-card:active {
+  transform: scale(0.99);
+}
+
+.kpi-label {
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-icon-badge {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-value {
+  font-size: 1.18rem !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  margin-top: 5px;
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.kpi-unit {
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  opacity: 0.85;
+}
+
+.kpi-subtitle {
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  color: #64748b !important;
+  line-height: 1.25 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Subtle accent tints for top border */
+.income-card { border-top: 3px solid #10b981 !important; }
+.cash-card { border-top: 3px solid #0d9488 !important; }
+.arrears-card { border-top: 3px solid #f59e0b !important; }
+.milk-in-card { border-top: 3px solid #0284c7 !important; }
+.milk-out-card { border-top: 3px solid #3b82f6 !important; }
+.expense-card { border-top: 3px solid #ef4444 !important; }
+.transport-kpi-card { border-top: 3px solid #6366f1 !important; }
+
+/* Transport Sub-pills */
+.transport-sub-grid {
+  border-top-color: #f1f5f9 !important;
+}
+
+.transport-sub-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sub-pill-label {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+}
+
+.sub-pill-val {
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  color: #1e293b !important;
+}
+
+/* Utility badge backgrounds */
+.bg-emerald-50 { background-color: #ecfdf5 !important; }
+.text-emerald-600 { color: #059669 !important; }
+.bg-teal-50 { background-color: #f0fdfa !important; }
+.text-teal-600 { color: #0d9488 !important; }
+.text-teal-700 { color: #0f766e !important; }
+.bg-amber-50 { background-color: #fffbeb !important; }
+.text-amber-700 { color: #b45309 !important; }
+.text-amber-800 { color: #92400e !important; }
+.bg-sky-50 { background-color: #f0f9ff !important; }
+.text-sky-600 { color: #0284c7 !important; }
+.text-sky-700 { color: #0369a1 !important; }
+.bg-blue-50 { background-color: #eff6ff !important; }
+.text-blue-600 { color: #2563eb !important; }
+.text-blue-700 { color: #1d4ed8 !important; }
+.bg-rose-50 { background-color: #fff1f2 !important; }
+.text-rose-600 { color: #e11d48 !important; }
+.bg-indigo-50 { background-color: #eef2ff !important; }
+.text-indigo-600 { color: #4f46e5 !important; }
+.text-indigo-700 { color: #4338ca !important; }
+.bg-orange-50 { background-color: #fff7ed !important; }
+.text-orange-700 { color: #c2410c !important; }
+.text-orange-800 { color: #9a3412 !important; }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
