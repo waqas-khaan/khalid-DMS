@@ -75,7 +75,7 @@
       <!-- ================= TAB 1: MONTHLY SALARIES ================= -->
       <div v-if="currentTab === 'salaries'">
         <!-- Month Stepper -->
-        <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 p-1 bg-slate-100 rounded-lg border mb-3">
+        <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 pa-1 bg-slate-100 rounded-lg border mb-3">
           <button type="button" class="stepper-arrow-btn" @click="stepMonth(-1)">
             <v-icon size="20">mdi-chevron-left</v-icon>
           </button>
@@ -210,7 +210,7 @@
       <!-- ================= TAB 2: DAILY ATTENDANCE ================= -->
       <div v-else-if="currentTab === 'attendance'">
         <!-- Date Stepper -->
-        <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 p-1 bg-slate-100 rounded-lg border mb-3">
+        <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 pa-1 bg-slate-100 rounded-lg border mb-3">
           <button type="button" class="stepper-arrow-btn" @click="stepDay(-1)">
             <v-icon size="20">mdi-chevron-left</v-icon>
           </button>
@@ -310,7 +310,7 @@
       <!-- ================= TAB 3: ADVANCES ================= -->
       <div v-else-if="currentTab === 'advances'">
         <!-- Month Stepper -->
-        <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 p-1 bg-slate-100 rounded-lg border mb-3">
+        <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 pa-1 bg-slate-100 rounded-lg border mb-3">
           <button type="button" class="stepper-arrow-btn" @click="stepMonth(-1)">
             <v-icon size="20">mdi-chevron-left</v-icon>
           </button>

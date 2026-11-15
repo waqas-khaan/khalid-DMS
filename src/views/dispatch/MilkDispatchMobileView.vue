@@ -32,7 +32,7 @@
       </div>
 
       <!-- Quick Day Stepper -->
-      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 p-1 bg-slate-100 rounded-lg border">
+      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 pa-1 bg-slate-100 rounded-lg border">
         <button
           type="button"
           class="stepper-arrow-btn"

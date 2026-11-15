@@ -32,7 +32,7 @@
       </div>
 
       <!-- Quick Day Stepper -->
-      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 p-1 bg-slate-100 rounded-lg border">
+      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 pa-1 bg-slate-100 rounded-lg border">
         <button
           type="button"
           class="stepper-arrow-btn"
@@ -257,7 +257,7 @@
           </div>
 
           <!-- Card Content -->
-          <div class="p-3">
+          <div class="pa-3 bg-white">
             <div v-if="item.vehicleNumber" class="d-flex align-center gap-1-5 mb-1-5">
               <v-chip size="x-small" color="orange-darken-3" variant="tonal" class="font-weight-bold">
                 <v-icon start size="11">mdi-car</v-icon>

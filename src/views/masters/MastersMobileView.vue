@@ -129,7 +129,7 @@
           <div
             v-for="s in filteredShops"
             :key="s.id"
-            class="mobile-item-card bg-white border rounded-xl shadow-xs p-3"
+            class="mobile-item-card bg-white border rounded-xl shadow-xs pa-3"
           >
             <div class="d-flex align-center justify-space-between mb-1">
               <div>

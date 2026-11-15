@@ -47,7 +47,7 @@
       </div>
 
       <!-- Quick Day Stepper & Inspector -->
-      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 p-1 bg-slate-100 rounded-lg border mb-2">
+      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 pa-1 bg-slate-100 rounded-lg border mb-2">
         <button
           type="button"
           class="stepper-arrow-btn"

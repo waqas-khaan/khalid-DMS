@@ -47,7 +47,7 @@
       </div>
 
       <!-- Quick Day Stepper & Inspector -->
-      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 p-1 bg-slate-100 rounded-lg border">
+      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 pa-1 bg-slate-100 rounded-lg border">
         <button
           type="button"
           class="stepper-arrow-btn"
@@ -504,7 +504,7 @@
       </div>
 
       <!-- 6. Mobile Segmented Tab Controller (Read-Only History & Treasury) -->
-      <div class="mobile-tabs-pill-bar mb-3 p-1 bg-slate-200 rounded-lg d-flex gap-1">
+      <div class="mobile-tabs-pill-bar mb-3 pa-1 bg-slate-200 rounded-lg d-flex gap-1">
         <button
           type="button"
           class="mobile-tab-btn flex-grow-1"

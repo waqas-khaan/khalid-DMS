@@ -32,7 +32,7 @@
       </div>
 
       <!-- Quick Day Stepper & Inspector -->
-      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 p-1 bg-slate-100 rounded-lg border">
+      <div class="mobile-date-stepper d-flex align-center justify-space-between gap-1 pa-1 bg-slate-100 rounded-lg border">
         <button
           type="button"
           class="stepper-arrow-btn"
@@ -192,8 +192,8 @@
           <!-- Card Top Bar -->
           <div class="pa-3 bg-slate-50 border-b d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-2">
-              <v-avatar size="24" :color="getSourceColor(item.source)" variant="tonal">
-                <v-icon size="13">{{ getSourceIcon(item.source) }}</v-icon>
+              <v-avatar size="26" :color="getSourceColor(item.source)" variant="tonal" class="rounded-lg">
+                <v-icon size="14">{{ getSourceIcon(item.source) }}</v-icon>
               </v-avatar>
               <div>
                 <span class="font-weight-black text-body-2 text-slate-900 line-height-tight d-block">
@@ -211,32 +211,32 @@
           </div>
 
           <!-- Card Content Ribbon -->
-          <div class="p-3">
-            <div class="mobile-stats-row d-flex align-center justify-space-between py-1 border-b">
+          <div class="pa-3 bg-white">
+            <div class="mobile-stats-row d-flex align-center justify-space-between">
               <div>
-                <span class="stat-mini-label text-slate-700">MILK QUANTITY</span>
-                <div class="font-weight-black text-body-1 text-sky-700">
-                  {{ formatNumber(item.quantityKg) }} <span class="text-caption font-weight-bold">Kg</span>
+                <span class="stat-mini-label text-slate-600 text-uppercase">MILK QUANTITY</span>
+                <div class="font-weight-black text-body-1 text-sky-700 my-0-5">
+                  {{ formatNumber(item.quantityKg) }} <span class="text-caption font-weight-bold text-sky-800">Kg</span>
                 </div>
-                <span class="text-caption text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">
-                  Equiv: {{ formatNumber(item.quantityLiters) }} Liters
+                <span class="text-caption text-slate-600 font-weight-medium d-block" style="font-size: 0.72rem !important;">
+                  {{ formatNumber(item.quantityLiters) }} Liters<span v-if="item.unit && item.unit !== 'Liter'"> ({{ formatNumber(item.quantity) }} {{ item.unit }})</span>
                 </span>
               </div>
 
               <div class="text-end">
-                <span class="stat-mini-label text-slate-700">AVAILABLE CASH</span>
-                <div class="font-weight-black text-body-1 text-teal-700">
-                  {{ formatCurrency(item.availableCash) }}
+                <span class="stat-mini-label text-slate-600 text-uppercase">AVAILABLE CASH</span>
+                <div class="font-weight-black text-body-1 text-teal-700 my-0-5">
+                  {{ formatCurrency(item.availableCash || 0) }}
                 </div>
-                <span class="text-caption text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">
-                  Original: {{ formatNumber(item.quantity) }} {{ item.unit }}
+                <span class="text-caption text-slate-600 font-weight-medium d-block" style="font-size: 0.72rem !important;">
+                  Arrival Cash Pool
                 </span>
               </div>
             </div>
 
-            <div v-if="item.notes" class="mt-2 text-caption text-grey-darken-2 fst-italic">
-              <v-icon size="12" class="me-1">mdi-note-text-outline</v-icon>
-              {{ item.notes }}
+            <div v-if="item.notes" class="mt-2-5 pt-2 border-t d-flex align-center gap-1-5 text-caption text-slate-600">
+              <v-icon size="13" color="grey-darken-1">mdi-note-text-outline</v-icon>
+              <span class="fst-italic">{{ item.notes }}</span>
             </div>
           </div>
         </div>
@@ -468,8 +468,9 @@ onMounted(async () => {
 .expense-card { border-top: 3px solid #ef4444 !important; }
 
 .mobile-item-card {
-  border: 1px solid #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
   border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
 }
 
 .filter-pill-btn {
@@ -489,10 +490,6 @@ onMounted(async () => {
   background: #0284c7;
   color: #ffffff;
   border-color: #0284c7;
-}
-
-.mobile-item-card {
-  border: 1px solid #e2e8f0;
 }
 
 .stat-mini-label {
