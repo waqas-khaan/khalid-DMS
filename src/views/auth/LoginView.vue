@@ -2,6 +2,18 @@
   <v-container fluid class="login-container fill-height pa-0">
     <div class="background-backdrop"></div>
 
+    <!-- Background Tech Design Elements -->
+    <div class="bg-design-layer" aria-hidden="true">
+      <div class="bg-circle bg-circle-1"></div>
+      <div class="bg-circle bg-circle-2"></div>
+      <div class="bg-circle bg-circle-3"></div>
+      <div class="bg-grid-glow"></div>
+      <div class="corner-accent top-left"></div>
+      <div class="corner-accent top-right"></div>
+      <div class="corner-accent bottom-left"></div>
+      <div class="corner-accent bottom-right"></div>
+    </div>
+
     <v-row align="center" justify="center" class="fill-height ma-0 w-100 py-6 py-sm-10">
       <v-col cols="12" class="d-flex justify-center align-center pa-2 pa-sm-4">
         <div class="login-card-glow-wrapper">
@@ -213,19 +225,14 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-/* Sophisticated Executive Midnight Slate & Falcon Navy Background */
+/* Sophisticated Executive Midnight Slate & Falcon Navy Background with Tech Design */
 .login-container {
   position: relative;
   overflow-y: auto;
   min-height: 100vh;
   padding: 0;
   margin: 0;
-  background-color: #0b132b;
-  background: 
-    radial-gradient(circle at 50% 18%, rgba(6, 63, 120, 0.45) 0%, transparent 60%),
-    radial-gradient(circle at 15% 85%, rgba(15, 76, 129, 0.3) 0%, transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.22) 0%, transparent 40%),
-    linear-gradient(135deg, #070d18 0%, #0c1a2d 40%, #091322 100%);
+  background-color: #060c18;
 }
 
 .login-container .background-backdrop {
@@ -234,14 +241,117 @@ async function handleLogin() {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #0b132b;
-  background: 
-    radial-gradient(circle at 50% 18%, rgba(6, 63, 120, 0.45) 0%, transparent 60%),
-    radial-gradient(circle at 15% 85%, rgba(15, 76, 129, 0.3) 0%, transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.22) 0%, transparent 40%),
-    linear-gradient(135deg, #070d18 0%, #0c1a2d 40%, #091322 100%);
+  background-color: #060c18;
+  background-image: 
+    /* Center highlight */
+    radial-gradient(circle at 50% 30%, rgba(6, 63, 120, 0.65) 0%, transparent 60%),
+    /* Ambient cyan glow */
+    radial-gradient(circle at 12% 85%, rgba(2, 132, 199, 0.25) 0%, transparent 45%),
+    /* Ambient indigo glow */
+    radial-gradient(circle at 88% 15%, rgba(99, 102, 241, 0.2) 0%, transparent 45%),
+    /* Subtle tech grid */
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    /* Deep midnight base */
+    linear-gradient(135deg, #050a14 0%, #0a1426 50%, #070e1c 100%);
+  background-size: 
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    44px 44px,
+    44px 44px,
+    100% 100%;
   opacity: 1;
   z-index: 0;
+}
+
+/* Background Tech Design Elements */
+.bg-design-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bg-circle-1 {
+  width: 740px;
+  height: 740px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.09);
+  animation: rotateSlow 120s linear infinite;
+}
+
+.bg-circle-2 {
+  width: 1020px;
+  height: 1020px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bg-circle-3 {
+  width: 1320px;
+  height: 1320px;
+  border: 1px dashed rgba(255, 255, 255, 0.04);
+}
+
+.bg-grid-glow {
+  position: absolute;
+  width: 680px;
+  height: 680px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(6, 63, 120, 0.3) 50%, transparent 75%);
+  filter: blur(60px);
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.corner-accent {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.corner-accent.top-left {
+  top: 32px;
+  left: 32px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-accent.top-right {
+  top: 32px;
+  right: 32px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-accent.bottom-left {
+  bottom: 32px;
+  left: 32px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-accent.bottom-right {
+  bottom: 32px;
+  right: 32px;
+  border-left: none;
+  border-top: none;
 }
 
 .login-container .v-row {
@@ -250,7 +360,7 @@ async function handleLogin() {
   min-height: 100vh;
 }
 
-/* Card Glow Wrapper - Ambient White Halo */
+/* Card Glow Wrapper - High-Intensity White Ambient Bloom */
 .login-card-glow-wrapper {
   position: relative;
   width: 100%;
@@ -262,29 +372,37 @@ async function handleLogin() {
 .login-card-glow-wrapper::before {
   content: '';
   position: absolute;
-  top: -15px;
-  left: -15px;
-  right: -15px;
-  bottom: -15px;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.2) 40%, transparent 72%);
-  filter: blur(30px);
-  border-radius: 24px;
+  top: -30px;
+  left: -30px;
+  right: -30px;
+  bottom: -30px;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.5) 30%,
+    rgba(186, 230, 253, 0.35) 55%,
+    rgba(6, 63, 120, 0.25) 75%,
+    transparent 85%
+  );
+  filter: blur(45px);
+  border-radius: 40px;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Card Styling - High-End Executive Card with Awesome White Shadow */
+/* Card Styling - High-End Executive Card with Stunning White Shadow & Halo */
 .login-container .login-v-card {
   position: relative;
   z-index: 2;
   background-color: #ffffff !important;
-  border-radius: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  border-radius: 12px !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
   box-shadow: 
-    0 0 35px rgba(255, 255, 255, 0.4),
-    0 0 80px rgba(255, 255, 255, 0.22),
-    0 0 130px rgba(255, 255, 255, 0.12),
-    0 25px 60px rgba(0, 0, 0, 0.5) !important;
+    0 0 25px rgba(255, 255, 255, 0.9),
+    0 0 65px rgba(255, 255, 255, 0.6),
+    0 0 120px rgba(255, 255, 255, 0.4),
+    0 0 180px rgba(255, 255, 255, 0.25),
+    0 30px 80px rgba(0, 0, 0, 0.65) !important;
   width: 100%;
   max-width: 580px;
   min-height: 600px;
