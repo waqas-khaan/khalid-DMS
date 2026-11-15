@@ -307,10 +307,10 @@ async function handleLogin() {
 
 .bg-grid-glow {
   position: absolute;
-  width: 680px;
-  height: 680px;
+  width: 700px;
+  height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(6, 63, 120, 0.3) 50%, transparent 75%);
+  background: radial-gradient(circle, rgba(6, 63, 120, 0.4) 0%, rgba(2, 132, 199, 0.15) 50%, transparent 70%);
   filter: blur(60px);
 }
 
@@ -360,7 +360,7 @@ async function handleLogin() {
   min-height: 100vh;
 }
 
-/* Card Glow Wrapper - High-Intensity White Ambient Bloom */
+/* Card Glow Wrapper - Soft Ambient Brand Backlight */
 .login-card-glow-wrapper {
   position: relative;
   width: 100%;
@@ -372,37 +372,34 @@ async function handleLogin() {
 .login-card-glow-wrapper::before {
   content: '';
   position: absolute;
-  top: -30px;
-  left: -30px;
-  right: -30px;
-  bottom: -30px;
+  top: -12px;
+  left: -12px;
+  right: -12px;
+  bottom: -12px;
   background: radial-gradient(
     circle at center,
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(255, 255, 255, 0.5) 30%,
-    rgba(186, 230, 253, 0.35) 55%,
-    rgba(6, 63, 120, 0.25) 75%,
-    transparent 85%
+    rgba(2, 132, 199, 0.22) 0%,
+    rgba(6, 63, 120, 0.3) 45%,
+    transparent 72%
   );
-  filter: blur(45px);
-  border-radius: 40px;
+  filter: blur(32px);
+  border-radius: 24px;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Card Styling - High-End Executive Card with Stunning White Shadow & Halo */
+/* Card Styling - Razor-Sharp Executive Card with Premium Realistic Depth */
 .login-container .login-v-card {
   position: relative;
   z-index: 2;
   background-color: #ffffff !important;
   border-radius: 12px !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
   box-shadow: 
-    0 0 25px rgba(255, 255, 255, 0.9),
-    0 0 65px rgba(255, 255, 255, 0.6),
-    0 0 120px rgba(255, 255, 255, 0.4),
-    0 0 180px rgba(255, 255, 255, 0.25),
-    0 30px 80px rgba(0, 0, 0, 0.65) !important;
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 12px 28px -4px rgba(0, 0, 0, 0.35),
+    0 30px 60px -12px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.15) !important;
   width: 100%;
   max-width: 580px;
   min-height: 600px;
