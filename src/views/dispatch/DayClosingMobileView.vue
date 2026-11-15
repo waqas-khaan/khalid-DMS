@@ -130,73 +130,65 @@
       <!-- 4. Executive Financial KPI Cards (2x2 Grid) -->
       <div class="mobile-kpi-grid mb-3">
         <!-- Milk Received -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card milk-in-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Milk Received
-            </span>
-            <v-avatar color="info" size="26" variant="tonal">
-              <v-icon size="14" color="info">mdi-truck-delivery</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Milk Received</span>
+            <div class="kpi-icon-badge bg-sky-50 text-sky-600">
+              <v-icon size="16">mdi-truck-delivery</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-info line-height-tight">
-            {{ formatNumber(summary.milkReceivedKg) }} <span class="text-caption font-weight-bold">Kg</span>
+          <div class="kpi-value text-sky-700">
+            {{ formatNumber(summary.milkReceivedKg) }} <span class="kpi-unit">Kg</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             {{ formatNumber(summary.milkReceivedLiters) }} L • {{ summary.arrivalsCount }} arrivals
           </div>
         </div>
 
         <!-- Milk Dispatched -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Milk Dispatched
-            </span>
-            <v-avatar color="primary" size="26" variant="tonal">
-              <v-icon size="14" color="primary">mdi-truck-fast</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Milk Dispatched</span>
+            <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+              <v-icon size="16">mdi-truck-fast</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-primary line-height-tight">
-            {{ formatNumber(summary.milkDispatchedKg) }} <span class="text-caption font-weight-bold">Kg</span>
+          <div class="kpi-value text-blue-700">
+            {{ formatNumber(summary.milkDispatchedKg) }} <span class="kpi-unit">Kg</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             {{ summary.dispatchesCount }} routes dispatched
           </div>
         </div>
 
         <!-- Today Collection -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card income-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Today Collection
-            </span>
-            <v-avatar color="success" size="26" variant="tonal">
-              <v-icon size="14" color="success">mdi-cash-plus</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Today Collection</span>
+            <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
+              <v-icon size="16">mdi-cash-plus</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-success line-height-tight">
+          <div class="kpi-value text-emerald-600">
             {{ formatCurrency(summary.totalCollection) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Collected from shops
           </div>
         </div>
 
         <!-- Total Expenses -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card expense-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Total Expenses
-            </span>
-            <v-avatar color="error" size="26" variant="tonal">
-              <v-icon size="14" color="error">mdi-cash-minus</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Total Expenses</span>
+            <div class="kpi-icon-badge bg-rose-50 text-rose-600">
+              <v-icon size="16">mdi-cash-minus</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-error line-height-tight">
+          <div class="kpi-value text-rose-600">
             {{ formatCurrency(summary.totalExpenses) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Operational expenses
           </div>
         </div>
@@ -1273,8 +1265,8 @@ onMounted(async () => {
 .mobile-kpi-card {
   transition: transform 0.15s ease;
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
 }
 
 .net-flow-hero-card {
@@ -1383,8 +1375,8 @@ onMounted(async () => {
 /* Route Stepper Navigation & Shop Breakdown Native Cards */
 .route-navigation-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 
 .route-select-pill {
@@ -1408,8 +1400,8 @@ onMounted(async () => {
 
 .shop-card-native {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 
 .shop-avatar {

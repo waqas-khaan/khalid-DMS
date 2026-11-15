@@ -76,20 +76,20 @@
       <div v-if="currentTab === 'shops'">
         <!-- Master Price Highlight Cards (2 in 1 row) -->
         <div class="mobile-kpi-grid mb-3">
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Master Milk Rate</span>
-            <div class="text-subtitle-1 font-weight-black text-primary line-height-tight mt-1">
-              {{ formatCurrency(masterMilkPrice) }} <span class="text-caption font-weight-bold">/ Kg</span>
+          <div class="mobile-kpi-card milk-in-card pa-3 bg-white">
+            <span class="kpi-label">Master Milk Rate</span>
+            <div class="kpi-value text-sky-700">
+              {{ formatCurrency(masterMilkPrice) }} <span class="kpi-unit">/ Kg</span>
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">Global benchmark</span>
+            <span class="kpi-subtitle">Global benchmark</span>
           </div>
 
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Standard Can (50Kg)</span>
-            <div class="text-subtitle-1 font-weight-black text-info line-height-tight mt-1">
+          <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
+            <span class="kpi-label">Standard Can (50Kg)</span>
+            <div class="kpi-value text-blue-700">
               {{ formatCurrency(masterMilkPrice * canWeightKg) }}
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">Per full can value</span>
+            <span class="kpi-subtitle">Per full can value</span>
           </div>
         </div>
 
@@ -458,13 +458,13 @@ onMounted(async () => {
 
 .mobile-kpi-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
 }
 
 .mobile-item-card {
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 </style>
 

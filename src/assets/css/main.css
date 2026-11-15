@@ -6,7 +6,7 @@
   --card-bg: #ffffff;
   --text-main: #263238;
   --text-muted: #607d8b;
-  --border-color: #000000;
+  --border-color: #e2e8f0;
 }
 
 html,
@@ -122,7 +122,7 @@ body {
   border-radius: 12px !important;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
   background: #ffffff !important;
-  border: 1px solid #000000 !important;
+  border: 1px solid #e2e8f0 !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
 }
 
@@ -137,8 +137,8 @@ body {
   border-radius: 0 !important;
   border-left: none !important;
   border-right: none !important;
-  border-top: 1px solid #000000 !important;
-  border-bottom: 1px solid #000000 !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
   padding-left: 28px !important;
   padding-right: 28px !important;
   padding-top: 14px !important;
@@ -302,7 +302,7 @@ body {
 .dashboard-card:hover {
   transform: translateY(-3px) !important;
   box-shadow: 0 10px 24px rgba(6, 63, 120, 0.08) !important;
-  border-color: #000000 !important;
+  border-color: #cbd5e1 !important;
 }
 
 .stat-card-value {
@@ -955,7 +955,7 @@ body {
 
 /* Dialog Cards & Modals */
 .v-dialog .v-card {
-  border: 1px solid #000000 !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 /* Form controls */
@@ -964,7 +964,7 @@ body {
 }
 
 .v-field--variant-outlined:not(.v-field--focused):not(.v-field--error) .v-field__outline {
-  color: #000000 !important;
+  color: #cbd5e1 !important;
   --v-field-border-opacity: 0.75 !important;
 }
 
@@ -985,7 +985,7 @@ body {
   max-width: 680px;
   min-height: 700px;
   border-radius: 10px !important;
-  border: 1px solid #000000 !important;
+  border: 1px solid #e2e8f0 !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.09) !important;
   background: #ffffff !important;
   padding: 56px 64px 60px 64px !important;
@@ -1148,3 +1148,113 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
   border-top-color: #cbd5e1 !important;
   border-bottom-color: #cbd5e1 !important;
 }
+
+/* ============================================================
+   App-Wide Mobile KPI Card System
+   ============================================================ */
+.mobile-kpi-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.mobile-kpi-card {
+  position: relative;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  padding: 12px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  min-height: 100px !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
+.mobile-kpi-card:active {
+  transform: scale(0.99) !important;
+}
+
+.kpi-label,
+.mobile-kpi-card .text-caption.font-weight-bold:first-child,
+.mobile-kpi-card div:first-child > span.text-caption {
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  letter-spacing: 0.01em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.kpi-icon-badge,
+.mobile-kpi-card .v-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.kpi-value,
+.mobile-kpi-card .text-subtitle-1 {
+  font-size: 1.18rem !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  margin-top: 4px !important;
+  margin-bottom: 2px !important;
+  letter-spacing: -0.01em !important;
+  word-break: break-word !important;
+}
+
+.kpi-unit {
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  opacity: 0.85;
+}
+
+.kpi-subtitle,
+.mobile-kpi-card .text-caption.text-grey,
+.mobile-kpi-card .text-caption.text-grey-darken-1,
+.mobile-kpi-card div:last-child.text-caption {
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  color: #64748b !important;
+  line-height: 1.25 !important;
+}
+
+/* Subtle accent tints for top border */
+.income-card { border-top: 3px solid #10b981 !important; }
+.cash-card { border-top: 3px solid #0d9488 !important; }
+.arrears-card { border-top: 3px solid #f59e0b !important; }
+.milk-in-card { border-top: 3px solid #0284c7 !important; }
+.milk-out-card { border-top: 3px solid #3b82f6 !important; }
+.expense-card { border-top: 3px solid #ef4444 !important; }
+.transport-kpi-card { border-top: 3px solid #6366f1 !important; }
+
+/* Utility badge backgrounds */
+.bg-emerald-50 { background-color: #ecfdf5 !important; }
+.text-emerald-600 { color: #059669 !important; }
+.bg-teal-50 { background-color: #f0fdfa !important; }
+.text-teal-600 { color: #0d9488 !important; }
+.text-teal-700 { color: #0f766e !important; }
+.bg-amber-50 { background-color: #fffbeb !important; }
+.text-amber-700 { color: #b45309 !important; }
+.text-amber-800 { color: #92400e !important; }
+.bg-sky-50 { background-color: #f0f9ff !important; }
+.text-sky-600 { color: #0284c7 !important; }
+.text-sky-700 { color: #0369a1 !important; }
+.bg-blue-50 { background-color: #eff6ff !important; }
+.text-blue-600 { color: #2563eb !important; }
+.text-blue-700 { color: #1d4ed8 !important; }
+.bg-rose-50 { background-color: #fff1f2 !important; }
+.text-rose-600 { color: #e11d48 !important; }
+.bg-indigo-50 { background-color: #eef2ff !important; }
+.text-indigo-600 { color: #4f46e5 !important; }
+.text-indigo-700 { color: #4338ca !important; }
+.bg-orange-50 { background-color: #fff7ed !important; }
+.text-orange-700 { color: #c2410c !important; }
+.text-orange-800 { color: #9a3412 !important; }

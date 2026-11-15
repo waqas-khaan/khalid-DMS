@@ -2256,8 +2256,8 @@ onMounted(async () => {
 }
 
 .delivery-window {
-  border-top: 1px solid #000000 !important;
-  border-bottom: 1px solid #000000 !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
   border-left: none !important;
   border-right: none !important;
   border-radius: 0 !important;
@@ -2514,8 +2514,8 @@ onMounted(async () => {
 .dispatch-details-banner {
   background: #063f78 !important;
   color: #ffffff !important;
-  border-top: 1px solid #000000 !important;
-  border-bottom: 1px solid #000000 !important;
+  border-top: 1px solid #063f78 !important;
+  border-bottom: 1px solid #063f78 !important;
   border-left: none !important;
   border-right: none !important;
   border-radius: 0 !important;
@@ -2602,7 +2602,7 @@ onMounted(async () => {
 
 .dispatch-metric-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 12px;
   padding: 14px 12px;
   display: flex;

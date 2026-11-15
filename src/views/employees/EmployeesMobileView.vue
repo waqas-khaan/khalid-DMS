@@ -90,36 +90,36 @@
 
         <!-- 4 KPI Cards (2x2 Grid) -->
         <div class="mobile-kpi-grid mb-3">
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Gross Payroll</span>
-            <div class="text-subtitle-1 font-weight-black text-primary line-height-tight mt-1">
+          <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
+            <span class="kpi-label">Gross Payroll</span>
+            <div class="kpi-value text-blue-700">
               {{ formatCurrency(payrollTotals.gross) }}
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">Base salary pool</span>
+            <span class="kpi-subtitle">Base salary pool</span>
           </div>
 
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Net Payable</span>
-            <div class="text-subtitle-1 font-weight-black text-success line-height-tight mt-1">
+          <div class="mobile-kpi-card income-card pa-3 bg-white">
+            <span class="kpi-label">Net Payable</span>
+            <div class="kpi-value text-emerald-600">
               {{ formatCurrency(payrollTotals.net) }}
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">After all deductions</span>
+            <span class="kpi-subtitle">After all deductions</span>
           </div>
 
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Attendance Cuts</span>
-            <div class="text-subtitle-1 font-weight-black text-error line-height-tight mt-1">
+          <div class="mobile-kpi-card expense-card pa-3 bg-white">
+            <span class="kpi-label">Attendance Cuts</span>
+            <div class="kpi-value text-rose-600">
               {{ formatCurrency(payrollTotals.payCut) }}
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">Absence penalties</span>
+            <span class="kpi-subtitle">Absence penalties</span>
           </div>
 
-          <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">Advances Cleared</span>
-            <div class="text-subtitle-1 font-weight-black text-orange-darken-4 line-height-tight mt-1">
+          <div class="mobile-kpi-card arrears-card pa-3 bg-white">
+            <span class="kpi-label">Advances Cleared</span>
+            <div class="kpi-value text-orange-700">
               {{ formatCurrency(payrollTotals.advances) }}
             </div>
-            <span class="text-caption text-grey" style="font-size: 0.68rem !important;">Deducted mid-month</span>
+            <span class="kpi-subtitle">Deducted mid-month</span>
           </div>
         </div>
 
@@ -719,8 +719,8 @@ onMounted(async () => {
 
 .mobile-kpi-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
 }
 
 .stepper-arrow-btn {
@@ -737,7 +737,7 @@ onMounted(async () => {
 }
 
 .mobile-item-card {
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 </style>

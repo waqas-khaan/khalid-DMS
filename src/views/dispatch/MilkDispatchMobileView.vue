@@ -77,73 +77,71 @@
       <!-- 2. Daily Summary Metric Cards (2x2 Grid) -->
       <div class="mobile-kpi-grid mb-3">
         <!-- Card 1: Milk Sent -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Milk Sent
-            </span>
-            <v-avatar color="primary" size="26" variant="tonal">
-              <v-icon size="14" color="primary">mdi-bottle-tonic-plus</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Milk Sent</span>
+            <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+              <v-icon size="16">mdi-bottle-tonic-plus</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-primary line-height-tight">
-            {{ formatNumber(totals.milkSent) }} <span class="text-caption font-weight-bold">Kg</span>
+          <div class="kpi-value text-blue-700">
+            {{ formatNumber(totals.milkSent) }} <span class="kpi-unit">Kg</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             {{ dateDispatches.length }} routes dispatched
           </div>
         </div>
 
         <!-- Card 2: Return Milk -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card arrears-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Return Milk
-            </span>
-            <v-avatar color="warning" size="26" variant="tonal">
-              <v-icon size="14" color="warning">mdi-keyboard-return</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Return Milk</span>
+            <div class="kpi-icon-badge bg-amber-50 text-amber-700">
+              <v-icon size="16">mdi-keyboard-return</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-orange-darken-4 line-height-tight">
-            {{ formatNumber(totals.returns) }} <span class="text-caption font-weight-bold">Kg</span>
+          <div class="kpi-value text-orange-700">
+            {{ formatNumber(totals.returns) }} <span class="kpi-unit">Kg</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Net: {{ formatNumber(totals.milkSent - totals.returns) }} Kg
           </div>
         </div>
 
         <!-- Card 3: Cash Collected -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card income-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Shop Collections
-            </span>
-            <v-avatar color="success" size="26" variant="tonal">
-              <v-icon size="14" color="success">mdi-cash-check</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Shop Collections</span>
+            <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
+              <v-icon size="16">mdi-cash-check</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-success line-height-tight">
+          <div class="kpi-value text-emerald-600">
             {{ formatCurrency(totals.collection) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Collected from shops
           </div>
         </div>
 
         <!-- Card 4: New Arrears -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card expense-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              New Arrears
-            </span>
-            <v-avatar :color="totals.arrears > 0 ? 'error' : 'teal'" size="26" variant="tonal">
-              <v-icon size="14" :color="totals.arrears > 0 ? 'error' : 'teal'">mdi-alert-circle-outline</v-icon>
-            </v-avatar>
+            <span class="kpi-label">New Arrears</span>
+            <div
+              class="kpi-icon-badge"
+              :class="totals.arrears > 0 ? 'bg-rose-50 text-rose-600' : 'bg-teal-50 text-teal-600'"
+            >
+              <v-icon size="16">mdi-alert-circle-outline</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black line-height-tight" :class="totals.arrears > 0 ? 'text-error' : 'text-teal'">
+          <div
+            class="kpi-value"
+            :class="totals.arrears > 0 ? 'text-rose-600' : 'text-teal-700'"
+          >
             {{ formatCurrency(totals.arrears) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Balance additions
           </div>
         </div>
@@ -672,19 +670,19 @@ onMounted(async () => {
 
 .mobile-kpi-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
 }
 
 .mobile-route-card {
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 
 .route-navigation-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 
 .route-select-pill {
@@ -708,8 +706,8 @@ onMounted(async () => {
 
 .shop-card-native {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 
 .shop-avatar {

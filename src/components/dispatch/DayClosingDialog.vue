@@ -627,7 +627,7 @@ watch(
   gap: 10px;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #000000;
+  border: 1px solid #e2e8f0;
   border-left-width: 4px;
 }
 

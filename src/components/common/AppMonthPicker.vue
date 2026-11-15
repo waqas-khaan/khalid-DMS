@@ -220,7 +220,7 @@ function handleClear() {
 .calendar-card {
   border-radius: 16px !important;
   background: #ffffff !important;
-  border: 1px solid #000000 !important;
+  border: 1px solid #e2e8f0 !important;
   box-shadow: 0 10px 30px rgba(6, 63, 120, 0.15) !important;
 }
 

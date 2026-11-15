@@ -77,73 +77,65 @@
       <!-- 2. Daily Summary Metric Cards (2x2 Grid) -->
       <div class="mobile-kpi-grid mb-3">
         <!-- Card 1: Overall Expenses -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card expense-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Overall Total
-            </span>
-            <v-avatar color="error" size="26" variant="tonal">
-              <v-icon size="14" color="error">mdi-cash-minus</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Overall Total</span>
+            <div class="kpi-icon-badge bg-rose-50 text-rose-600">
+              <v-icon size="16">mdi-cash-minus</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-error line-height-tight">
+          <div class="kpi-value text-rose-600">
             {{ formatCurrency(totals.overall) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             {{ filteredExpenses.length }} transaction(s)
           </div>
         </div>
 
         <!-- Card 2: Food Expenses -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card pa-3 bg-white" style="border-top: 3px solid #f59e0b !important;">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Food & Staff
-            </span>
-            <v-avatar color="primary" size="26" variant="tonal">
-              <v-icon size="14" color="primary">mdi-food</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Food & Staff</span>
+            <div class="kpi-icon-badge bg-amber-50 text-amber-700">
+              <v-icon size="16">mdi-food</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-primary line-height-tight">
+          <div class="kpi-value text-amber-800">
             {{ formatCurrency(totals.food) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Mess & tea supplies
           </div>
         </div>
 
         <!-- Card 3: Home & Farm -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card pa-3 bg-white" style="border-top: 3px solid #0d9488 !important;">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Home & Farm
-            </span>
-            <v-avatar color="teal" size="26" variant="tonal">
-              <v-icon size="14" color="teal">mdi-home</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Home & Farm</span>
+            <div class="kpi-icon-badge bg-teal-50 text-teal-700">
+              <v-icon size="16">mdi-home</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-teal line-height-tight">
+          <div class="kpi-value text-teal-700">
             {{ formatCurrency(totals.home) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Maintenance & utilities
           </div>
         </div>
 
         <!-- Card 4: Transport Total -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card transport-kpi-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Transport Total
-            </span>
-            <v-avatar color="orange-darken-3" size="26" variant="tonal">
-              <v-icon size="14" color="orange-darken-3">mdi-gas-station</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Transport Total</span>
+            <div class="kpi-icon-badge bg-indigo-50 text-indigo-600">
+              <v-icon size="16">mdi-gas-station</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-orange-darken-3 line-height-tight">
+          <div class="kpi-value text-indigo-700">
             {{ formatCurrency(totals.transport) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Fuel & repairs
           </div>
         </div>
@@ -500,8 +492,8 @@ onMounted(async () => {
 
 .mobile-kpi-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
 }
 
 .filter-pill-btn {
@@ -524,8 +516,8 @@ onMounted(async () => {
 }
 
 .mobile-item-card {
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 </style>
 

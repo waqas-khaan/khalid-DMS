@@ -68,7 +68,7 @@ const descriptionText = computed(() => {
 .bulk-actions-bar {
   background: linear-gradient(90deg, #063f78 0%, #0a4d92 100%) !important;
   color: #ffffff !important;
-  border: 1px solid #000000 !important;
+  border: 1px solid #063f78 !important;
   border-radius: 6px !important;
   padding: 8px 14px !important;
   margin-bottom: 10px !important;

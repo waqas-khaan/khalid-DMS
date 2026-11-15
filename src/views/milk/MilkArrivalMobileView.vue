@@ -77,73 +77,65 @@
       <!-- 2. Daily Summary Metric Cards (2x2 Grid) -->
       <div class="mobile-kpi-grid mb-3">
         <!-- Card 1: Milk Kg -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card milk-in-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Total Milk (Kg)
-            </span>
-            <v-avatar color="info" size="26" variant="tonal">
-              <v-icon size="14" color="info">mdi-water-outline</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Total Milk (Kg)</span>
+            <div class="kpi-icon-badge bg-sky-50 text-sky-600">
+              <v-icon size="16">mdi-water-outline</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-info line-height-tight">
-            {{ formatNumber(dailyTotals.totalKg) }} <span class="text-caption font-weight-bold">Kg</span>
+          <div class="kpi-value text-sky-700">
+            {{ formatNumber(dailyTotals.totalKg) }} <span class="kpi-unit">Kg</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5 text-truncate" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Est: {{ formatCurrency(dailyTotals.totalKg * masterMilkPrice) }}
           </div>
         </div>
 
         <!-- Card 2: Milk Liters -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Total Liters
-            </span>
-            <v-avatar color="primary" size="26" variant="tonal">
-              <v-icon size="14" color="primary">mdi-cup-water</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Total Liters</span>
+            <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+              <v-icon size="16">mdi-cup-water</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-primary line-height-tight">
-            {{ formatNumber(dailyTotals.totalLiters) }} <span class="text-caption font-weight-bold">L</span>
+          <div class="kpi-value text-blue-700">
+            {{ formatNumber(dailyTotals.totalLiters) }} <span class="kpi-unit">L</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Factor: {{ factor }} Kg/L
           </div>
         </div>
 
         <!-- Card 3: Available Cash -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card cash-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Available Cash
-            </span>
-            <v-avatar color="teal" size="26" variant="tonal">
-              <v-icon size="14" color="teal">mdi-cash</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Available Cash</span>
+            <div class="kpi-icon-badge bg-teal-50 text-teal-700">
+              <v-icon size="16">mdi-cash</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-teal line-height-tight">
+          <div class="kpi-value text-teal-700">
             {{ formatCurrency(dailyTotals.totalAvailableCash) }}
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Arrival cash pool
           </div>
         </div>
 
         <!-- Card 4: Total Entries -->
-        <div class="mobile-kpi-card pa-3 bg-white border rounded-xl shadow-xs">
+        <div class="mobile-kpi-card income-card pa-3 bg-white">
           <div class="d-flex align-center justify-space-between mb-1">
-            <span class="text-caption font-weight-bold text-grey-darken-1 text-uppercase" style="font-size: 0.68rem !important;">
-              Batches Recorded
-            </span>
-            <v-avatar color="success" size="26" variant="tonal">
-              <v-icon size="14" color="success">mdi-check-decagram</v-icon>
-            </v-avatar>
+            <span class="kpi-label">Batches Recorded</span>
+            <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
+              <v-icon size="16">mdi-check-decagram</v-icon>
+            </div>
           </div>
-          <div class="text-subtitle-1 font-weight-black text-success line-height-tight">
-            {{ dailyTotals.count }} <span class="text-caption font-weight-bold">Batches</span>
+          <div class="kpi-value text-emerald-600">
+            {{ dailyTotals.count }} <span class="kpi-unit">Batches</span>
           </div>
-          <div class="text-caption text-grey font-weight-medium mt-0-5" style="font-size: 0.68rem !important;">
+          <div class="kpi-subtitle">
             Recorded on farm
           </div>
         </div>
@@ -464,13 +456,13 @@ onMounted(async () => {
 
 .mobile-kpi-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
 }
 
 .mobile-item-card {
-  border: 1px solid #000000 !important;
-  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
 }
 
 .filter-pill-btn {

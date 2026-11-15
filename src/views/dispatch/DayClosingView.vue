@@ -2661,7 +2661,7 @@ onMounted(async () => {
   gap: 10px;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #000000;
+  border: 1px solid #e2e8f0;
   border-left-width: 4px;
 }
 
@@ -2931,7 +2931,7 @@ onMounted(async () => {
 
 .dispatch-metric-card {
   background: #ffffff;
-  border: 1px solid #000000 !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 12px;
   padding: 14px 12px;
   display: flex;
