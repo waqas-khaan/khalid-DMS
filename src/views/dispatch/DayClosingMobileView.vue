@@ -378,27 +378,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Route Progress Bar -->
-                <div class="pt-2 border-t">
-                  <div class="d-flex align-center justify-space-between text-caption mb-1">
-                    <span class="text-slate-600 font-weight-medium" style="font-size: 0.70rem !important;">
-                      Route Collection: <strong>{{ formatCurrency(d.totalCollection) }}</strong> of {{ formatCurrency(getRouteTotalPayable(d)) }}
-                    </span>
-                    <span class="font-weight-black" :class="getRouteCollectionPercentage(d) >= 80 ? 'text-success' : 'text-warning'" style="font-size: 0.72rem !important;">
-                      {{ getRouteCollectionPercentage(d) }}%
-                    </span>
-                  </div>
-                  <div class="w-100 bg-slate-100 rounded-pill overflow-hidden" style="height: 6px;">
-                    <div
-                      class="h-100 rounded-pill transition-all"
-                      :style="{
-                        width: `${Math.min(100, Math.max(0, getRouteCollectionPercentage(d)))}%`,
-                        backgroundColor: getRouteCollectionPercentage(d) >= 80 ? '#10b981' : '#f59e0b'
-                      }"
-                    ></div>
-                  </div>
-                </div>
               </div>
 
               <!-- Expandable Shop List Toggle -->
