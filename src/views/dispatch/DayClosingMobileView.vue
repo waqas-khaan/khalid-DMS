@@ -17,33 +17,18 @@
           </div>
         </div>
 
-        <div class="d-flex align-center gap-2">
-          <!-- Business Day Status Pill -->
-          <v-chip
-            size="small"
-            :color="businessDayStore.isActiveDayClosed ? 'success' : 'primary'"
-            variant="flat"
-            class="font-weight-bold text-caption px-2-5 shadow-xs"
-          >
-            <v-icon start size="13">
-              {{ businessDayStore.isActiveDayClosed ? 'mdi-check-circle' : 'mdi-clock-outline' }}
-            </v-icon>
-            {{ businessDayStore.isActiveDayClosed ? 'DAY CLOSED' : 'DAY OPEN' }}
-          </v-chip>
-
-          <!-- Refresh Button -->
-          <v-btn
-            icon
-            size="small"
-            variant="tonal"
-            color="primary"
-            :loading="loading"
-            class="refresh-icon-btn"
-            @click="refreshAll"
-          >
-            <v-icon size="18">mdi-refresh</v-icon>
-          </v-btn>
-        </div>
+        <!-- Refresh Button -->
+        <v-btn
+          icon
+          size="small"
+          variant="tonal"
+          color="primary"
+          :loading="loading"
+          class="refresh-icon-btn"
+          @click="refreshAll"
+        >
+          <v-icon size="18">mdi-refresh</v-icon>
+        </v-btn>
       </div>
 
       <!-- Quick Day Stepper & Inspector -->
