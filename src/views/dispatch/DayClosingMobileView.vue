@@ -720,7 +720,7 @@
         </div>
 
         <!-- Method filter pills -->
-        <div class="handover-filter-bar mb-3 d-flex align-center gap-1-5 overflow-x-auto no-scrollbar">
+        <div class="handover-filter-bar mb-2-5 d-flex align-center gap-1-5 overflow-x-auto no-scrollbar">
           <button
             type="button"
             class="handover-filter-pill"
@@ -756,16 +756,16 @@
         </div>
 
         <!-- Handover Record Cards List -->
-        <div class="d-flex flex-column gap-2-5">
+        <div class="d-flex flex-column gap-2">
           <div
             v-for="row in paginatedAllocationRows"
             :key="row.date"
-            class="mobile-ledger-card pa-3-5 bg-white rounded-xl cursor-pointer"
+            class="mobile-ledger-card pa-3 bg-white rounded-xl cursor-pointer"
             :class="{ 'card-active-inspect': row.date === selectedDate }"
             @click="inspectMobileDay(row.date)"
           >
-            <!-- Card Header: Date, Closed By & Method Pill -->
-            <div class="d-flex align-center justify-space-between mb-2-5">
+            <!-- Top Row: Avatar, Date, Subtitle & Method Pill -->
+            <div class="d-flex align-center justify-space-between">
               <div class="d-flex align-center gap-2 min-w-0">
                 <div class="handover-avatar flex-shrink-0" :class="row.type === 'bank' ? 'avatar-bank' : (row.type === 'split' ? 'avatar-split' : 'avatar-cash')">
                   <v-icon size="16">
@@ -773,10 +773,10 @@
                   </v-icon>
                 </div>
                 <div class="min-w-0">
-                  <span class="font-weight-bold text-body-2 text-slate-900 line-height-tight d-block">
+                  <span class="font-weight-bold text-body-2 text-slate-900 line-height-tight d-block text-truncate">
                     {{ formatDate(row.date) }}
                   </span>
-                  <span class="text-caption text-slate-400 font-weight-medium mt-0-5 d-block" style="font-size: 0.7rem !important;">
+                  <span class="text-caption text-slate-400 font-weight-medium mt-0-5 d-block text-truncate" style="font-size: 0.68rem !important;">
                     Closed by {{ row.closedBy }}
                   </span>
                 </div>
@@ -794,39 +794,43 @@
               </div>
             </div>
 
-            <!-- Financial Summary Panel -->
-            <div class="handover-detail-panel">
-              <div class="d-flex align-center justify-space-between mb-1">
-                <span class="ledger-kpi-subhead">HANDOVER AMOUNT</span>
-                <span v-if="row.remarks" class="text-caption text-slate-400 text-truncate font-weight-medium ms-2" style="font-size: 0.66rem !important;">
-                  {{ row.remarks }}
-                </span>
-              </div>
+            <!-- Hairline Divider -->
+            <div class="my-2 border-t border-slate-100"></div>
 
-              <div class="ledger-hero-amount text-slate-900">
+            <!-- Bottom Row: Handover Amount label on left, value on right -->
+            <div class="d-flex align-center justify-space-between">
+              <span class="text-caption font-weight-bold text-slate-500 text-uppercase tracking-wider" style="font-size: 0.66rem !important;">
+                Handover Amount
+              </span>
+              <span class="font-weight-black text-slate-900" style="font-size: 1.05rem !important;">
                 {{ formatCurrency(row.remainingAmount) }}
-              </div>
+              </span>
+            </div>
 
-              <!-- Split Breakdown (Only shown if split) -->
-              <div v-if="row.type === 'split'" class="mt-2 pt-2 border-t border-slate-200/80 d-flex align-center justify-space-between text-caption">
-                <div class="d-flex align-center gap-1 font-weight-semibold text-sky-800">
-                  <v-icon size="12" class="text-sky-600">mdi-bank</v-icon>
-                  <span>Bank:</span>
-                  <strong class="text-sky-950 font-weight-bold">{{ formatCurrency(row.bankAmount) }}</strong>
-                </div>
-                <div class="d-flex align-center gap-1 font-weight-semibold text-emerald-800">
-                  <v-icon size="12" class="text-emerald-600">mdi-cash</v-icon>
-                  <span>Cash:</span>
-                  <strong class="text-emerald-950 font-weight-bold">{{ formatCurrency(row.cashAmount) }}</strong>
-                </div>
+            <!-- Split Breakdown (if split) -->
+            <div v-if="row.type === 'split'" class="mt-2 pt-2 border-t border-slate-100 d-flex align-center justify-space-between text-caption">
+              <div class="d-flex align-center gap-1 font-weight-semibold text-sky-800">
+                <v-icon size="12" class="text-sky-600">mdi-bank</v-icon>
+                <span>Bank:</span>
+                <strong class="text-sky-950 font-weight-bold">{{ formatCurrency(row.bankAmount) }}</strong>
               </div>
+              <div class="d-flex align-center gap-1 font-weight-semibold text-emerald-800">
+                <v-icon size="12" class="text-emerald-600">mdi-cash</v-icon>
+                <span>Cash:</span>
+                <strong class="text-emerald-950 font-weight-bold">{{ formatCurrency(row.cashAmount) }}</strong>
+              </div>
+            </div>
 
-              <!-- Bank details if bank deposit and metadata exists -->
-              <div v-else-if="row.type === 'bank' && (row.bankName || row.bankRef)" class="mt-2 pt-2 border-t border-slate-200/80 text-caption text-slate-500 d-flex align-center gap-1-5">
-                <v-icon size="12" class="text-slate-400">mdi-information-outline</v-icon>
-                <span>{{ row.bankName || 'Bank' }}</span>
-                <span v-if="row.bankRef" class="text-slate-400">• Ref: {{ row.bankRef }}</span>
-              </div>
+            <!-- Bank Metadata (if bank deposit and info available) -->
+            <div v-else-if="row.type === 'bank' && (row.bankName || row.bankRef)" class="mt-1-5 text-caption text-slate-400 d-flex align-center gap-1" style="font-size: 0.68rem !important;">
+              <v-icon size="12" class="text-slate-400">mdi-information-outline</v-icon>
+              <span>{{ row.bankName || 'Bank' }}</span>
+              <span v-if="row.bankRef">• Ref: {{ row.bankRef }}</span>
+            </div>
+
+            <!-- Remarks if any -->
+            <div v-if="row.remarks" class="mt-1 text-caption text-slate-400 italic font-weight-medium" style="font-size: 0.68rem !important;">
+              {{ row.remarks }}
             </div>
           </div>
         </div>
