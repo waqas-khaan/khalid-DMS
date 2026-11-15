@@ -4,8 +4,9 @@
 
     <v-row align="center" justify="center" class="fill-height ma-0 w-100 py-6 py-sm-10">
       <v-col cols="12" class="d-flex justify-center align-center pa-2 pa-sm-4">
-        <v-card class="login-v-card elevation-12" style="position: relative;">
-          <v-card-text class="login-card-content">
+        <div class="login-card-glow-wrapper">
+          <v-card class="login-v-card" style="position: relative;">
+            <v-card-text class="login-card-content">
             <!-- Logo -->
             <div class="text-center logo-wrapper mb-6">
               <img
@@ -149,6 +150,7 @@
             </v-form>
           </v-card-text>
         </v-card>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -248,14 +250,41 @@ async function handleLogin() {
   min-height: 100vh;
 }
 
-/* Card Styling - High-End Executive Card */
+/* Card Glow Wrapper - Ambient White Halo */
+.login-card-glow-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  justify-content: center;
+}
+
+.login-card-glow-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.2) 40%, transparent 72%);
+  filter: blur(30px);
+  border-radius: 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Card Styling - High-End Executive Card with Awesome White Shadow */
 .login-container .login-v-card {
   position: relative;
   z-index: 2;
   background-color: #ffffff !important;
   border-radius: 10px !important;
-  border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 
+    0 0 35px rgba(255, 255, 255, 0.4),
+    0 0 80px rgba(255, 255, 255, 0.22),
+    0 0 130px rgba(255, 255, 255, 0.12),
+    0 25px 60px rgba(0, 0, 0, 0.5) !important;
   width: 100%;
   max-width: 580px;
   min-height: 600px;
