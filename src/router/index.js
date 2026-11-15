@@ -165,6 +165,11 @@ router.beforeEach((to, from, next) => {
     return next({ path: '/dashboard' });
   }
 
+  // Settings & Users is desktop-only (hidden for both admin and staff on mobile)
+  if (to.path.startsWith('/settings') && typeof window !== 'undefined' && window.innerWidth <= 960) {
+    return next({ path: '/dashboard' });
+  }
+
   next();
 });
 

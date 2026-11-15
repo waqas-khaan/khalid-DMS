@@ -208,16 +208,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useSettingsStore } from '@/stores/settings';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { authService } from '@/services/authService';
 import SettingsMobileView from './SettingsMobileView.vue';
 
+const router = useRouter();
 const display = useDisplay();
 const settingsStore = useSettingsStore();
 const snackbar = useSnackbarStore();
+
+// Redirect to dashboard on mobile view (Settings is desktop-only)
+onMounted(() => {
+  if (display.smAndDown.value) {
+    router.replace('/dashboard');
+  }
+});
+
+watch(
+  () => display.smAndDown.value,
+  (isMobile) => {
+    if (isMobile) {
+      router.replace('/dashboard');
+    }
+  }
+);
 
 const savingSettings = ref(false);
 const usersList = ref([]);

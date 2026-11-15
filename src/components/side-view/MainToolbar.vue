@@ -115,11 +115,11 @@
           title="Masters"
         />
 
-        <!-- Settings (Admin Only) -->
-        <div v-if="authStore.isAdmin" class="sidebar-group-header">System</div>
+        <!-- Settings (Admin Only & Desktop Only - Hidden on Mobile View) -->
+        <div v-if="authStore.isAdmin && !display.smAndDown.value" class="sidebar-group-header">System</div>
 
         <v-list-item
-          v-if="authStore.isAdmin"
+          v-if="authStore.isAdmin && !display.smAndDown.value"
           to="/settings"
           link
           class="sidebar-menu-item"
