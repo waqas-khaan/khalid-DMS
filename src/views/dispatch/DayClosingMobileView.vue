@@ -467,7 +467,7 @@
       </div>
 
       <!-- 6. Mobile Segmented Tab Controller (Read-Only History & Treasury) -->
-      <div class="mobile-tabs-pill-bar mb-3-5 pa-1 bg-slate-200 rounded-lg d-flex gap-1">
+      <div class="mobile-tabs-pill-bar mb-4 pa-1 bg-slate-200 rounded-lg d-flex gap-1">
         <button
           type="button"
           class="mobile-tab-btn flex-grow-1"
@@ -491,35 +491,32 @@
 
       <!-- TAB 1: DAILY CLOSING LEDGER (Read-Only Audit Cards) -->
       <div v-if="activeClosingTab === 'ledger'" class="mobile-tab-content">
-        <!-- Filter chips row -->
-        <div class="d-flex align-center gap-1 overflow-x-auto pb-2 mb-3-5 no-scrollbar">
-          <v-chip
-            size="small"
-            :variant="ledgerFilter === 'all' ? 'flat' : 'outlined'"
-            :color="ledgerFilter === 'all' ? 'primary' : 'default'"
-            class="font-weight-bold"
+        <!-- Filter pills row -->
+        <div class="ledger-filter-bar mb-4 d-flex align-center gap-1-5 overflow-x-auto no-scrollbar">
+          <button
+            type="button"
+            class="handover-filter-pill"
+            :class="{ active: ledgerFilter === 'all' }"
             @click="ledgerFilter = 'all'"
           >
-            All Days ({{ allLedgerRows.length }})
-          </v-chip>
-          <v-chip
-            size="small"
-            :variant="ledgerFilter === 'closed' ? 'flat' : 'outlined'"
-            :color="ledgerFilter === 'closed' ? 'success' : 'default'"
-            class="font-weight-bold"
+            All Days <span class="pill-count">({{ allLedgerRows.length }})</span>
+          </button>
+          <button
+            type="button"
+            class="handover-filter-pill"
+            :class="{ active: ledgerFilter === 'closed' }"
             @click="ledgerFilter = 'closed'"
           >
             Closed
-          </v-chip>
-          <v-chip
-            size="small"
-            :variant="ledgerFilter === 'pending' ? 'flat' : 'outlined'"
-            :color="ledgerFilter === 'pending' ? 'warning' : 'default'"
-            class="font-weight-bold"
+          </button>
+          <button
+            type="button"
+            class="handover-filter-pill"
+            :class="{ active: ledgerFilter === 'pending' }"
             @click="ledgerFilter = 'pending'"
           >
             Pending
-          </v-chip>
+          </button>
         </div>
 
         <!-- Ledger Days Card List (Tap card to inspect day) -->
@@ -674,7 +671,7 @@
       <!-- TAB 2: CASH & BANK HANDOVER REGISTER (Treasury Audit Cards) -->
       <div v-if="activeClosingTab === 'allocation'" class="mobile-tab-content">
         <!-- Unified Executive Treasury Summary Panel -->
-        <div class="treasury-summary-panel mb-3-5">
+        <div class="treasury-summary-panel mb-4">
           <div class="d-flex align-center justify-space-between mb-1">
             <div class="d-flex align-center gap-1-5">
               <v-icon size="14" class="text-slate-500">mdi-safe</v-icon>
@@ -1259,6 +1256,7 @@ onMounted(async () => {
 
 .mobile-tabs-pill-bar {
   border: 1px solid #cbd5e1;
+  margin-bottom: 16px !important;
 }
 
 .mobile-tab-btn {
@@ -1654,6 +1652,7 @@ onMounted(async () => {
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 12px 14px;
+  margin-bottom: 16px !important;
 }
 
 .treasury-kpi-subhead {
@@ -1705,7 +1704,8 @@ onMounted(async () => {
   display: inline-block;
 }
 
-/* Handover Filter Pills */
+/* Ledger & Handover Filter Pills */
+.ledger-filter-bar,
 .handover-filter-bar {
   padding-top: 2px;
   padding-bottom: 4px;
