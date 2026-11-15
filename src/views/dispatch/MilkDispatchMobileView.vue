@@ -319,25 +319,46 @@
               </div>
             </div>
 
-            <!-- Key Stats Ribbon -->
-            <div class="px-3 py-2-5 bg-white d-flex align-center justify-space-between text-caption border-b">
-              <div>
-                <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">MILK SENT</span>
-                <strong class="text-primary font-weight-black text-no-wrap">{{ formatNumber(d.totalMilk) }} Kg</strong>
-              </div>
-              <div v-if="(d.totalReturnMilk || 0) > 0">
-                <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">RETURN</span>
-                <strong class="text-orange-darken-4 font-weight-black text-no-wrap">{{ formatNumber(d.totalReturnMilk) }} Kg</strong>
-              </div>
-              <div>
-                <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">COLLECTION</span>
-                <strong class="text-success font-weight-black text-no-wrap">{{ formatCurrency(d.totalCollection) }}</strong>
-              </div>
-              <div class="text-end">
-                <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">NEW ARREARS</span>
-                <strong :class="(d.totalNewArrears || 0) > 0 ? 'text-error font-weight-black text-no-wrap' : 'text-success font-weight-black text-no-wrap'">
-                  {{ formatCurrency(d.totalNewArrears) }}
-                </strong>
+            <!-- Route Key Financial Stats (Clean 3-Box Row) -->
+            <div class="pa-3 bg-white">
+              <div class="route-kpi-grid text-caption">
+                <!-- Milk Sent -->
+                <div class="pa-2 rounded-lg bg-sky-50 border border-sky-100">
+                  <span class="text-sky-800 font-weight-bold text-uppercase d-block" style="font-size: 0.60rem !important;">MILK SENT</span>
+                  <div class="font-weight-black text-body-2 text-sky-900 text-no-wrap mt-0-5">
+                    {{ formatNumber(d.totalMilk) }} <span class="text-caption font-weight-bold text-sky-950">Kg</span>
+                  </div>
+                  <div v-if="(d.totalReturnMilk || 0) > 0" class="text-orange-darken-4 font-weight-bold text-no-wrap mt-0-5" style="font-size: 0.62rem !important;">
+                    -{{ formatNumber(d.totalReturnMilk) }} Kg ret
+                  </div>
+                  <div v-else class="text-slate-400 font-weight-medium text-no-wrap mt-0-5" style="font-size: 0.62rem !important;">
+                    0 Kg ret
+                  </div>
+                </div>
+
+                <!-- Collection -->
+                <div class="pa-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                  <span class="text-emerald-800 font-weight-bold text-uppercase d-block" style="font-size: 0.60rem !important;">COLLECTED</span>
+                  <div class="font-weight-black text-body-2 text-emerald-900 text-no-wrap mt-0-5">
+                    {{ formatCurrency(d.totalCollection) }}
+                  </div>
+                  <div class="text-emerald-700 font-weight-medium text-no-wrap mt-0-5" style="font-size: 0.62rem !important;">
+                    Cash received
+                  </div>
+                </div>
+
+                <!-- New Arrears -->
+                <div class="pa-2 rounded-lg border" :class="(d.totalNewArrears || 0) > 0 ? 'bg-rose-50 border-rose-100' : 'bg-slate-50'">
+                  <span class="font-weight-bold text-uppercase d-block" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-800' : 'text-slate-600'" style="font-size: 0.60rem !important;">
+                    NEW ARREARS
+                  </span>
+                  <div class="font-weight-black text-body-2 text-no-wrap mt-0-5" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-900' : 'text-emerald-700'">
+                    {{ formatCurrency(d.totalNewArrears) }}
+                  </div>
+                  <div class="font-weight-medium text-no-wrap mt-0-5" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-700' : 'text-slate-500'" style="font-size: 0.62rem !important;">
+                    {{ (d.totalNewArrears || 0) > 0 ? 'Pending dues' : 'All cleared' }}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -407,45 +428,38 @@
                     </div>
                   </div>
 
-                  <!-- Key Metrics 2-Card Row -->
-                  <div class="shop-metrics-grid mb-2">
-                    <!-- Box 1: Milk Sent & Returns -->
+                  <!-- Shop Financial Details: 2 Balanced Columns -->
+                  <div class="shop-metrics-grid text-caption">
+                    <!-- Delivery Side -->
                     <div class="pa-2 rounded-lg bg-slate-50 border">
-                      <span class="shop-kpi-label d-block text-slate-500">MILK SENT</span>
-                      <div class="font-weight-black text-body-2 text-primary line-height-tight text-no-wrap my-0-5">
-                        {{ formatNumber(s.todayMilk || s.todaySupplyMilk || s.kgs) }} <span class="text-caption font-weight-bold">Kg</span>
+                      <div class="d-flex align-center justify-space-between">
+                        <span class="text-slate-500 font-weight-medium" style="font-size: 0.68rem !important;">Milk Sent:</span>
+                        <strong class="text-primary font-weight-black text-no-wrap">{{ formatNumber(s.todayMilk || s.todaySupplyMilk || s.kgs) }} Kg</strong>
                       </div>
-                      <div v-if="(s.returnKgs || 0) > 0" class="text-caption text-orange-darken-4 font-weight-bold text-no-wrap" style="font-size: 0.68rem !important;">
-                        -{{ formatNumber(s.returnKgs) }} Kg ret
+                      <div v-if="(s.returnKgs || 0) > 0" class="d-flex align-center justify-space-between mt-1 text-orange-darken-4 font-weight-bold" style="font-size: 0.65rem !important;">
+                        <span>Return:</span>
+                        <span>-{{ formatNumber(s.returnKgs) }} Kg</span>
                       </div>
-                      <div v-else class="text-caption text-slate-400 font-weight-medium" style="font-size: 0.68rem !important;">
-                        0 Kg return
+                      <div class="d-flex align-center justify-space-between mt-1 pt-1 border-t text-slate-700" style="font-size: 0.68rem !important;">
+                        <span>Today's Bill:</span>
+                        <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(s.todayAmount || s.todayBill || s.totalPayable) }}</strong>
                       </div>
                     </div>
 
-                    <!-- Box 2: Collection Today -->
+                    <!-- Payment & Arrears Side -->
                     <div class="pa-2 rounded-lg bg-slate-50 border">
-                      <span class="shop-kpi-label d-block text-slate-500">COLLECTED</span>
-                      <div class="font-weight-black text-body-2 text-success line-height-tight text-no-wrap my-0-5">
-                        {{ formatCurrency(s.todayCollection) }}
+                      <div class="d-flex align-center justify-space-between">
+                        <span class="text-slate-500 font-weight-medium" style="font-size: 0.68rem !important;">Collected:</span>
+                        <strong class="text-success font-weight-black text-no-wrap">{{ formatCurrency(s.todayCollection) }}</strong>
                       </div>
-                      <div class="text-caption text-slate-500 font-weight-medium text-no-wrap" style="font-size: 0.68rem !important;">
-                        {{ (s.todayCollection || 0) > 0 ? 'Cash received' : 'No collection' }}
+                      <div class="d-flex align-center justify-space-between mt-1 text-slate-500" style="font-size: 0.65rem !important;">
+                        <span>Prev Arrears:</span>
+                        <span class="font-weight-bold text-slate-700 text-no-wrap">{{ formatCurrency(s.previousArrears || 0) }}</span>
                       </div>
-                    </div>
-                  </div>
-
-                  <!-- Financial Summary Strip -->
-                  <div class="px-2-5 py-2 rounded-lg bg-slate-50 border text-caption">
-                    <div class="d-flex align-center justify-space-between mb-1">
-                      <span class="text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">Today's Total Bill:</span>
-                      <strong class="text-slate-900 font-weight-black text-no-wrap" style="font-size: 0.78rem !important;">
-                        {{ formatCurrency(s.todayAmount || s.todayBill || s.totalPayable) }}
-                      </strong>
-                    </div>
-                    <div v-if="(s.previousArrears || 0) > 0" class="d-flex align-center justify-space-between text-slate-500 pt-1 border-t" style="font-size: 0.70rem !important;">
-                      <span>Includes Prev Arrears:</span>
-                      <strong class="text-slate-700 text-no-wrap">{{ formatCurrency(s.previousArrears) }}</strong>
+                      <div class="d-flex align-center justify-space-between mt-1 pt-1 border-t text-slate-700" style="font-size: 0.68rem !important;">
+                        <span>Total Payable:</span>
+                        <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(s.totalPayable || ((s.todayAmount || 0) + (s.previousArrears || 0))) }}</strong>
+                      </div>
                     </div>
                   </div>
                 </div>

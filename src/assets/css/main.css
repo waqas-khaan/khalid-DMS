@@ -1256,6 +1256,13 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
   gap: 8px !important;
 }
 
+.route-kpi-grid,
+.grid-cols-3 {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
 .d-grid {
   display: grid !important;
 }

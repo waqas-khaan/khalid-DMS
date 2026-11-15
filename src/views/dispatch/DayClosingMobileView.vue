@@ -194,30 +194,44 @@
         </div>
       </div>
 
-      <!-- Net Cash Flow Hero Banner with Collection Efficiency Progress -->
+      <!-- Net Cash Flow Hero Banner with Clear Math Breakdown & Collection Rate -->
       <div class="net-flow-hero-card pa-3-5 bg-white border rounded-xl shadow-sm mb-4">
         <div class="d-flex align-center justify-space-between mb-2">
           <div>
-            <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.72rem !important;">
-              Net Cash Flow to Finalize
-            </span>
-            <div class="text-h6 font-weight-black text-primary line-height-tight">
+            <div class="d-flex align-center gap-1-5">
+              <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.72rem !important;">
+                Net Cash in Hand
+              </span>
+              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold" style="height: 18px; font-size: 0.62rem !important;">
+                To Finalize
+              </v-chip>
+            </div>
+            <div class="text-h6 font-weight-black text-sky-700 line-height-tight mt-0-5">
               {{ formatCurrency(summary.netCashFlow) }}
             </div>
           </div>
 
           <div class="text-end">
-            <span class="text-caption font-weight-bold text-uppercase text-slate-600" style="font-size: 0.72rem !important;">
-              Collection Efficiency
+            <span class="text-caption font-weight-bold text-uppercase text-slate-600 d-block" style="font-size: 0.72rem !important;">
+              Collection Rate
             </span>
-            <div class="text-subtitle-1 font-weight-black" :class="collectionEfficiency >= 80 ? 'text-success' : 'text-warning'">
+            <div class="text-subtitle-1 font-weight-black line-height-tight" :class="collectionEfficiency >= 80 ? 'text-success' : 'text-warning'">
               {{ collectionEfficiency }}%
             </div>
           </div>
         </div>
 
+        <!-- Math Breakdown Pill: Collection - Expenses = Net Cash -->
+        <div class="px-2-5 py-1-5 rounded-lg bg-slate-50 border d-flex align-center justify-space-between text-caption mb-2 text-slate-700 font-weight-medium" style="font-size: 0.70rem !important;">
+          <span>Collected: <strong class="text-success">{{ formatCurrency(summary.totalCollection) }}</strong></span>
+          <span class="text-slate-400">−</span>
+          <span>Expenses: <strong class="text-error">{{ formatCurrency(summary.totalExpenses) }}</strong></span>
+          <span class="text-slate-400">=</span>
+          <span class="text-sky-700 font-weight-black">{{ formatCurrency(summary.netCashFlow) }}</span>
+        </div>
+
         <!-- Progress bar -->
-        <div class="w-100 bg-slate-100 rounded-pill overflow-hidden" style="height: 7px;">
+        <div class="w-100 bg-slate-100 rounded-pill overflow-hidden" style="height: 6px;">
           <div
             class="h-100 rounded-pill transition-all"
             :style="{
@@ -356,75 +370,96 @@
                 </div>
               </div>
 
-              <!-- Route Financial Ribbon -->
-              <div class="px-3 py-2-5 bg-white d-flex align-center justify-space-between text-caption border-b">
-                <div>
-                  <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">MILK SENT</span>
-                  <strong class="text-primary font-weight-black">{{ formatNumber(d.totalMilk) }} Kg</strong>
-                </div>
-                <div v-if="(d.totalReturnMilk || 0) > 0">
-                  <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">RETURN</span>
-                  <strong class="text-orange-darken-4 font-weight-black">{{ formatNumber(d.totalReturnMilk) }} Kg</strong>
-                </div>
-                <div>
-                  <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">COLLECTION</span>
-                  <strong class="text-success font-weight-black">{{ formatCurrency(d.totalCollection) }}</strong>
-                </div>
-                <div>
-                  <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">NEW ARREARS</span>
-                  <strong :class="(d.totalNewArrears || 0) > 0 ? 'text-error font-weight-black' : 'text-success font-weight-black'">
-                    {{ formatCurrency(d.totalNewArrears) }}
-                  </strong>
-                </div>
-              </div>
+              <!-- Route Key Financial Stats (Clean 3-Box Row) -->
+              <div class="pa-3 bg-white">
+                <div class="route-kpi-grid text-caption mb-2">
+                  <!-- Milk Sent -->
+                  <div class="pa-2 rounded-lg bg-sky-50 border border-sky-100">
+                    <span class="text-sky-800 font-weight-bold text-uppercase d-block" style="font-size: 0.60rem !important;">MILK SENT</span>
+                    <div class="font-weight-black text-body-2 text-sky-900 text-no-wrap mt-0-5">
+                      {{ formatNumber(d.totalMilk) }} <span class="text-caption font-weight-bold text-sky-950">Kg</span>
+                    </div>
+                    <div v-if="(d.totalReturnMilk || 0) > 0" class="text-orange-darken-4 font-weight-bold text-no-wrap mt-0-5" style="font-size: 0.62rem !important;">
+                      -{{ formatNumber(d.totalReturnMilk) }} Kg ret
+                    </div>
+                    <div v-else class="text-slate-400 font-weight-medium text-no-wrap mt-0-5" style="font-size: 0.62rem !important;">
+                      0 Kg ret
+                    </div>
+                  </div>
 
-              <!-- Route Collection Progress Bar -->
-              <div class="px-3 py-2 bg-slate-50 border-b">
-                <div class="d-flex align-center justify-space-between text-caption mb-1">
-                  <span class="text-grey font-weight-medium" style="font-size: 0.68rem !important;">
-                    Collected {{ formatCurrency(d.totalCollection) }} of {{ formatCurrency(getRouteTotalPayable(d)) }}
-                  </span>
-                  <strong class="font-weight-black" :class="getRouteCollectionPercentage(d) >= 80 ? 'text-success' : 'text-warning'">
-                    {{ getRouteCollectionPercentage(d) }}%
-                  </strong>
+                  <!-- Collection -->
+                  <div class="pa-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                    <span class="text-emerald-800 font-weight-bold text-uppercase d-block" style="font-size: 0.60rem !important;">COLLECTED</span>
+                    <div class="font-weight-black text-body-2 text-emerald-900 text-no-wrap mt-0-5">
+                      {{ formatCurrency(d.totalCollection) }}
+                    </div>
+                    <div class="text-emerald-700 font-weight-medium text-no-wrap mt-0-5" style="font-size: 0.62rem !important;">
+                      Cash received
+                    </div>
+                  </div>
+
+                  <!-- New Arrears -->
+                  <div class="pa-2 rounded-lg border" :class="(d.totalNewArrears || 0) > 0 ? 'bg-rose-50 border-rose-100' : 'bg-slate-50'">
+                    <span class="font-weight-bold text-uppercase d-block" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-800' : 'text-slate-600'" style="font-size: 0.60rem !important;">
+                      NEW ARREARS
+                    </span>
+                    <div class="font-weight-black text-body-2 text-no-wrap mt-0-5" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-900' : 'text-emerald-700'">
+                      {{ formatCurrency(d.totalNewArrears) }}
+                    </div>
+                    <div class="font-weight-medium text-no-wrap mt-0-5" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-700' : 'text-slate-500'" style="font-size: 0.62rem !important;">
+                      {{ (d.totalNewArrears || 0) > 0 ? 'Pending dues' : 'All cleared' }}
+                    </div>
+                  </div>
                 </div>
-                <div class="w-100 bg-grey-lighten-2 rounded-pill overflow-hidden" style="height: 5px;">
-                  <div
-                    class="h-100 rounded-pill"
-                    :style="{
-                      width: `${Math.min(100, Math.max(0, getRouteCollectionPercentage(d)))}%`,
-                      backgroundColor: getRouteCollectionPercentage(d) >= 80 ? '#10b981' : '#f59e0b'
-                    }"
-                  ></div>
+
+                <!-- Route Progress Bar -->
+                <div class="pt-2 border-t">
+                  <div class="d-flex align-center justify-space-between text-caption mb-1">
+                    <span class="text-slate-600 font-weight-medium" style="font-size: 0.70rem !important;">
+                      Route Collection: <strong>{{ formatCurrency(d.totalCollection) }}</strong> of {{ formatCurrency(getRouteTotalPayable(d)) }}
+                    </span>
+                    <span class="font-weight-black" :class="getRouteCollectionPercentage(d) >= 80 ? 'text-success' : 'text-warning'" style="font-size: 0.72rem !important;">
+                      {{ getRouteCollectionPercentage(d) }}%
+                    </span>
+                  </div>
+                  <div class="w-100 bg-slate-100 rounded-pill overflow-hidden" style="height: 6px;">
+                    <div
+                      class="h-100 rounded-pill transition-all"
+                      :style="{
+                        width: `${Math.min(100, Math.max(0, getRouteCollectionPercentage(d)))}%`,
+                        backgroundColor: getRouteCollectionPercentage(d) >= 80 ? '#10b981' : '#f59e0b'
+                      }"
+                    ></div>
+                  </div>
                 </div>
               </div>
 
               <!-- Expandable Shop List Toggle -->
               <div
-                class="d-flex align-center justify-space-between px-3 py-2-5 bg-white cursor-pointer hover:bg-slate-50 transition-colors"
+                class="d-flex align-center justify-space-between px-3 py-2-5 bg-slate-50 border-t cursor-pointer hover:bg-slate-100 transition-colors"
                 @click="toggleRouteExpand(d.id)"
               >
-                <div class="d-flex align-center">
-                  <v-icon size="16" color="primary" class="me-2">mdi-storefront-outline</v-icon>
+                <div class="d-flex align-center gap-1-5">
+                  <v-icon size="16" color="primary">mdi-storefront-outline</v-icon>
                   <span class="text-caption font-weight-bold text-slate-800">
-                    {{ (d.items || []).length === 1 ? '1 Shop in Route' : `${(d.items || []).length} Shops in Route` }}
+                    {{ (d.items || []).length === 1 ? '1 Shop in this route' : `${(d.items || []).length} Shops in this route` }}
                   </span>
                 </div>
                 <div class="d-flex align-center text-primary text-caption font-weight-bold">
-                  <span>{{ isRouteExpanded(d.id) ? 'Hide' : 'Inspect Shops' }}</span>
+                  <span>{{ isRouteExpanded(d.id) ? 'Hide Shops' : 'View Shop Breakdown' }}</span>
                   <v-icon size="16" class="ms-1">{{ isRouteExpanded(d.id) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
                 </div>
               </div>
 
-              <!-- Redesigned Sophisticated Mobile Shop Cards (Read-Only) -->
-              <div v-if="isRouteExpanded(d.id)" class="px-3 pb-3 pt-2 bg-slate-50 d-flex flex-column gap-2 border-t">
+              <!-- Clean Shop Breakdown List (Read-Only) -->
+              <div v-if="isRouteExpanded(d.id)" class="pa-3 bg-slate-100 border-t d-flex flex-column gap-2-5">
                 <div
                   v-for="row in (d.items || [])"
                   :key="row.shopId"
-                  class="shop-card-native pa-3 rounded-xl border bg-white shadow-xs"
+                  class="bg-white rounded-xl border pa-3 shadow-xs"
                 >
                   <!-- Shop Header: Name, Rate & Balance Due Status -->
-                  <div class="d-flex align-center justify-space-between pb-2 mb-2-5 border-b">
+                  <div class="d-flex align-center justify-space-between pb-2 mb-2 border-b">
                     <div class="d-flex align-center gap-2">
                       <div class="shop-avatar">
                         <v-icon size="16" color="primary">mdi-storefront</v-icon>
@@ -433,8 +468,8 @@
                         <div class="font-weight-black text-body-2 text-slate-900 leading-tight">
                           {{ row.shopName }}
                         </div>
-                        <div class="text-caption text-slate-500 font-weight-medium mt-0-5" style="font-size: 0.72rem !important;">
-                          Rate: <strong class="text-slate-800">Rs. {{ row.price }}</strong>/Kg
+                        <div class="text-caption text-slate-500 font-weight-medium mt-0-5" style="font-size: 0.70rem !important;">
+                          Selling Rate: <strong class="text-slate-800">Rs. {{ row.price }}</strong>/Kg
                         </div>
                       </div>
                     </div>
@@ -442,10 +477,10 @@
                     <!-- Right Header: Prominent Balance Due or Cleared Status -->
                     <div class="text-end">
                       <div v-if="(row.newArrears || 0) > 0">
-                        <span class="text-caption text-slate-500 font-weight-bold d-block text-uppercase" style="font-size: 0.62rem !important;">
+                        <span class="text-caption text-rose-700 font-weight-bold d-block text-uppercase" style="font-size: 0.60rem !important;">
                           BALANCE DUE
                         </span>
-                        <span class="text-body-2 font-weight-black text-error line-height-tight text-no-wrap">
+                        <span class="text-body-2 font-weight-black text-rose-600 line-height-tight text-no-wrap">
                           {{ formatCurrency(row.newArrears) }}
                         </span>
                       </div>
@@ -457,61 +492,38 @@
                     </div>
                   </div>
 
-                  <!-- Key Metrics 2-Card Row -->
-                  <div class="shop-metrics-grid mb-2">
-                    <!-- Box 1: Milk Sent & Returns -->
+                  <!-- Shop Financial Details: 2 Balanced Columns -->
+                  <div class="shop-metrics-grid text-caption">
+                    <!-- Delivery Side -->
                     <div class="pa-2 rounded-lg bg-slate-50 border">
-                      <span class="shop-kpi-label d-block text-slate-500">MILK SENT</span>
-                      <div class="font-weight-black text-body-2 text-primary line-height-tight text-no-wrap my-0-5">
-                        {{ formatNumber(row.kgs) }} <span class="text-caption font-weight-bold">Kg</span>
+                      <div class="d-flex align-center justify-space-between">
+                        <span class="text-slate-500 font-weight-medium" style="font-size: 0.68rem !important;">Milk Sent:</span>
+                        <strong class="text-primary font-weight-black text-no-wrap">{{ formatNumber(row.kgs) }} Kg</strong>
                       </div>
-                      <div v-if="(row.returnKgs || 0) > 0" class="text-caption text-orange-darken-4 font-weight-bold text-no-wrap" style="font-size: 0.68rem !important;">
-                        -{{ formatNumber(row.returnKgs) }} Kg ret
+                      <div v-if="(row.returnKgs || 0) > 0" class="d-flex align-center justify-space-between mt-1 text-orange-darken-4 font-weight-bold" style="font-size: 0.65rem !important;">
+                        <span>Return:</span>
+                        <span>-{{ formatNumber(row.returnKgs) }} Kg</span>
                       </div>
-                      <div v-else class="text-caption text-slate-400 font-weight-medium" style="font-size: 0.68rem !important;">
-                        0 Kg return
+                      <div class="d-flex align-center justify-space-between mt-1 pt-1 border-t text-slate-700" style="font-size: 0.68rem !important;">
+                        <span>Today's Bill:</span>
+                        <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(row.todayAmount || ((row.kgs - (row.returnKgs || 0)) * row.price)) }}</strong>
                       </div>
                     </div>
 
-                    <!-- Box 2: Collection Today -->
+                    <!-- Payment & Arrears Side -->
                     <div class="pa-2 rounded-lg bg-slate-50 border">
-                      <span class="shop-kpi-label d-block text-slate-500">COLLECTED</span>
-                      <div class="font-weight-black text-body-2 text-success line-height-tight text-no-wrap my-0-5">
-                        {{ formatCurrency(row.todayCollection) }}
+                      <div class="d-flex align-center justify-space-between">
+                        <span class="text-slate-500 font-weight-medium" style="font-size: 0.68rem !important;">Collected:</span>
+                        <strong class="text-success font-weight-black text-no-wrap">{{ formatCurrency(row.todayCollection) }}</strong>
                       </div>
-                      <div class="text-caption text-slate-500 font-weight-medium text-no-wrap" style="font-size: 0.68rem !important;">
-                        {{ (row.todayCollection || 0) > 0 ? 'Cash received' : 'No collection' }}
+                      <div class="d-flex align-center justify-space-between mt-1 text-slate-500" style="font-size: 0.65rem !important;">
+                        <span>Prev Arrears:</span>
+                        <span class="font-weight-bold text-slate-700 text-no-wrap">{{ formatCurrency(row.previousArrears || 0) }}</span>
                       </div>
-                    </div>
-                  </div>
-
-                  <!-- Financial Summary Strip -->
-                  <div class="px-2-5 py-2 rounded-lg bg-slate-50 border text-caption">
-                    <div class="d-flex align-center justify-space-between mb-1">
-                      <span class="text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">Total Payable:</span>
-                      <strong class="text-slate-900 font-weight-black text-no-wrap" style="font-size: 0.78rem !important;">
-                        {{ formatCurrency(row.totalPayable) }}
-                      </strong>
-                    </div>
-                    <div v-if="(row.previousArrears || 0) > 0" class="d-flex align-center justify-space-between text-slate-500 mb-1" style="font-size: 0.70rem !important;">
-                      <span>Includes Prev Arrears:</span>
-                      <strong class="text-slate-700 text-no-wrap">{{ formatCurrency(row.previousArrears) }}</strong>
-                    </div>
-
-                    <!-- Collection Progress Bar & Badge -->
-                    <div class="d-flex align-center gap-2 mt-1-5 pt-1-5 border-t">
-                      <div class="flex-grow-1 bg-slate-200 rounded-pill overflow-hidden" style="height: 5px;">
-                        <div
-                          class="h-100 rounded-pill"
-                          :style="{
-                            width: `${Math.min(100, Math.max(0, getShopCollectionPercent(row)))}%`,
-                            backgroundColor: (row.newArrears || 0) <= 0 ? '#10b981' : '#f59e0b'
-                          }"
-                        ></div>
+                      <div class="d-flex align-center justify-space-between mt-1 pt-1 border-t text-slate-700" style="font-size: 0.68rem !important;">
+                        <span>Total Payable:</span>
+                        <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(row.totalPayable) }}</strong>
                       </div>
-                      <span class="font-weight-bold text-no-wrap" :class="(row.newArrears || 0) <= 0 ? 'text-success' : 'text-amber-800'" style="font-size: 0.65rem !important;">
-                        {{ getShopCollectionPercent(row) }}%
-                      </span>
                     </div>
                   </div>
                 </div>
