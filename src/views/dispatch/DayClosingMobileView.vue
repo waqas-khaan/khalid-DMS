@@ -342,7 +342,7 @@
                   <!-- Collection -->
                   <div class="pa-2 rounded-lg bg-emerald-50 border border-emerald-100">
                     <span class="text-emerald-800 font-weight-bold text-uppercase d-block" style="font-size: 0.60rem !important;">COLLECTED</span>
-                    <div class="font-weight-black text-body-2 text-emerald-900 text-no-wrap mt-0-5">
+                    <div class="font-weight-black text-body-2 text-emerald-900 text-no-wrap mt-0-5" style="font-size: 0.82rem !important;">
                       {{ formatCurrency(d.totalCollection) }}
                     </div>
                     <div class="text-emerald-700 font-weight-medium text-no-wrap mt-0-5" style="font-size: 0.62rem !important;">
@@ -355,7 +355,7 @@
                     <span class="font-weight-bold text-uppercase d-block" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-800' : 'text-slate-600'" style="font-size: 0.60rem !important;">
                       NEW ARREARS
                     </span>
-                    <div class="font-weight-black text-body-2 text-no-wrap mt-0-5" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-900' : 'text-emerald-700'">
+                    <div class="font-weight-black text-body-2 text-no-wrap mt-0-5" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-900' : 'text-emerald-700'" style="font-size: 0.82rem !important;">
                       {{ formatCurrency(d.totalNewArrears) }}
                     </div>
                     <div class="font-weight-medium text-no-wrap mt-0-5" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-700' : 'text-slate-500'" style="font-size: 0.62rem !important;">
@@ -423,38 +423,54 @@
                     </div>
                   </div>
 
-                  <!-- Shop Financial Details: 2 Balanced Columns -->
-                  <div class="shop-metrics-grid text-caption">
-                    <!-- Delivery Side -->
-                    <div class="pa-2 rounded-lg bg-slate-50 border">
-                      <div class="d-flex align-center justify-space-between">
-                        <span class="text-slate-500 font-weight-medium" style="font-size: 0.68rem !important;">Milk Sent:</span>
-                        <strong class="text-primary font-weight-black text-no-wrap">{{ formatNumber(row.kgs) }} Kg</strong>
-                      </div>
-                      <div v-if="(row.returnKgs || 0) > 0" class="d-flex align-center justify-space-between mt-1 text-orange-darken-4 font-weight-bold" style="font-size: 0.65rem !important;">
-                        <span>Return:</span>
-                        <span>-{{ formatNumber(row.returnKgs) }} Kg</span>
-                      </div>
-                      <div class="d-flex align-center justify-space-between mt-1 pt-1 border-t text-slate-700" style="font-size: 0.68rem !important;">
-                        <span>Today's Bill:</span>
-                        <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(row.todayAmount || ((row.kgs - (row.returnKgs || 0)) * row.price)) }}</strong>
-                      </div>
+                  <!-- 1. Delivery Info Strip -->
+                  <div class="px-2-5 py-2 rounded-lg bg-sky-50 border border-sky-100 d-flex align-center justify-space-between text-caption mb-2 text-slate-700">
+                    <div class="d-flex align-center gap-1-5">
+                      <v-icon size="15" color="primary">mdi-truck-outline</v-icon>
+                      <span class="text-slate-600 font-weight-medium" style="font-size: 0.70rem;">Milk Sent:</span>
+                      <strong class="text-sky-900 font-weight-bold" style="font-size: 0.74rem;">{{ formatNumber(row.kgs) }} Kg</strong>
+                      <span v-if="(row.returnKgs || 0) > 0" class="text-orange-darken-4 font-weight-bold text-no-wrap" style="font-size: 0.65rem;">
+                        (-{{ formatNumber(row.returnKgs) }} ret)
+                      </span>
                     </div>
+                    <div class="text-end">
+                      <span class="text-slate-500 font-weight-medium" style="font-size: 0.70rem;">Today's Bill: </span>
+                      <strong class="text-slate-900 font-weight-black" style="font-size: 0.74rem;">
+                        {{ formatCurrency(row.todayAmount || ((row.kgs - (row.returnKgs || 0)) * row.price)) }}
+                      </strong>
+                    </div>
+                  </div>
 
-                    <!-- Payment & Arrears Side -->
-                    <div class="pa-2 rounded-lg bg-slate-50 border">
-                      <div class="d-flex align-center justify-space-between">
-                        <span class="text-slate-500 font-weight-medium" style="font-size: 0.68rem !important;">Collected:</span>
-                        <strong class="text-success font-weight-black text-no-wrap">{{ formatCurrency(row.todayCollection) }}</strong>
-                      </div>
-                      <div class="d-flex align-center justify-space-between mt-1 text-slate-500" style="font-size: 0.65rem !important;">
-                        <span>Prev Arrears:</span>
-                        <span class="font-weight-bold text-slate-700 text-no-wrap">{{ formatCurrency(row.previousArrears || 0) }}</span>
-                      </div>
-                      <div class="d-flex align-center justify-space-between mt-1 pt-1 border-t text-slate-700" style="font-size: 0.68rem !important;">
-                        <span>Total Payable:</span>
-                        <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(row.totalPayable) }}</strong>
-                      </div>
+                  <!-- 2. Account Math Breakdown Table -->
+                  <div class="pa-2-5 rounded-lg bg-slate-50 border text-caption">
+                    <!-- Prev Arrears (if any) -->
+                    <div v-if="(row.previousArrears || 0) > 0" class="d-flex align-center justify-space-between py-0-5 text-slate-600">
+                      <span class="font-weight-medium" style="font-size: 0.70rem;">Previous Arrears:</span>
+                      <span class="font-weight-bold text-slate-800 text-no-wrap" style="font-size: 0.72rem;">{{ formatCurrency(row.previousArrears) }}</span>
+                    </div>
+                    <!-- Today's Bill -->
+                    <div class="d-flex align-center justify-space-between py-0-5 text-slate-600">
+                      <span class="font-weight-medium" style="font-size: 0.70rem;">Today's Bill:</span>
+                      <span class="font-weight-bold text-slate-800 text-no-wrap" style="font-size: 0.72rem;">
+                        {{ formatCurrency(row.todayAmount || ((row.kgs - (row.returnKgs || 0)) * row.price)) }}
+                      </span>
+                    </div>
+                    <!-- Total Payable -->
+                    <div class="d-flex align-center justify-space-between py-1 border-t my-1 text-slate-800">
+                      <span class="font-weight-bold" style="font-size: 0.72rem;">Total Payable:</span>
+                      <strong class="font-weight-black text-slate-900 text-no-wrap" style="font-size: 0.76rem;">{{ formatCurrency(row.totalPayable) }}</strong>
+                    </div>
+                    <!-- Collected Today -->
+                    <div class="d-flex align-center justify-space-between py-0-5">
+                      <span class="text-emerald-700 font-weight-bold" style="font-size: 0.70rem;">Cash Collected:</span>
+                      <strong class="text-success font-weight-black text-no-wrap" style="font-size: 0.76rem;">{{ formatCurrency(row.todayCollection) }}</strong>
+                    </div>
+                    <!-- Remaining Balance Due -->
+                    <div class="d-flex align-center justify-space-between pt-1 border-t mt-1" :class="(row.newArrears || 0) > 0 ? 'text-rose-700 font-weight-black' : 'text-emerald-700 font-weight-bold'">
+                      <span style="font-size: 0.72rem;">{{ (row.newArrears || 0) > 0 ? 'Remaining Balance Due:' : 'Account Balance:' }}</span>
+                      <span class="text-no-wrap" style="font-size: 0.78rem;">
+                        {{ (row.newArrears || 0) > 0 ? formatCurrency(row.newArrears) : 'Rs. 0.00 (Cleared)' }}
+                      </span>
                     </div>
                   </div>
                 </div>
