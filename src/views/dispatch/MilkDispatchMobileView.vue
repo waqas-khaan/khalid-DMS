@@ -394,88 +394,93 @@
                   :key="s.shopId || s.shopName"
                   class="shop-card-native pa-3 rounded-xl border bg-white shadow-xs"
                 >
-                  <!-- Shop Header: Name, Rate & Balance Due Status -->
-                  <div class="d-flex align-center justify-space-between pb-2 mb-2-5 border-b">
-                    <div class="d-flex align-center gap-2">
-                      <div class="shop-avatar">
+                  <!-- 1. Shop Header: Avatar, Name, Badges & Status Pill -->
+                  <div class="d-flex align-center justify-space-between pb-2 mb-2 border-b">
+                    <div class="d-flex align-center gap-2 min-w-0">
+                      <div class="shop-avatar flex-shrink-0">
                         <v-icon size="16" color="primary">mdi-storefront</v-icon>
                       </div>
-                      <div>
-                        <div class="font-weight-black text-body-2 text-slate-900 leading-tight">
+                      <div class="min-w-0">
+                        <div class="font-weight-black text-body-2 text-slate-900 leading-tight text-truncate">
                           {{ s.shopName }}
                         </div>
-                        <div class="text-caption text-slate-500 font-weight-medium mt-0-5" style="font-size: 0.72rem !important;">
-                          Rate: <strong class="text-slate-800">{{ formatCurrency(s.price || s.rate) }}</strong>/Kg
+                        <div class="d-flex align-center gap-1 mt-1 flex-wrap">
+                          <span class="shop-badge-rate">
+                            Rate: <strong>Rs. {{ s.price || s.rate }}</strong>/Kg
+                          </span>
+                          <span class="shop-badge-milk">
+                            <v-icon size="11" class="me-0-5 text-sky-700">mdi-truck-outline</v-icon>
+                            <strong>{{ formatNumber(s.todayMilk || s.todaySupplyMilk || s.kgs) }}</strong> Kg
+                            <template v-if="(s.returnKgs || 0) > 0">
+                              <span class="text-orange-700 font-weight-bold">(-{{ formatNumber(s.returnKgs) }} ret)</span>
+                            </template>
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <!-- Right Header: Prominent Balance Due or Cleared Status -->
-                    <div class="text-end">
-                      <div v-if="(s.newArrears || 0) > 0">
-                        <span class="text-caption text-slate-500 font-weight-bold d-block text-uppercase" style="font-size: 0.62rem !important;">
-                          BALANCE DUE
-                        </span>
-                        <span class="text-body-2 font-weight-black text-error line-height-tight text-no-wrap">
-                          {{ formatCurrency(s.newArrears) }}
-                        </span>
-                      </div>
-                      <div v-else>
-                        <v-chip size="x-small" color="success" variant="flat" class="font-weight-black text-caption px-2" style="height: 20px;">
-                          CLEARED
-                        </v-chip>
-                      </div>
+                    <!-- Status Pill (Top Right) -->
+                    <div class="flex-shrink-0 ps-2">
+                      <span
+                        v-if="(s.newArrears || 0) > 0"
+                        class="shop-status-pill pill-due"
+                      >
+                        <span class="status-dot-due"></span>
+                        {{ formatCurrency(s.newArrears) }} Due
+                      </span>
+                      <span
+                        v-else
+                        class="shop-status-pill pill-cleared"
+                      >
+                        <v-icon size="12" class="me-0-5">mdi-check-circle</v-icon>
+                        Cleared
+                      </span>
                     </div>
                   </div>
 
-                  <!-- 1. Delivery Info Strip -->
-                  <div class="px-2-5 py-2 rounded-lg bg-sky-50 border border-sky-100 d-flex align-center justify-space-between text-caption mb-2 text-slate-700">
-                    <div class="d-flex align-center gap-1-5">
-                      <v-icon size="15" color="primary">mdi-truck-outline</v-icon>
-                      <span class="text-slate-600 font-weight-medium" style="font-size: 0.70rem;">Milk Sent:</span>
-                      <strong class="text-sky-900 font-weight-bold" style="font-size: 0.74rem;">{{ formatNumber(s.todayMilk || s.todaySupplyMilk || s.kgs) }} Kg</strong>
-                      <span v-if="(s.returnKgs || 0) > 0" class="text-orange-darken-4 font-weight-bold text-no-wrap" style="font-size: 0.65rem;">
-                        (-{{ formatNumber(s.returnKgs) }} ret)
-                      </span>
-                    </div>
-                    <div class="text-end">
-                      <span class="text-slate-500 font-weight-medium" style="font-size: 0.70rem;">Today's Bill: </span>
-                      <strong class="text-slate-900 font-weight-black" style="font-size: 0.74rem;">
+                  <!-- 2. Financial Receipt Statement (Consolidated, Zero Duplicates) -->
+                  <div class="shop-statement-box">
+                    <!-- Today's Bill -->
+                    <div class="statement-row">
+                      <span class="statement-label">Today's Bill:</span>
+                      <strong class="statement-val text-slate-900">
                         {{ formatCurrency(s.todayAmount || s.todayBill || s.totalPayable) }}
                       </strong>
                     </div>
-                  </div>
 
-                  <!-- 2. Account Math Breakdown Table -->
-                  <div class="pa-2-5 rounded-lg bg-slate-50 border text-caption">
-                    <!-- Prev Arrears (if any) -->
-                    <div v-if="(s.previousArrears || 0) > 0" class="d-flex align-center justify-space-between py-0-5 text-slate-600">
-                      <span class="font-weight-medium" style="font-size: 0.70rem;">Previous Arrears:</span>
-                      <span class="font-weight-bold text-slate-800 text-no-wrap" style="font-size: 0.72rem;">{{ formatCurrency(s.previousArrears) }}</span>
+                    <!-- Previous Arrears (if any) -->
+                    <div v-if="(s.previousArrears || 0) > 0" class="statement-row text-slate-600">
+                      <span class="statement-label">Previous Arrears:</span>
+                      <span class="statement-val font-weight-semibold">+ {{ formatCurrency(s.previousArrears) }}</span>
                     </div>
-                    <!-- Today's Bill -->
-                    <div class="d-flex align-center justify-space-between py-0-5 text-slate-600">
-                      <span class="font-weight-medium" style="font-size: 0.70rem;">Today's Bill:</span>
-                      <span class="font-weight-bold text-slate-800 text-no-wrap" style="font-size: 0.72rem;">
-                        {{ formatCurrency(s.todayAmount || s.todayBill || s.totalPayable) }}
+
+                    <!-- Total Payable (if previous arrears > 0) -->
+                    <div v-if="(s.previousArrears || 0) > 0" class="statement-row statement-subtotal">
+                      <span class="statement-label font-weight-bold text-slate-700">Total Payable:</span>
+                      <strong class="statement-val text-slate-900">{{ formatCurrency(s.totalPayable || ((s.todayAmount || 0) + (s.previousArrears || 0))) }}</strong>
+                    </div>
+
+                    <!-- Cash Collected -->
+                    <div class="statement-row statement-collected">
+                      <span class="statement-label text-emerald-800 font-weight-bold d-flex align-center gap-1">
+                        <v-icon size="13" color="success">mdi-cash-check</v-icon>
+                        Cash Collected:
                       </span>
+                      <strong class="statement-val text-success">{{ formatCurrency(s.todayCollection) }}</strong>
                     </div>
-                    <!-- Total Payable -->
-                    <div class="d-flex align-center justify-space-between py-1 border-t my-1 text-slate-800">
-                      <span class="font-weight-bold" style="font-size: 0.72rem;">Total Payable:</span>
-                      <strong class="font-weight-black text-slate-900 text-no-wrap" style="font-size: 0.76rem;">{{ formatCurrency(s.totalPayable || ((s.todayAmount || 0) + (s.previousArrears || 0))) }}</strong>
-                    </div>
-                    <!-- Collected Today -->
-                    <div class="d-flex align-center justify-space-between py-0-5">
-                      <span class="text-emerald-700 font-weight-bold" style="font-size: 0.70rem;">Cash Collected:</span>
-                      <strong class="text-success font-weight-black text-no-wrap" style="font-size: 0.76rem;">{{ formatCurrency(s.todayCollection) }}</strong>
-                    </div>
-                    <!-- Remaining Balance Due -->
-                    <div class="d-flex align-center justify-space-between pt-1 border-t mt-1" :class="(s.newArrears || 0) > 0 ? 'text-rose-700 font-weight-black' : 'text-emerald-700 font-weight-bold'">
-                      <span style="font-size: 0.72rem;">{{ (s.newArrears || 0) > 0 ? 'Remaining Balance Due:' : 'Account Balance:' }}</span>
-                      <span class="text-no-wrap" style="font-size: 0.78rem;">
-                        {{ (s.newArrears || 0) > 0 ? formatCurrency(s.newArrears) : 'Rs. 0.00 (Cleared)' }}
+
+                    <!-- Remaining Balance Due (if previous arrears was present or still due) -->
+                    <div
+                      v-if="(s.previousArrears || 0) > 0 || (s.newArrears || 0) > 0"
+                      class="statement-row statement-total"
+                      :class="(s.newArrears || 0) > 0 ? 'text-rose-700' : 'text-emerald-700'"
+                    >
+                      <span class="statement-label font-weight-bold">
+                        {{ (s.newArrears || 0) > 0 ? 'Remaining Balance:' : 'Account Settled:' }}
                       </span>
+                      <strong class="statement-val" style="font-size: 0.78rem !important;">
+                        {{ (s.newArrears || 0) > 0 ? formatCurrency(s.newArrears) : 'Rs. 0.00 (All Cleared)' }}
+                      </strong>
                     </div>
                   </div>
                 </div>
@@ -761,13 +766,115 @@ onMounted(async () => {
 }
 
 .shop-avatar {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   background-color: #eff6ff;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Sophisticated Shop Card Badges & Statement */
+.shop-badge-rate {
+  font-size: 0.68rem !important;
+  font-weight: 500;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.shop-badge-milk {
+  font-size: 0.68rem !important;
+  font-weight: 500;
+  color: #0369a1;
+  background: #f0f9ff;
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid #bae6fd;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.shop-status-pill {
+  font-size: 0.67rem !important;
+  font-weight: 700;
+  padding: 2.5px 8px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.shop-status-pill.pill-due {
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+}
+
+.shop-status-pill.pill-cleared {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.status-dot-due {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #e11d48;
+  margin-inline-end: 4px;
+}
+
+.shop-statement-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statement-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.statement-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.statement-val {
+  white-space: nowrap;
+}
+
+.statement-subtotal {
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 4px;
+  margin-top: 1px;
+}
+
+.statement-collected {
+  background: #ecfdf5;
+  border: 1px solid #d1fae5;
+  border-radius: 6px;
+  padding: 3px 6px;
+  margin: 1px 0;
+}
+
+.statement-total {
+  border-top: 1.5px solid #e2e8f0;
+  padding-top: 4px;
+  margin-top: 1px;
 }
 
 .shop-metrics-grid {
