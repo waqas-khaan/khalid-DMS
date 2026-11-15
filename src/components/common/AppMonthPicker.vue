@@ -200,6 +200,28 @@ function handleClear() {
   background: #ffffff !important;
 }
 
+:deep(.app-month-input .v-field__outline) {
+  color: #cbd5e1 !important;
+}
+
+:deep(.app-month-input .v-field__outline__start),
+:deep(.app-month-input .v-field__outline__notch::before),
+:deep(.app-month-input .v-field__outline__notch::after),
+:deep(.app-month-input .v-field__outline__end) {
+  border-color: #cbd5e1 !important;
+}
+
+:deep(.app-month-input .v-field--focused .v-field__outline) {
+  color: #0284c7 !important;
+}
+
+:deep(.app-month-input .v-field--focused .v-field__outline__start),
+:deep(.app-month-input .v-field--focused .v-field__outline__notch::before),
+:deep(.app-month-input .v-field--focused .v-field__outline__notch::after),
+:deep(.app-month-input .v-field--focused .v-field__outline__end) {
+  border-color: #0284c7 !important;
+}
+
 :deep(.app-month-input .v-field-label),
 :deep(.app-month-input .v-label) {
   color: #475569 !important;
