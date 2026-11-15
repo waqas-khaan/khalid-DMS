@@ -323,19 +323,19 @@
             <div class="px-3 py-2-5 bg-white d-flex align-center justify-space-between text-caption border-b">
               <div>
                 <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">MILK SENT</span>
-                <strong class="text-primary font-weight-black">{{ formatNumber(d.totalMilk) }} Kg</strong>
+                <strong class="text-primary font-weight-black text-no-wrap">{{ formatNumber(d.totalMilk) }} Kg</strong>
               </div>
               <div v-if="(d.totalReturnMilk || 0) > 0">
                 <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">RETURN</span>
-                <strong class="text-orange-darken-4 font-weight-black">{{ formatNumber(d.totalReturnMilk) }} Kg</strong>
+                <strong class="text-orange-darken-4 font-weight-black text-no-wrap">{{ formatNumber(d.totalReturnMilk) }} Kg</strong>
               </div>
               <div>
                 <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">COLLECTION</span>
-                <strong class="text-success font-weight-black">{{ formatCurrency(d.totalCollection) }}</strong>
+                <strong class="text-success font-weight-black text-no-wrap">{{ formatCurrency(d.totalCollection) }}</strong>
               </div>
-              <div>
+              <div class="text-end">
                 <span class="text-grey-darken-1 d-block font-weight-bold text-uppercase" style="font-size: 0.65rem !important;">NEW ARREARS</span>
-                <strong :class="(d.totalNewArrears || 0) > 0 ? 'text-error font-weight-black' : 'text-success font-weight-black'">
+                <strong :class="(d.totalNewArrears || 0) > 0 ? 'text-error font-weight-black text-no-wrap' : 'text-success font-weight-black text-no-wrap'">
                   {{ formatCurrency(d.totalNewArrears) }}
                 </strong>
               </div>
@@ -349,7 +349,7 @@
               <div class="d-flex align-center">
                 <v-icon size="16" color="primary" class="me-2">mdi-storefront-outline</v-icon>
                 <span class="text-caption font-weight-bold text-slate-800">
-                  {{ (d.items || d.shopDispatches || []).length > 0 ? (d.items || d.shopDispatches).length + ' Shops in Route' : 'View Shop Breakdown' }}
+                  {{ (d.items || d.shopDispatches || []).length === 1 ? '1 Shop in Route' : ((d.items || d.shopDispatches || []).length + ' Shops in Route') }}
                 </span>
               </div>
               <div class="d-flex align-center gap-1 text-primary font-weight-bold text-caption">
@@ -373,8 +373,8 @@
                   :key="s.shopId || s.shopName"
                   class="shop-card-native pa-3 rounded-xl border bg-white shadow-xs"
                 >
-                  <!-- Shop Header -->
-                  <div class="d-flex align-center justify-space-between pb-2 mb-2 border-b">
+                  <!-- Shop Header: Name, Rate & Balance Due Status -->
+                  <div class="d-flex align-center justify-space-between pb-2 mb-2-5 border-b">
                     <div class="d-flex align-center gap-2">
                       <div class="shop-avatar">
                         <v-icon size="16" color="primary">mdi-storefront</v-icon>
@@ -383,56 +383,66 @@
                         <div class="font-weight-black text-body-2 text-slate-900 leading-tight">
                           {{ s.shopName }}
                         </div>
-                        <div class="text-caption text-slate-600 font-weight-medium mt-0-5" style="font-size: 0.72rem !important;">
+                        <div class="text-caption text-slate-500 font-weight-medium mt-0-5" style="font-size: 0.72rem !important;">
                           Rate: <strong class="text-slate-800">{{ formatCurrency(s.price || s.rate) }}</strong>/Kg
                         </div>
                       </div>
                     </div>
 
+                    <!-- Right Header: Prominent Balance Due or Cleared Status -->
                     <div class="text-end">
-                      <span class="text-caption text-slate-600 font-weight-bold d-block text-uppercase" style="font-size: 0.68rem !important;">
-                        COLLECTED
-                      </span>
-                      <span class="text-body-2 font-weight-black text-success line-height-tight">
-                        {{ formatCurrency(s.todayCollection) }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- 3-Column Metrics Grid -->
-                  <div class="shop-kpi-row pt-1">
-                    <div class="shop-kpi-col">
-                      <span class="shop-kpi-label">MILK SENT</span>
-                      <span class="shop-kpi-val text-primary font-weight-black">
-                        {{ formatNumber(s.todayMilk || s.todaySupplyMilk || s.kgs) }} <small class="font-weight-bold">Kg</small>
-                      </span>
-                      <span v-if="(s.returnKgs || 0) > 0" class="shop-kpi-sub text-orange-darken-4 font-weight-bold">
-                        -{{ formatNumber(s.returnKgs) }} Kg ret
-                      </span>
-                    </div>
-
-                    <div class="shop-kpi-col border-x px-2">
-                      <span class="shop-kpi-label">TOTAL BILL</span>
-                      <span class="shop-kpi-val text-slate-900 font-weight-bold">
-                        {{ formatCurrency(s.todayAmount || s.todayBill || s.totalPayable) }}
-                      </span>
-                      <span v-if="(s.previousArrears || 0) > 0" class="shop-kpi-sub text-grey font-weight-medium">
-                        Prev: {{ formatCurrency(s.previousArrears) }}
-                      </span>
-                    </div>
-
-                    <div class="shop-kpi-col text-end ps-2">
-                      <span class="shop-kpi-label">BALANCE DUE</span>
                       <div v-if="(s.newArrears || 0) > 0">
-                        <span class="shop-kpi-val text-error font-weight-black">
+                        <span class="text-caption text-slate-500 font-weight-bold d-block text-uppercase" style="font-size: 0.62rem !important;">
+                          BALANCE DUE
+                        </span>
+                        <span class="text-body-2 font-weight-black text-error line-height-tight text-no-wrap">
                           {{ formatCurrency(s.newArrears) }}
                         </span>
                       </div>
                       <div v-else>
-                        <v-chip size="x-small" color="success" variant="flat" class="font-weight-black text-caption px-1-5" style="height: 18px; font-size: 0.62rem !important;">
+                        <v-chip size="x-small" color="success" variant="flat" class="font-weight-black text-caption px-2" style="height: 20px;">
                           CLEARED
                         </v-chip>
                       </div>
+                    </div>
+                  </div>
+
+                  <!-- Key Metrics 2-Card Row -->
+                  <div class="shop-metrics-grid mb-2">
+                    <!-- Box 1: Milk Sent & Returns -->
+                    <div class="pa-2 rounded-lg bg-slate-50 border">
+                      <span class="shop-kpi-label d-block text-slate-500">MILK SENT</span>
+                      <div class="font-weight-black text-body-2 text-primary line-height-tight text-no-wrap my-0-5">
+                        {{ formatNumber(s.todayMilk || s.todaySupplyMilk || s.kgs) }} <span class="text-caption font-weight-bold">Kg</span>
+                      </div>
+                      <div v-if="(s.returnKgs || 0) > 0" class="text-caption text-orange-darken-4 font-weight-bold text-no-wrap" style="font-size: 0.68rem !important;">
+                        -{{ formatNumber(s.returnKgs) }} Kg ret
+                      </div>
+                      <div v-else class="text-caption text-slate-400 font-weight-medium" style="font-size: 0.68rem !important;">
+                        0 Kg return
+                      </div>
+                    </div>
+
+                    <!-- Box 2: Collection Today -->
+                    <div class="pa-2 rounded-lg bg-slate-50 border">
+                      <span class="shop-kpi-label d-block text-slate-500">COLLECTED</span>
+                      <div class="font-weight-black text-body-2 text-success line-height-tight text-no-wrap my-0-5">
+                        {{ formatCurrency(s.todayCollection) }}
+                      </div>
+                      <div class="text-caption text-slate-500 font-weight-medium text-no-wrap" style="font-size: 0.68rem !important;">
+                        {{ (s.todayCollection || 0) > 0 ? 'Cash received' : 'No collection' }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Bill Summary Bar -->
+                  <div class="px-2-5 py-1-5 rounded-lg bg-slate-100 d-flex align-center justify-space-between text-caption">
+                    <div class="d-flex align-center gap-1 text-slate-700 font-weight-medium">
+                      <span>Total Bill:</span>
+                      <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(s.todayAmount || s.todayBill || s.totalPayable) }}</strong>
+                    </div>
+                    <div v-if="(s.previousArrears || 0) > 0" class="text-slate-500 text-caption font-weight-medium text-no-wrap">
+                      Prev Arrears: <strong class="text-slate-700">{{ formatCurrency(s.previousArrears) }}</strong>
                     </div>
                   </div>
                 </div>
@@ -727,16 +737,10 @@ onMounted(async () => {
   justify-content: center;
 }
 
-.shop-kpi-row {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr 1fr;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.shop-kpi-col {
-  display: flex;
-  flex-direction: column;
+.shop-metrics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
 }
 
 .shop-kpi-label {
@@ -749,13 +753,15 @@ onMounted(async () => {
 }
 
 .shop-kpi-val {
-  font-size: 0.82rem !important;
+  font-size: 0.85rem !important;
   line-height: 1.25;
+  white-space: nowrap !important;
 }
 
 .shop-kpi-sub {
-  font-size: 0.62rem !important;
+  font-size: 0.65rem !important;
   margin-top: 2px;
+  white-space: nowrap !important;
 }
 
 .filter-pill-btn {
