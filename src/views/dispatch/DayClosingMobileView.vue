@@ -407,7 +407,7 @@
                 <div class="d-flex align-center">
                   <v-icon size="16" color="primary" class="me-2">mdi-storefront-outline</v-icon>
                   <span class="text-caption font-weight-bold text-slate-800">
-                    {{ (d.items || []).length }} Shops in Route
+                    {{ (d.items || []).length === 1 ? '1 Shop in Route' : `${(d.items || []).length} Shops in Route` }}
                   </span>
                 </div>
                 <div class="d-flex align-center text-primary text-caption font-weight-bold">
@@ -485,26 +485,34 @@
                     </div>
                   </div>
 
-                  <!-- Bill Summary Bar -->
-                  <div class="px-2-5 py-1-5 rounded-lg bg-slate-100 d-flex align-center justify-space-between text-caption">
-                    <div class="d-flex align-center gap-1 text-slate-700 font-weight-medium">
-                      <span>Total Payable:</span>
-                      <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(row.totalPayable) }}</strong>
+                  <!-- Financial Summary Strip -->
+                  <div class="px-2-5 py-2 rounded-lg bg-slate-50 border text-caption">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <span class="text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">Total Payable:</span>
+                      <strong class="text-slate-900 font-weight-black text-no-wrap" style="font-size: 0.78rem !important;">
+                        {{ formatCurrency(row.totalPayable) }}
+                      </strong>
                     </div>
-                    <div v-if="(row.previousArrears || 0) > 0" class="text-slate-500 text-caption font-weight-medium text-no-wrap">
-                      Prev Arrears: <strong class="text-slate-700">{{ formatCurrency(row.previousArrears) }}</strong>
+                    <div v-if="(row.previousArrears || 0) > 0" class="d-flex align-center justify-space-between text-slate-500 mb-1" style="font-size: 0.70rem !important;">
+                      <span>Includes Prev Arrears:</span>
+                      <strong class="text-slate-700 text-no-wrap">{{ formatCurrency(row.previousArrears) }}</strong>
                     </div>
-                  </div>
 
-                  <!-- Mini Collection bar for this shop -->
-                  <div class="w-100 bg-slate-100 rounded-pill overflow-hidden mt-2" style="height: 4px;">
-                    <div
-                      class="h-100 rounded-pill"
-                      :style="{
-                        width: `${Math.min(100, Math.max(0, getShopCollectionPercent(row)))}%`,
-                        backgroundColor: (row.newArrears || 0) <= 0 ? '#10b981' : '#f59e0b'
-                      }"
-                    ></div>
+                    <!-- Collection Progress Bar & Badge -->
+                    <div class="d-flex align-center gap-2 mt-1-5 pt-1-5 border-t">
+                      <div class="flex-grow-1 bg-slate-200 rounded-pill overflow-hidden" style="height: 5px;">
+                        <div
+                          class="h-100 rounded-pill"
+                          :style="{
+                            width: `${Math.min(100, Math.max(0, getShopCollectionPercent(row)))}%`,
+                            backgroundColor: (row.newArrears || 0) <= 0 ? '#10b981' : '#f59e0b'
+                          }"
+                        ></div>
+                      </div>
+                      <span class="font-weight-bold text-no-wrap" :class="(row.newArrears || 0) <= 0 ? 'text-success' : 'text-amber-800'" style="font-size: 0.65rem !important;">
+                        {{ getShopCollectionPercent(row) }}%
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -579,27 +587,33 @@
             @click="inspectMobileDay(row.date)"
           >
             <!-- Card Header: Date & Status -->
-            <div class="d-flex align-center justify-space-between mb-2 pb-2 border-b">
-              <div class="d-flex align-center gap-1-5">
-                <v-icon
-                  size="18"
-                  :color="row.isClosed ? 'success' : (row.isPreviousUnclosed ? 'warning' : 'primary')"
-                >
-                  {{ row.isClosed ? 'mdi-calendar-check' : 'mdi-calendar-clock' }}
-                </v-icon>
-                <span class="font-weight-black text-body-2 text-slate-900">
-                  {{ formatDate(row.date) }}
-                </span>
-                <v-chip
-                  v-if="row.date === selectedDate"
-                  size="x-small"
-                  color="primary"
-                  variant="flat"
-                  class="font-weight-bold"
-                  style="height: 16px; font-size: 0.58rem !important;"
-                >
-                  Inspecting
-                </v-chip>
+            <div class="d-flex align-center justify-space-between mb-2-5 pb-2 border-b">
+              <div class="d-flex align-center gap-2">
+                <v-avatar size="28" :color="row.isClosed ? 'success' : 'warning'" variant="tonal" class="rounded-lg">
+                  <v-icon size="16">
+                    {{ row.isClosed ? 'mdi-calendar-check' : 'mdi-calendar-clock' }}
+                  </v-icon>
+                </v-avatar>
+                <div>
+                  <div class="d-flex align-center gap-1-5">
+                    <span class="font-weight-black text-body-2 text-slate-900 line-height-tight">
+                      {{ formatDate(row.date) }}
+                    </span>
+                    <v-chip
+                      v-if="row.date === selectedDate"
+                      size="x-small"
+                      color="primary"
+                      variant="flat"
+                      class="font-weight-bold"
+                      style="height: 16px; font-size: 0.58rem !important;"
+                    >
+                      Inspecting
+                    </v-chip>
+                  </div>
+                  <span class="text-caption text-slate-500 font-weight-medium" style="font-size: 0.68rem !important;">
+                    {{ row.summary.dispatchesCount }} {{ row.summary.dispatchesCount === 1 ? 'Route' : 'Routes' }}
+                  </span>
+                </div>
               </div>
 
               <v-chip
@@ -615,34 +629,38 @@
               </v-chip>
             </div>
 
-            <!-- Metrics Grid -->
-            <div class="d-grid mobile-ledger-metrics-grid gap-2 mb-2 text-caption">
-              <div>
-                <span class="text-grey d-block" style="font-size: 0.65rem !important;">COLLECTION</span>
-                <strong class="text-success font-weight-black">
+            <!-- 2x2 Clean Metrics Grid -->
+            <div class="ledger-metrics-grid mb-2">
+              <!-- Collection Box -->
+              <div class="pa-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                <span class="ledger-kpi-label text-emerald-800">COLLECTION</span>
+                <div class="font-weight-black text-body-2 text-emerald-900 text-no-wrap mt-0-5">
                   {{ formatCurrency(row.summary.totalCollection) }}
-                </strong>
+                </div>
               </div>
 
-              <div>
-                <span class="text-grey d-block" style="font-size: 0.65rem !important;">EXPENSES</span>
-                <strong class="text-error font-weight-bold">
+              <!-- Expenses Box -->
+              <div class="pa-2 rounded-lg bg-rose-50 border border-rose-100">
+                <span class="ledger-kpi-label text-rose-800">EXPENSES</span>
+                <div class="font-weight-black text-body-2 text-rose-900 text-no-wrap mt-0-5">
                   {{ formatCurrency(row.summary.totalExpenses) }}
-                </strong>
+                </div>
               </div>
 
-              <div>
-                <span class="text-grey d-block" style="font-size: 0.65rem !important;">MILK DISPATCHED</span>
-                <strong class="text-primary font-weight-bold">
-                  {{ formatNumber(row.summary.milkDispatchedKg) }} Kg
-                </strong>
+              <!-- Milk Dispatched Box -->
+              <div class="pa-2 rounded-lg bg-sky-50 border border-sky-100">
+                <span class="ledger-kpi-label text-sky-800">MILK DISPATCHED</span>
+                <div class="font-weight-black text-body-2 text-sky-900 text-no-wrap mt-0-5">
+                  {{ formatNumber(row.summary.milkDispatchedKg) }} <span class="text-caption font-weight-bold text-sky-950">Kg</span>
+                </div>
               </div>
 
-              <div>
-                <span class="text-grey d-block" style="font-size: 0.65rem !important;">ROUTES</span>
-                <strong class="text-slate-800 font-weight-bold">
-                  {{ row.summary.dispatchesCount }}
-                </strong>
+              <!-- Net Cash Flow Box -->
+              <div class="pa-2 rounded-lg bg-slate-50 border">
+                <span class="ledger-kpi-label text-slate-600">NET CASH FLOW</span>
+                <div class="font-weight-black text-body-2 text-slate-900 text-no-wrap mt-0-5">
+                  {{ formatCurrency((row.summary.totalCollection || 0) - (row.summary.totalExpenses || 0)) }}
+                </div>
               </div>
             </div>
 
@@ -1336,8 +1354,18 @@ onMounted(async () => {
   box-shadow: 0 0 0 1.5px #3b82f6 !important;
 }
 
-.mobile-ledger-metrics-grid {
-  grid-template-columns: repeat(2, 1fr);
+.ledger-metrics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.ledger-kpi-label {
+  font-size: 0.62rem !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: block;
 }
 
 /* Status Badges */

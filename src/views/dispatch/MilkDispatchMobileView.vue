@@ -435,14 +435,17 @@
                     </div>
                   </div>
 
-                  <!-- Bill Summary Bar -->
-                  <div class="px-2-5 py-1-5 rounded-lg bg-slate-100 d-flex align-center justify-space-between text-caption">
-                    <div class="d-flex align-center gap-1 text-slate-700 font-weight-medium">
-                      <span>Total Bill:</span>
-                      <strong class="text-slate-900 text-no-wrap">{{ formatCurrency(s.todayAmount || s.todayBill || s.totalPayable) }}</strong>
+                  <!-- Financial Summary Strip -->
+                  <div class="px-2-5 py-2 rounded-lg bg-slate-50 border text-caption">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <span class="text-slate-600 font-weight-medium" style="font-size: 0.72rem !important;">Today's Total Bill:</span>
+                      <strong class="text-slate-900 font-weight-black text-no-wrap" style="font-size: 0.78rem !important;">
+                        {{ formatCurrency(s.todayAmount || s.todayBill || s.totalPayable) }}
+                      </strong>
                     </div>
-                    <div v-if="(s.previousArrears || 0) > 0" class="text-slate-500 text-caption font-weight-medium text-no-wrap">
-                      Prev Arrears: <strong class="text-slate-700">{{ formatCurrency(s.previousArrears) }}</strong>
+                    <div v-if="(s.previousArrears || 0) > 0" class="d-flex align-center justify-space-between text-slate-500 pt-1 border-t" style="font-size: 0.70rem !important;">
+                      <span>Includes Prev Arrears:</span>
+                      <strong class="text-slate-700 text-no-wrap">{{ formatCurrency(s.previousArrears) }}</strong>
                     </div>
                   </div>
                 </div>

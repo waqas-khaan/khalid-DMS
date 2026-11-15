@@ -1249,11 +1249,21 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
 .py-3 { padding-top: 12px !important; padding-bottom: 12px !important; }
 
 .shop-metrics-grid,
+.ledger-metrics-grid,
 .grid-cols-2 {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   gap: 8px !important;
 }
+
+.d-grid {
+  display: grid !important;
+}
+
+.border-emerald-100 { border-color: #a7f3d0 !important; }
+.border-rose-100 { border-color: #fecdd3 !important; }
+.border-sky-100 { border-color: #bae6fd !important; }
+.border-amber-100 { border-color: #fde68a !important; }
 
 .text-no-wrap {
   white-space: nowrap !important;
