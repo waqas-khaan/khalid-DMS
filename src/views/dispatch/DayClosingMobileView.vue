@@ -127,105 +127,6 @@
         </div>
       </div>
 
-      <!-- 3. Day Audit & Finalization Status Card -->
-      <div class="mobile-audit-hero pa-3 rounded-xl border bg-white shadow-sm mb-3">
-        <div class="d-flex align-center justify-space-between mb-2 pb-2 border-b">
-          <div class="d-flex align-center gap-2">
-            <span
-              class="settlement-status-badge text-caption"
-              :class="getStatusBadgeClass"
-            >
-              <span class="status-dot"></span>
-              {{ getStatusBadgeLabel }}
-            </span>
-          </div>
-
-          <v-chip
-            size="small"
-            :color="inspection?.isClosed ? 'success' : 'warning'"
-            variant="tonal"
-            class="font-weight-bold text-caption"
-          >
-            <v-icon start size="14">
-              {{ inspection?.isClosed ? 'mdi-lock-check' : 'mdi-lock-open-outline' }}
-            </v-icon>
-            {{ inspection?.isClosed ? 'Finalized Record' : 'In Progress (Web)' }}
-          </v-chip>
-        </div>
-
-        <!-- If Finalized & Closed on Desktop -->
-        <div v-if="inspection?.isClosed" class="closed-details-box">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <div>
-              <span class="text-caption text-grey d-block" style="font-size: 0.68rem !important;">FINALIZED BY</span>
-              <strong class="text-body-2 text-slate-800 font-weight-bold">{{ inspection?.closedBy || 'Admin' }}</strong>
-            </div>
-            <div class="text-end">
-              <span class="text-caption text-grey d-block" style="font-size: 0.68rem !important;">CLOSED AT</span>
-              <span class="text-caption font-weight-medium text-slate-700">{{ formatDateTime(inspection?.closedAt) }}</span>
-            </div>
-          </div>
-
-          <!-- Allocation Pill -->
-          <div v-if="inspection?.closing?.allocation" class="pa-2 bg-slate-50 border rounded-lg d-flex align-center justify-space-between">
-            <div class="d-flex align-center gap-2">
-              <v-avatar
-                size="26"
-                :color="inspection.closing.allocation.type === 'bank' ? 'primary' : 'success'"
-                variant="tonal"
-              >
-                <v-icon size="14">
-                  {{ inspection.closing.allocation.type === 'bank' ? 'mdi-bank' : 'mdi-cash' }}
-                </v-icon>
-              </v-avatar>
-              <div>
-                <span class="text-caption text-grey font-weight-bold d-block" style="font-size: 0.65rem !important;">
-                  TREASURY ALLOCATION
-                </span>
-                <span class="font-weight-bold text-caption text-slate-800">
-                  <template v-if="inspection.closing.allocation.type === 'bank'">
-                    Bank Deposit: {{ formatCurrency(inspection.closing.allocation.bankAmount) }}
-                    <span v-if="inspection.closing.allocation.bankName" class="text-grey font-weight-regular">({{ inspection.closing.allocation.bankName }})</span>
-                  </template>
-                  <template v-else-if="inspection.closing.allocation.type === 'cash'">
-                    Cash in Hand: {{ formatCurrency(inspection.closing.allocation.cashAmount) }}
-                  </template>
-                  <template v-else>
-                    Split: Bank {{ formatCurrency(inspection.closing.allocation.bankAmount) }} • Cash {{ formatCurrency(inspection.closing.allocation.cashAmount) }}
-                  </template>
-                </span>
-              </div>
-            </div>
-            <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
-              Finalized
-            </v-chip>
-          </div>
-
-          <div v-if="inspection?.closing?.remarks" class="mt-2 text-caption text-grey-darken-2 fst-italic">
-            <v-icon size="12" class="me-1">mdi-format-quote-open</v-icon>
-            {{ inspection.closing.remarks }}
-          </div>
-        </div>
-
-        <!-- If Open / In Progress -->
-        <div v-else class="open-day-status-notice d-flex align-center justify-space-between bg-blue-grey-lighten-5 pa-2-5 rounded-lg border">
-          <div class="d-flex align-center gap-2">
-            <v-icon color="primary" size="20">mdi-clipboard-clock-outline</v-icon>
-            <div>
-              <div class="text-caption font-weight-bold text-slate-900 line-height-tight">
-                Active Working Day
-              </div>
-              <div class="text-caption text-grey-darken-2" style="font-size: 0.68rem !important;">
-                {{ summary.pendingDispatchCount > 0 ? `${summary.pendingDispatchCount} delivery still in route` : 'All deliveries returned & settled' }}
-              </div>
-            </div>
-          </div>
-          <v-chip size="x-small" :color="summary.pendingDispatchCount > 0 ? 'warning' : 'info'" variant="tonal" class="font-weight-bold">
-            {{ summary.pendingDispatchCount > 0 ? 'Delivery Out' : 'Ready on Web' }}
-          </v-chip>
-        </div>
-      </div>
-
       <!-- 4. Executive Financial KPI Cards (2x2 Grid) -->
       <div class="mobile-kpi-grid mb-3">
         <!-- Milk Received -->
@@ -1000,12 +901,6 @@
             Next
           </v-btn>
         </div>
-      </div>
-
-      <!-- Read-Only Executive Guidance Footer -->
-      <div class="mt-4 pa-3 bg-slate-100 rounded-lg text-center text-caption text-grey-darken-1 border">
-        <v-icon size="14" class="me-1" color="grey">mdi-shield-check-outline</v-icon>
-        Mobile view is optimized for read-only inspection. New entries, settlements, and closures are managed on desktop web.
       </div>
     </div>
 
