@@ -1045,10 +1045,23 @@ body {
 }
 
 /* Input value text must always be sharp, dark, and clearly visible */
-.v-field__input input,
+:not(.v-select) > .v-field .v-field__input input,
+:not(.v-select) .v-field__input input,
+.v-text-field:not(.v-select) .v-field__input input {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
 .v-field__input {
   color: #0f172a !important;
   opacity: 1 !important;
+}
+
+/* In v-select, the underlying combobox input must remain hidden as designed by Vuetify */
+.v-select .v-field .v-field__input > input,
+.v-select--selected .v-field .v-field__input > input {
+  opacity: 0 !important;
+  color: transparent !important;
 }
 
 /* Login Page Styling */

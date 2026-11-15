@@ -619,6 +619,11 @@ async function handleLogin() {
   font-size: 15px !important;
 }
 
+:deep(.custom-login-field.v-select .v-field .v-field__input > input) {
+  opacity: 0 !important;
+  color: transparent !important;
+}
+
 /* App Navy Action Button */
 .app-navy-action-btn {
   background-color: #063f78 !important;
