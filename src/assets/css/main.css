@@ -1185,6 +1185,21 @@ body {
   opacity: 1 !important;
 }
 
+/* Datepicker & Monthpicker text size scaling */
+.app-date-input input,
+.app-date-input .v-field__input,
+.app-month-input input,
+.app-month-input .v-field__input {
+  font-size: 0.80rem !important;
+}
+
+.app-date-input .v-field-label--floating,
+.app-date-input .v-label--floating,
+.app-month-input .v-field-label--floating,
+.app-month-input .v-label--floating {
+  font-size: 0.72rem !important;
+}
+
 .v-field__input {
   color: #0f172a !important;
   opacity: 1 !important;

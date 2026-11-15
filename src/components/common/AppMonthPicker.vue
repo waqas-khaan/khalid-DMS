@@ -183,9 +183,10 @@ function handleClear() {
   width: 100%;
 }
 
-:deep(.app-month-input input) {
+:deep(.app-month-input input),
+:deep(.app-month-input .v-field__input) {
   cursor: pointer !important;
-  font-size: 0.88rem !important;
+  font-size: 0.80rem !important;
   font-weight: 600 !important;
   color: #0f172a !important;
   letter-spacing: normal !important;
@@ -227,6 +228,7 @@ function handleClear() {
   color: #475569 !important;
   opacity: 1 !important;
   font-weight: 600 !important;
+  font-size: 0.80rem !important;
 }
 
 :deep(.app-month-input .v-field-label--floating),
@@ -234,7 +236,7 @@ function handleClear() {
   color: #0f172a !important;
   opacity: 1 !important;
   font-weight: 700 !important;
-  font-size: 0.80rem !important;
+  font-size: 0.72rem !important;
 }
 
 :deep(.app-month-input .v-field--focused .v-field-label--floating) {

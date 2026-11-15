@@ -777,7 +777,7 @@ function handleClear() {
   padding-bottom: 0 !important;
   padding-left: 6px !important;
   padding-right: 6px !important;
-  font-size: 0.86rem !important;
+  font-size: 0.80rem !important;
   font-weight: 700 !important;
   color: #0f172a !important;
   display: flex !important;
