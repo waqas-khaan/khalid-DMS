@@ -4,21 +4,7 @@
 
     <v-row align="center" justify="center" class="fill-height ma-0 w-100 py-6 py-sm-10">
       <v-col cols="12" class="d-flex justify-center align-center pa-2 pa-sm-4">
-        <v-card class="login-v-card elevation-5" style="position: relative;">
-          <!-- Top Row: Go to Home -->
-          <div class="login-card-header d-flex align-center justify-space-between">
-            <v-btn
-              to="/"
-              variant="text"
-              size="small"
-              color="#334155"
-              class="text-capitalize font-weight-bold px-0 go-home-action"
-            >
-              <v-icon start size="18">mdi-arrow-left</v-icon>
-              Go to Home
-            </v-btn>
-          </div>
-
+        <v-card class="login-v-card elevation-12" style="position: relative;">
           <v-card-text class="login-card-content">
             <!-- Logo -->
             <div class="text-center logo-wrapper mb-6">
@@ -58,20 +44,41 @@
                   density="default"
                   hide-details="auto"
                   class="custom-login-field"
+                  :menu-props="{ contentClass: 'login-user-select-menu', elevation: 8 }"
                   @update:model-value="clearError"
                 >
+                  <!-- Selected Item Display (Always Uppercase & High Contrast) -->
+                  <template #selection="{ item }">
+                    <div class="d-flex align-center">
+                      <v-icon
+                        size="18"
+                        class="mr-2"
+                        :color="item.raw.value === 'admin' ? '#0284c7' : '#64748b'"
+                      >
+                        {{ item.raw.value === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}
+                      </v-icon>
+                      <span class="selected-user-text font-weight-bold">
+                        {{ item.raw.title }}
+                      </span>
+                    </div>
+                  </template>
+
+                  <!-- Dropdown Menu Item (Clearly Visible & Styled) -->
                   <template #item="{ props, item }">
-                    <v-list-item v-bind="props">
+                    <v-list-item v-bind="props" class="login-dropdown-item py-2 px-3">
                       <template #prepend>
-                        <v-icon :color="item.raw.value === 'admin' ? 'primary' : 'blue-grey'">
-                          {{ item.raw.value === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}
-                        </v-icon>
+                        <div class="user-role-badge mr-3" :class="item.raw.value">
+                          <v-icon size="18" :color="item.raw.value === 'admin' ? '#0284c7' : '#64748b'">
+                            {{ item.raw.value === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}
+                          </v-icon>
+                        </div>
                       </template>
-                      <template #subtitle>
-                        <span class="text-caption text-grey">
-                          {{ item.raw.value === 'admin' ? 'Admin (Add, Edit, Delete)' : 'Staff (Add data only)' }}
-                        </span>
-                      </template>
+                      <v-list-item-title class="user-role-title">
+                        {{ item.raw.title }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle class="user-role-subtitle">
+                        {{ item.raw.value === 'admin' ? 'Full Access (Add, Edit, Delete)' : 'Staff Access (Add data only)' }}
+                      </v-list-item-subtitle>
                     </v-list-item>
                   </template>
                 </v-select>
@@ -164,8 +171,8 @@ const loading = ref(false);
 const error = ref(null);
 
 const userOptions = [
-  { title: 'admin', value: 'admin' },
-  { title: 'staff', value: 'staff' },
+  { title: 'Admin', value: 'admin' },
+  { title: 'Staff', value: 'staff' },
 ];
 
 const rules = {
@@ -187,7 +194,8 @@ async function handleLogin() {
   clearError();
 
   try {
-    const user = await authStore.login(username.value, password.value);
+    const cleanUser = String(username.value).trim().toLowerCase();
+    const user = await authStore.login(cleanUser, password.value);
     snackbar.success(`Signed in as ${user.name}!`);
     const redirect = route.query.redirect || '/dashboard';
     router.push(redirect);
@@ -200,14 +208,19 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-/* Login Page Background */
+/* Sophisticated Executive Midnight Slate & Falcon Navy Background */
 .login-container {
   position: relative;
   overflow-y: auto;
   min-height: 100vh;
   padding: 0;
   margin: 0;
-  background: linear-gradient(135deg, #eef2f6 0%, #e2e8f0 50%, #f8fafc 100%);
+  background-color: #0b132b;
+  background: 
+    radial-gradient(circle at 50% 18%, rgba(6, 63, 120, 0.45) 0%, transparent 60%),
+    radial-gradient(circle at 15% 85%, rgba(15, 76, 129, 0.3) 0%, transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.22) 0%, transparent 40%),
+    linear-gradient(135deg, #070d18 0%, #0c1a2d 40%, #091322 100%);
 }
 
 .login-container .background-backdrop {
@@ -216,7 +229,12 @@ async function handleLogin() {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #eef2f6 0%, #e2e8f0 50%, #f8fafc 100%);
+  background-color: #0b132b;
+  background: 
+    radial-gradient(circle at 50% 18%, rgba(6, 63, 120, 0.45) 0%, transparent 60%),
+    radial-gradient(circle at 15% 85%, rgba(15, 76, 129, 0.3) 0%, transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.22) 0%, transparent 40%),
+    linear-gradient(135deg, #070d18 0%, #0c1a2d 40%, #091322 100%);
   opacity: 1;
   z-index: 0;
 }
@@ -227,30 +245,25 @@ async function handleLogin() {
   min-height: 100vh;
 }
 
-/* Card Styling - Responsive Width & Height, Crisp Border & Reduced Radius */
+/* Card Styling - High-End Executive Card */
 .login-container .login-v-card {
   position: relative;
   z-index: 2;
-  background-color: rgba(255, 255, 255, 0.98) !important;
-  backdrop-filter: blur(10px);
+  background-color: #ffffff !important;
   border-radius: 10px !important;
-  border: 1px solid #000000 !important;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
   width: 100%;
   max-width: 580px;
-  min-height: 640px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   box-sizing: border-box;
 }
 
-.login-card-header {
-  padding: 24px 32px 0 32px;
-}
-
 .login-card-content {
-  padding: 16px 40px 40px 40px !important;
+  padding: 44px 44px 40px 44px !important;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -283,19 +296,79 @@ async function handleLogin() {
   color: #334155 !important;
 }
 
+/* Selected User Text */
+.selected-user-text {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+}
+
+/* High-Contrast Visible Dropdown Menu */
+:deep(.login-user-select-menu) {
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2) !important;
+  padding: 6px !important;
+}
+
+:deep(.login-dropdown-item) {
+  border-radius: 6px !important;
+  margin-bottom: 4px !important;
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+}
+
+:deep(.login-dropdown-item:hover) {
+  background-color: #f1f5f9 !important;
+}
+
+:deep(.login-dropdown-item.v-list-item--active) {
+  background-color: #e0f2fe !important;
+}
+
+.user-role-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f5f9;
+}
+
+.user-role-badge.admin {
+  background-color: #e0f2fe;
+}
+
+.user-role-badge.staff {
+  background-color: #f1f5f9;
+}
+
+:deep(.user-role-title) {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin-bottom: 2px !important;
+}
+
+:deep(.user-role-subtitle) {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
 /* Responsive Login Page */
 @media (max-width: 960px) {
   .login-container .login-v-card {
     max-width: 520px;
-    min-height: 580px;
-  }
-
-  .login-card-header {
-    padding: 16px 24px 0 24px;
+    min-height: 560px;
   }
 
   .login-card-content {
-    padding: 12px 28px 32px 28px !important;
+    padding: 36px 32px 32px 32px !important;
   }
 
   .login-brand-logo {
@@ -320,12 +393,8 @@ async function handleLogin() {
     border-radius: 8px !important;
   }
 
-  .login-card-header {
-    padding: 12px 16px 0 16px;
-  }
-
   .login-card-content {
-    padding: 12px 18px 24px 18px !important;
+    padding: 28px 18px 24px 18px !important;
   }
 
   .login-brand-logo {
