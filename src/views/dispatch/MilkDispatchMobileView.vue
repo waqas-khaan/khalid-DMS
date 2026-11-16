@@ -74,7 +74,31 @@
     </header>
 
     <div class="px-3 pt-3">
-      <!-- 2. Daily Summary Metric Cards (2x2 Grid) -->
+      <!-- Mode Switcher: Route Dispatches vs Guest Sales -->
+      <div class="dispatch-mode-toggle d-flex align-center p-1 bg-slate-200 rounded-xl mb-3">
+        <button
+          type="button"
+          class="mode-toggle-btn flex-grow-1"
+          :class="{ active: currentTab === 'routes' }"
+          @click="currentTab = 'routes'"
+        >
+          <v-icon start size="16">mdi-truck-fast</v-icon>
+          Routes ({{ routeDispatches.length }})
+        </button>
+        <button
+          type="button"
+          class="mode-toggle-btn flex-grow-1"
+          :class="{ active: currentTab === 'guest' }"
+          @click="currentTab = 'guest'"
+        >
+          <v-icon start size="16">mdi-storefront</v-icon>
+          Guest Sales ({{ guestSales.length }})
+        </button>
+      </div>
+
+      <!-- TAB A: ROUTE DISPATCHES -->
+      <div v-if="currentTab === 'routes'">
+        <!-- 2. Daily Summary Metric Cards (2x2 Grid) -->
       <div class="mobile-kpi-grid mb-3">
         <!-- Card 1: Milk Sent -->
         <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
@@ -470,7 +494,206 @@
           </div>
         </div>
       </div>
+      </div>
+
+      <!-- TAB B: GUEST / WALK-IN SALES -->
+      <div v-else-if="currentTab === 'guest'">
+        <!-- Action Card for New Guest Sale -->
+        <div class="pa-4 bg-white rounded-xl border shadow-xs mb-3">
+          <div class="d-flex align-center justify-space-between mb-2">
+            <div class="d-flex align-center gap-2">
+              <v-icon color="primary" size="22">mdi-account-cash</v-icon>
+              <div>
+                <div class="font-weight-black text-body-2 text-slate-900">Direct Customer Sale</div>
+                <div class="text-caption text-grey" style="font-size: 0.70rem !important;">
+                  Walk-in retail milk &bull; Dual 80mm POS slip (Gate + Customer)
+                </div>
+              </div>
+            </div>
+            <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
+              Rate: Rs. {{ masterMilkPrice }}
+            </v-chip>
+          </div>
+          <v-btn
+            block
+            color="primary"
+            variant="flat"
+            size="large"
+            class="font-weight-black text-body-2 rounded-lg text-capitalize py-3 shadow-sm"
+            prepend-icon="mdi-plus-circle"
+            @click="openNewGuestSaleDialog"
+          >
+            + New Guest Sale (2 Kg, 5 Kg...)
+          </v-btn>
+        </div>
+
+        <!-- Guest Sales Summary (2-Card Grid) -->
+        <div class="mobile-kpi-grid mb-3">
+          <!-- Milk Sold -->
+          <div class="mobile-kpi-card milk-out-card pa-3 bg-white">
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Guest Milk</span>
+              <div class="kpi-icon-badge bg-blue-50 text-blue-600">
+                <v-icon size="16">mdi-weight-kilogram</v-icon>
+              </div>
+            </div>
+            <div class="kpi-value text-blue-700">
+              {{ formatNumber(guestTotals.totalMilk) }} <span class="kpi-unit">Kg</span>
+            </div>
+            <div class="kpi-subtitle">
+              {{ guestSales.length }} transactions
+            </div>
+          </div>
+
+          <!-- Cash Received -->
+          <div class="mobile-kpi-card income-card pa-3 bg-white">
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="kpi-label">Cash Collected</span>
+              <div class="kpi-icon-badge bg-emerald-50 text-emerald-600">
+                <v-icon size="16">mdi-cash-check</v-icon>
+              </div>
+            </div>
+            <div class="kpi-value text-emerald-600">
+              {{ formatCurrency(guestTotals.totalCollection) }}
+            </div>
+            <div class="kpi-subtitle">
+              Paid at counter
+            </div>
+          </div>
+        </div>
+
+        <!-- Guest Sales List -->
+        <div class="mobile-section-header mb-2 d-flex align-center justify-space-between">
+          <span class="text-caption font-weight-bold text-slate-800 text-uppercase">
+            Recorded Guest Sales ({{ guestSales.length }})
+          </span>
+          <span class="text-caption text-grey font-weight-bold">
+            Date: {{ formatDate(selectedDate) }}
+          </span>
+        </div>
+
+        <!-- Empty State -->
+        <div
+          v-if="guestSales.length === 0"
+          class="pa-6 bg-white rounded-xl border text-center text-grey-darken-1 shadow-xs mb-3"
+        >
+          <v-icon size="40" color="grey-lighten-1" class="mb-2">mdi-account-cash-outline</v-icon>
+          <div class="font-weight-bold text-body-2 text-slate-800">No Guest Sales Yet</div>
+          <div class="text-caption text-grey mb-3">
+            Tap the button above to record walk-in retail customer milk purchases and print dual 80mm receipts.
+          </div>
+          <v-btn
+            size="small"
+            color="primary"
+            variant="flat"
+            class="text-capitalize font-weight-bold rounded-lg px-4"
+            prepend-icon="mdi-plus"
+            @click="openNewGuestSaleDialog"
+          >
+            Add First Guest Sale
+          </v-btn>
+        </div>
+
+        <!-- Guest Sales Cards -->
+        <div v-else class="d-flex flex-column gap-3">
+          <div
+            v-for="s in guestSales"
+            :key="s.id"
+            class="mobile-route-card bg-white border rounded-xl shadow-xs overflow-hidden"
+          >
+            <!-- Sale Header -->
+            <div class="pa-3 bg-slate-50 border-b d-flex align-center justify-space-between">
+              <div>
+                <div class="d-flex align-center gap-1-5">
+                  <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold font-mono">
+                    #{{ s.token || (s.id ? s.id.substring(0, 8) : '440b23ce') }}
+                  </v-chip>
+                  <span class="font-weight-black text-body-2 text-slate-900">
+                    {{ s.customerName || 'Guest Customer' }}
+                  </span>
+                </div>
+                <div class="text-caption text-grey-darken-1 mt-0-5 font-weight-medium">
+                  {{ s.time || (s.createdAt ? formatTime(s.createdAt) : '') }} &bull; {{ s.paymentMethod === 'bank' ? 'Bank Transfer' : 'Cash in Hand' }}
+                </div>
+              </div>
+
+              <div>
+                <v-chip
+                  size="small"
+                  color="success"
+                  variant="flat"
+                  class="font-weight-bold text-caption px-2-5"
+                >
+                  <v-icon start size="13">mdi-check-circle</v-icon>
+                  PAID
+                </v-chip>
+              </div>
+            </div>
+
+            <!-- Sale Details Grid -->
+            <div class="pa-3 bg-white">
+              <div class="route-kpi-grid text-caption mb-2">
+                <!-- Milk Sold -->
+                <div class="pa-2 rounded-lg bg-sky-50 border border-sky-100">
+                  <span class="text-sky-800 font-weight-bold text-uppercase d-block" style="font-size: 0.60rem !important;">QUANTITY</span>
+                  <strong class="text-sky-900 font-weight-black text-body-2">{{ formatNumber(s.totalMilk) }}</strong> <span class="text-caption font-weight-bold text-sky-800">Kg</span>
+                </div>
+
+                <!-- Rate -->
+                <div class="pa-2 rounded-lg bg-slate-50 border">
+                  <span class="text-slate-700 font-weight-bold text-uppercase d-block" style="font-size: 0.60rem !important;">RATE / KG</span>
+                  <strong class="text-slate-900 font-weight-black text-body-2">Rs. {{ s.rate || 195 }}</strong>
+                </div>
+
+                <!-- Cash Paid -->
+                <div class="pa-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                  <span class="text-emerald-800 font-weight-bold text-uppercase d-block" style="font-size: 0.60rem !important;">COLLECTED</span>
+                  <strong class="text-emerald-900 font-weight-black text-body-2">{{ formatCurrency(s.totalCollection) }}</strong>
+                </div>
+              </div>
+
+              <!-- Action Bar -->
+              <div class="d-flex align-center justify-space-between pt-2 border-t gap-2">
+                <v-btn
+                  size="small"
+                  variant="tonal"
+                  color="error"
+                  class="text-capitalize text-caption"
+                  prepend-icon="mdi-delete-outline"
+                  @click="deleteGuestSale(s)"
+                >
+                  Void
+                </v-btn>
+
+                <v-btn
+                  size="small"
+                  variant="flat"
+                  color="primary"
+                  class="font-weight-black text-capitalize px-4"
+                  prepend-icon="mdi-printer"
+                  @click="viewReceipt(s, true)"
+                >
+                  Print 2x 80mm Slips
+                </v-btn>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Modals for Guest Sales -->
+    <GuestSaleDialog
+      v-model="guestSaleModal"
+      :default-date="selectedDate"
+      @saved="onGuestSaleSaved"
+    />
+
+    <GuestSaleReceiptDialog
+      v-model="receiptModal"
+      :sale="activeReceiptSale"
+      :auto-print="autoPrintReceipt"
+    />
 
     <!-- Date Picker Modal -->
     <v-dialog v-model="datePickerModal" max-width="320">
@@ -501,10 +724,16 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { dispatchService } from '@/services/dispatchService';
 import { useBusinessDayStore } from '@/stores/businessDay';
+import { useSettingsStore } from '@/stores/settings';
 import { formatCurrency, formatNumber, formatDate, getOffsetDateString } from '@/utils/formatters';
 import AppDatePicker from '@/components/common/AppDatePicker.vue';
+import GuestSaleDialog from '@/components/dispatch/GuestSaleDialog.vue';
+import GuestSaleReceiptDialog from '@/components/dispatch/GuestSaleReceiptDialog.vue';
 
 const businessDayStore = useBusinessDayStore();
+const settingsStore = useSettingsStore();
+
+const masterMilkPrice = computed(() => Number(settingsStore.settings.defaultMilkPrice) || 195);
 
 const loading = ref(false);
 const datePickerModal = ref(false);
@@ -517,8 +746,80 @@ const currentRouteIndex = ref(0);
 const viewMode = ref('stepper'); // 'stepper' or 'list'
 const loadingItems = ref(false);
 
+// Mode Toggle: 'routes' or 'guest'
+const currentTab = ref('routes');
+
+// Guest sale dialogs & state
+const guestSaleModal = ref(false);
+const receiptModal = ref(false);
+const activeReceiptSale = ref(null);
+const autoPrintReceipt = ref(false);
+
+// Route dispatches vs Guest counter sales
+const routeDispatches = computed(() => {
+  return (dateDispatches.value || []).filter((d) => d.dispatchType !== 'guest');
+});
+
+const guestSales = computed(() => {
+  return (dateDispatches.value || []).filter((d) => d.dispatchType === 'guest');
+});
+
+const guestTotals = computed(() => {
+  let totalMilk = 0;
+  let totalAmount = 0;
+  let totalCollection = 0;
+  for (const s of guestSales.value) {
+    totalMilk += Number(s.totalMilk) || 0;
+    totalAmount += Number(s.totalAmount) || 0;
+    totalCollection += Number(s.totalCollection) || 0;
+  }
+  return {
+    totalMilk,
+    totalAmount,
+    totalCollection,
+    count: guestSales.value.length,
+  };
+});
+
+function openNewGuestSaleDialog() {
+  guestSaleModal.value = true;
+}
+
+async function onGuestSaleSaved({ sale, triggerPrint }) {
+  await loadDispatches();
+  activeReceiptSale.value = sale;
+  autoPrintReceipt.value = triggerPrint;
+  receiptModal.value = true;
+}
+
+function viewReceipt(sale, autoPrint = false) {
+  activeReceiptSale.value = sale;
+  autoPrintReceipt.value = autoPrint;
+  receiptModal.value = true;
+}
+
+async function deleteGuestSale(sale) {
+  if (!confirm(`Void guest sale #${sale.token || ''} (${sale.totalMilk} Kg - Rs. ${sale.totalAmount})?`)) return;
+  try {
+    await dispatchService.deleteDispatch(sale.id, sale.date);
+    await loadDispatches();
+  } catch (err) {
+    console.error('Failed to delete sale:', err);
+    alert('Failed to void sale: ' + err.message);
+  }
+}
+
+function formatTime(d) {
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  } catch (e) {
+    return '';
+  }
+}
+
 const filteredDispatches = computed(() => {
-  let list = dateDispatches.value || [];
+  let list = routeDispatches.value || [];
   if (statusFilter.value === 'dispatched') {
     list = list.filter((d) => d.status === 'Dispatched');
   } else if (statusFilter.value === 'returned') {
@@ -591,7 +892,7 @@ const totals = computed(() => {
   let collection = 0;
   let arrears = 0;
 
-  for (const d of dateDispatches.value) {
+  for (const d of routeDispatches.value) {
     milkSent += Number(d.totalMilk) || 0;
     returns += Number(d.totalReturnMilk) || 0;
     collection += Number(d.totalCollection) || 0;
@@ -654,6 +955,34 @@ onMounted(async () => {
 .mobile-dispatch-page {
   background-color: #f8fafc;
   min-height: 100vh;
+}
+
+.dispatch-mode-toggle {
+  background: #e2e8f0;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.mode-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #475569;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-toggle-btn.active {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .sticky-top {

@@ -209,6 +209,91 @@ export const dispatchService = {
     });
   },
 
+  async createGuestSale({
+    date,
+    customerName = 'Guest Customer',
+    customerPhone = '',
+    quantityKg,
+    rate,
+    totalAmount,
+    paidAmount,
+    paymentMethod = 'cash',
+    notes = '',
+    token = '',
+    seqNo = '',
+  }) {
+    const qty = Number(quantityKg) || 0;
+    const r = Number(rate) || 0;
+    const computedTotal = Number((qty * r).toFixed(2));
+    const total = totalAmount !== undefined && totalAmount !== null ? Number(totalAmount) || 0 : computedTotal;
+    const paid = paidAmount !== undefined && paidAmount !== null ? Number(paidAmount) || 0 : total;
+    const balance = Math.max(0, Number((total - paid).toFixed(2)));
+    const shortToken = token || Math.random().toString(16).substring(2, 10);
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    const guestItem = {
+      shopId: '',
+      shopCode: 'GUEST',
+      shopName: customerName || 'Guest Customer',
+      ownerName: customerPhone || '',
+      price: r,
+      cans: 0,
+      kgs: qty,
+      returnKgs: 0,
+      todayMilk: qty,
+      todayAmount: total,
+      previousArrears: 0,
+      todayCollection: paid,
+      totalPayable: total,
+      newArrears: balance,
+    };
+
+    const dispatchPayload = {
+      dispatchType: 'guest',
+      date,
+      token: shortToken,
+      seqNo: seqNo || String(Date.now()).slice(-8),
+      time: timeStr,
+      customerName: customerName || 'Guest Customer',
+      customerPhone: customerPhone || '',
+      vehicleId: '',
+      vehicleNumber: 'Counter Sale',
+      driverId: '',
+      driverName: 'Direct Cashier',
+      calanderId: '',
+      calanderName: '',
+      areaId: '',
+      areaName: 'Direct / Guest Sale',
+      totalCans: 0,
+      totalMilk: qty,
+      totalReturnMilk: 0,
+      totalAmount: total,
+      totalPreviousArrears: 0,
+      totalCollection: paid,
+      totalNewArrears: balance,
+      rate: r,
+      paymentMethod,
+      returnNotes: notes || 'Direct counter guest customer sale',
+      status: 'Returned', // Completed/settled at counter immediately; never blocks Day Close
+      createdAt: now.toISOString(),
+    };
+
+    const savedDispatch = await storageAdapter.addDoc('dispatches', dispatchPayload);
+    await storageAdapter.saveSubcollectionItems('dispatches', savedDispatch.id, 'items', [guestItem]);
+    await statsService.refreshDailyStats(date);
+
+    return { ...savedDispatch, items: [guestItem] };
+  },
+
+  async getGuestSales(dateFilter = null) {
+    const filters = [{ field: 'dispatchType', operator: '==', value: 'guest' }];
+    if (dateFilter) {
+      filters.push({ field: 'date', operator: '==', value: dateFilter });
+    }
+    return await storageAdapter.getCollection('dispatches', filters, 'createdAt', 'desc');
+  },
+
   async deleteDispatch(dispatchId, date) {
     const dispatch = await storageAdapter.getDoc('dispatches', dispatchId);
     if (dispatch) {

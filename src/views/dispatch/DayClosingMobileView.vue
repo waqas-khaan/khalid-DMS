@@ -279,7 +279,7 @@
                 :class="{ active: idx === closingRouteIndex }"
                 @click="setClosingRouteIndex(idx)"
               >
-                R{{ idx + 1 }}: {{ r.areaName || 'Route' }}
+                {{ r.dispatchType === 'guest' ? `🛒 Guest #${r.token || (idx + 1)}` : `R${idx + 1}: ${r.areaName || 'Route'}` }}
               </button>
             </div>
           </div>
@@ -295,29 +295,34 @@
               <div class="pa-3 bg-slate-50 border-b d-flex align-center justify-space-between">
                 <div>
                   <div class="d-flex align-center">
-                    <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold me-2">
-                      R{{ (closingRouteViewMode === 'stepper' && dateDispatches.length > 1 ? closingRouteIndex : loopIdx) + 1 }}
+                    <v-chip size="x-small" :color="d.dispatchType === 'guest' ? 'secondary' : 'primary'" variant="flat" class="font-weight-bold me-2">
+                      {{ d.dispatchType === 'guest' ? '🛒 GUEST' : `R${(closingRouteViewMode === 'stepper' && dateDispatches.length > 1 ? closingRouteIndex : loopIdx) + 1}` }}
                     </v-chip>
                     <span class="font-weight-black text-body-1 text-slate-900">
-                      {{ d.areaName }}
+                      {{ d.dispatchType === 'guest' ? (d.customerName || 'Guest Customer') : d.areaName }}
                     </span>
                   </div>
                   <div class="text-caption text-grey-darken-1 mt-1 font-weight-medium">
-                    Driver: <strong>{{ d.driverName }}</strong> • {{ d.vehicleNumber }}
+                    <template v-if="d.dispatchType === 'guest'">
+                      Token: <strong>#{{ d.token || 'N/A' }}</strong> • Paid via {{ d.paymentMethod === 'bank' ? 'Bank' : 'Cash' }} • Rate: Rs. {{ d.rate || d.items?.[0]?.price }}/Kg
+                    </template>
+                    <template v-else>
+                      Driver: <strong>{{ d.driverName }}</strong> • {{ d.vehicleNumber }}
+                    </template>
                   </div>
                 </div>
 
                 <div>
                   <v-chip
                     size="small"
-                    :color="d.status === 'Dispatched' ? 'warning' : 'success'"
+                    :color="d.dispatchType === 'guest' ? 'secondary' : (d.status === 'Dispatched' ? 'warning' : 'success')"
                     variant="flat"
                     class="font-weight-bold text-caption px-2-5"
                   >
                     <v-icon start size="13">
-                      {{ d.status === 'Dispatched' ? 'mdi-truck-fast' : 'mdi-check-circle' }}
+                      {{ d.dispatchType === 'guest' ? 'mdi-cash-check' : (d.status === 'Dispatched' ? 'mdi-truck-fast' : 'mdi-check-circle') }}
                     </v-icon>
-                    {{ d.status === 'Dispatched' ? 'IN ROUTE' : 'SETTLED' }}
+                    {{ d.dispatchType === 'guest' ? 'COUNTER PAID' : (d.status === 'Dispatched' ? 'IN ROUTE' : 'SETTLED') }}
                   </v-chip>
                 </div>
               </div>
@@ -371,13 +376,18 @@
                 @click="toggleRouteExpand(d.id)"
               >
                 <div class="d-flex align-center gap-1-5">
-                  <v-icon size="16" color="primary">mdi-storefront-outline</v-icon>
+                  <v-icon size="16" color="primary">{{ d.dispatchType === 'guest' ? 'mdi-receipt-text-outline' : 'mdi-storefront-outline' }}</v-icon>
                   <span class="text-caption font-weight-bold text-slate-800">
-                    {{ (d.items || []).length === 1 ? '1 Shop in this route' : `${(d.items || []).length} Shops in this route` }}
+                    <template v-if="d.dispatchType === 'guest'">
+                      Direct Guest Sale Details
+                    </template>
+                    <template v-else>
+                      {{ (d.items || []).length === 1 ? '1 Shop in this route' : `${(d.items || []).length} Shops in this route` }}
+                    </template>
                   </span>
                 </div>
                 <div class="d-flex align-center text-primary text-caption font-weight-bold">
-                  <span>{{ isRouteExpanded(d.id) ? 'Hide Shops' : 'View Shop Breakdown' }}</span>
+                  <span>{{ isRouteExpanded(d.id) ? (d.dispatchType === 'guest' ? 'Hide Details' : 'Hide Shops') : (d.dispatchType === 'guest' ? 'View Details' : 'View Shop Breakdown') }}</span>
                   <v-icon size="16" class="ms-1">{{ isRouteExpanded(d.id) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
                 </div>
               </div>
@@ -385,8 +395,8 @@
               <!-- Clean Shop Breakdown List (Read-Only) -->
               <div v-if="isRouteExpanded(d.id)" class="pa-3 bg-slate-100 border-t d-flex flex-column gap-2-5">
                 <div
-                  v-for="row in (d.items || [])"
-                  :key="row.shopId"
+                  v-for="(row, rowIdx) in (d.items || [])"
+                  :key="row.shopId || row.shopCode || rowIdx"
                   class="bg-white rounded-xl border pa-3 shadow-xs"
                 >
                   <!-- 1. Shop Header: Avatar & Name -->

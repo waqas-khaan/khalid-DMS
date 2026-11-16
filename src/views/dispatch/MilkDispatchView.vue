@@ -39,6 +39,10 @@
         <v-icon start>mdi-truck-fast</v-icon>
         {{ isEditingDispatch ? 'Edit Dispatch' : 'Dispatch Entry' }}
       </v-tab>
+      <v-tab value="guest" class="text-capitalize font-weight-bold">
+        <v-icon start>mdi-storefront</v-icon>
+        Guest Sales (پرچون فروخت)
+      </v-tab>
       <v-tab value="history" class="text-capitalize font-weight-bold">
         <v-icon start>mdi-clipboard-list</v-icon>
         Dispatches History
@@ -691,6 +695,170 @@
       </div>
     </div>
 
+    <!-- TAB: GUEST / WALK-IN SALES -->
+    <div v-if="activeTab === 'guest'" class="dispatch-flex-panel">
+      <!-- Section Header -->
+      <div class="d-flex align-center justify-space-between mb-3 flex-wrap gap-2">
+        <div class="d-flex align-center gap-3">
+          <div class="pa-2 bg-blue-50 rounded-lg text-primary d-flex align-center justify-center">
+            <v-icon size="24" color="primary">mdi-storefront</v-icon>
+          </div>
+          <div>
+            <h2 class="text-subtitle-1 font-weight-black text-slate-900 mb-0">
+              Guest Customer &amp; Walk-in Sales (پرچون فروخت)
+            </h2>
+            <span class="text-caption text-grey">
+              Direct counter retail milk purchases &bull; Instant payment collection &bull; Dual 80mm POS thermal slips (Gate + Customer)
+            </span>
+          </div>
+        </div>
+
+        <div class="d-flex align-center gap-2">
+          <div style="min-width: 220px; width: 240px;">
+            <AppDatePicker
+              v-model="desktopGuestDate"
+              label="Filter Date"
+              hide-details
+              @change="loadDesktopGuestSales"
+            />
+          </div>
+          <v-btn
+            color="primary"
+            variant="flat"
+            class="font-weight-black text-capitalize px-4"
+            prepend-icon="mdi-plus"
+            @click="openDesktopNewGuestSale"
+          >
+            + New Guest Sale
+          </v-btn>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards (Border themed) -->
+      <div class="dispatch-metrics-grid mb-3 flex-shrink-0">
+        <div class="dispatch-metric-card stat-card-themed stat-card--primary text-center">
+          <div class="metric-card-label">GUEST MILK SOLD</div>
+          <div class="metric-card-value text-primary">{{ formatNumber(desktopGuestTotals.totalMilk) }} Kg</div>
+        </div>
+
+        <div class="dispatch-metric-card stat-card-themed stat-card--success text-center">
+          <div class="metric-card-label">CASH COLLECTED</div>
+          <div class="metric-card-value text-success">{{ formatCurrency(desktopGuestTotals.totalCollection) }}</div>
+        </div>
+
+        <div class="dispatch-metric-card stat-card-themed stat-card--info text-center">
+          <div class="metric-card-label">CURRENT RATE</div>
+          <div class="metric-card-value text-info">Rs. {{ masterMilkPrice }} / Kg</div>
+        </div>
+
+        <div class="dispatch-metric-card stat-card-themed stat-card--warning text-center">
+          <div class="metric-card-label">TOTAL RECEIPTS</div>
+          <div class="metric-card-value text-warning">{{ desktopGuestTotals.count }} Slips</div>
+        </div>
+      </div>
+
+      <!-- Guest Sales Table Card -->
+      <v-card class="modern-card pa-4 table-card-full" elevation="0">
+        <div v-if="loadingGuestSales" class="py-6 text-center text-caption text-grey">
+          <v-progress-circular indeterminate size="24" width="2" color="primary" class="me-2" />
+          Loading guest customer sales...
+        </div>
+        <div v-else-if="guestSalesList.length === 0" class="py-8 text-center text-grey-darken-1">
+          <v-icon size="48" color="grey-lighten-2" class="mb-2">mdi-receipt-text-outline</v-icon>
+          <div class="font-weight-bold text-subtitle-2 text-slate-800">No Guest Sales for {{ formatDate(desktopGuestDate) }}</div>
+          <div class="text-caption text-grey mb-3">
+            Click "+ New Guest Sale" to record retail walk-in customer purchases and print dual 80mm POS receipts.
+          </div>
+          <v-btn
+            color="primary"
+            variant="flat"
+            size="small"
+            class="text-capitalize font-weight-bold px-4"
+            prepend-icon="mdi-plus"
+            @click="openDesktopNewGuestSale"
+          >
+            Record First Sale
+          </v-btn>
+        </div>
+        <v-table v-else density="compact" class="modern-table">
+          <thead>
+            <tr>
+              <th>TOKEN / ID</th>
+              <th>TIME</th>
+              <th>CUSTOMER NAME</th>
+              <th class="text-end">QTY (KG)</th>
+              <th class="text-end">RATE</th>
+              <th class="text-end">TOTAL AMOUNT</th>
+              <th class="text-end">PAID AMOUNT</th>
+              <th>METHOD</th>
+              <th class="text-center">STATUS</th>
+              <th class="text-end">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="sale in guestSalesList" :key="sale.id">
+              <td>
+                <span class="font-mono font-weight-bold text-primary">#{{ sale.token || (sale.id ? sale.id.substring(0, 8) : '440b23ce') }}</span>
+              </td>
+              <td class="text-caption text-grey-darken-2 font-weight-medium">
+                {{ sale.time || (sale.createdAt ? formatTime(sale.createdAt) : '-') }}
+              </td>
+              <td>
+                <div class="font-weight-bold text-slate-800">{{ sale.customerName || 'Guest Customer' }}</div>
+                <div v-if="sale.returnNotes && sale.returnNotes !== 'Direct counter guest customer sale'" class="text-caption text-grey">
+                  {{ sale.returnNotes }}
+                </div>
+              </td>
+              <td class="text-end font-weight-black text-slate-900">
+                {{ formatNumber(sale.totalMilk) }} Kg
+              </td>
+              <td class="text-end font-weight-medium text-slate-700">
+                Rs. {{ sale.rate || 195 }}
+              </td>
+              <td class="text-end font-weight-bold text-slate-900">
+                {{ formatCurrency(sale.totalAmount) }}
+              </td>
+              <td class="text-end font-weight-black text-success">
+                {{ formatCurrency(sale.totalCollection) }}
+              </td>
+              <td>
+                <v-chip size="x-small" :color="sale.paymentMethod === 'bank' ? 'info' : 'success'" variant="tonal" class="font-weight-bold">
+                  {{ sale.paymentMethod === 'bank' ? 'Bank' : 'Cash' }}
+                </v-chip>
+              </td>
+              <td class="text-center">
+                <v-chip size="x-small" color="success" variant="flat" class="font-weight-bold">
+                  PAID
+                </v-chip>
+              </td>
+              <td class="text-end">
+                <div class="d-flex align-center justify-end gap-1">
+                  <v-btn
+                    size="small"
+                    variant="flat"
+                    color="primary"
+                    class="font-weight-bold text-caption text-capitalize px-3"
+                    prepend-icon="mdi-printer"
+                    @click="printDesktopGuestReceipt(sale, true)"
+                  >
+                    Print 2x Slips
+                  </v-btn>
+                  <v-btn
+                    icon="mdi-delete-outline"
+                    size="x-small"
+                    variant="text"
+                    color="error"
+                    title="Void sale"
+                    @click="voidDesktopGuestSale(sale)"
+                  />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </v-card>
+    </div>
+
     <!-- TAB 2: PAST DISPATCHES HISTORY -->
     <div v-if="activeTab === 'history'" class="dispatch-flex-panel">
       <v-card class="modern-card pa-4 table-card-full" elevation="0">
@@ -1208,6 +1376,19 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Guest Counter Sales Modals -->
+    <GuestSaleDialog
+      v-model="desktopGuestSaleModal"
+      :default-date="desktopGuestDate"
+      @saved="onDesktopGuestSaleSaved"
+    />
+
+    <GuestSaleReceiptDialog
+      v-model="desktopReceiptModal"
+      :sale="desktopActiveReceiptSale"
+      :auto-print="desktopAutoPrintReceipt"
+    />
   </div>
 </template>
 
@@ -1228,6 +1409,8 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import AppDatePicker from '@/components/common/AppDatePicker.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
 import BulkActionsBar from '@/components/common/BulkActionsBar.vue';
+import GuestSaleDialog from '@/components/dispatch/GuestSaleDialog.vue';
+import GuestSaleReceiptDialog from '@/components/dispatch/GuestSaleReceiptDialog.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -1260,6 +1443,81 @@ const bulkDeleteHistoryDialog = ref(false);
 const bulkDeletingHistory = ref(false);
 const markingBack = ref(false);
 const markBackDialog = ref(false);
+
+// Desktop Guest Counter Sales State
+const desktopGuestDate = ref(businessDayStore.activeBusinessDate || new Date().toISOString().split('T')[0]);
+const guestSalesList = ref([]);
+const loadingGuestSales = ref(false);
+const desktopGuestSaleModal = ref(false);
+const desktopReceiptModal = ref(false);
+const desktopActiveReceiptSale = ref(null);
+const desktopAutoPrintReceipt = ref(false);
+
+const desktopGuestTotals = computed(() => {
+  let totalMilk = 0;
+  let totalAmount = 0;
+  let totalCollection = 0;
+  for (const s of guestSalesList.value) {
+    totalMilk += Number(s.totalMilk) || 0;
+    totalAmount += Number(s.totalAmount) || 0;
+    totalCollection += Number(s.totalCollection) || 0;
+  }
+  return {
+    totalMilk,
+    totalAmount,
+    totalCollection,
+    count: guestSalesList.value.length,
+  };
+});
+
+async function loadDesktopGuestSales() {
+  try {
+    loadingGuestSales.value = true;
+    guestSalesList.value = await dispatchService.getGuestSales(desktopGuestDate.value);
+  } catch (err) {
+    snackbar.error('Failed to load guest sales');
+  } finally {
+    loadingGuestSales.value = false;
+  }
+}
+
+function openDesktopNewGuestSale() {
+  desktopGuestSaleModal.value = true;
+}
+
+async function onDesktopGuestSaleSaved({ sale, triggerPrint }) {
+  await Promise.all([loadDesktopGuestSales(), loadAllDispatches()]);
+  desktopActiveReceiptSale.value = sale;
+  desktopAutoPrintReceipt.value = triggerPrint;
+  desktopReceiptModal.value = true;
+  snackbar.success('Guest sale recorded successfully');
+}
+
+function printDesktopGuestReceipt(sale, autoPrint = true) {
+  desktopActiveReceiptSale.value = sale;
+  desktopAutoPrintReceipt.value = autoPrint;
+  desktopReceiptModal.value = true;
+}
+
+async function voidDesktopGuestSale(sale) {
+  if (!confirm(`Void guest sale #${sale.token || ''} (${sale.totalMilk} Kg - Rs. ${sale.totalAmount})?`)) return;
+  try {
+    await dispatchService.deleteDispatch(sale.id, sale.date);
+    await Promise.all([loadDesktopGuestSales(), loadAllDispatches()]);
+    snackbar.success('Guest sale voided');
+  } catch (err) {
+    snackbar.error('Failed to void guest sale');
+  }
+}
+
+function formatTime(d) {
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  } catch (e) {
+    return '';
+  }
+}
 const markBackDispatch = ref(null);
 const markBackRows = ref([]);
 const markBackReturnNotes = ref('');
@@ -1604,7 +1862,8 @@ async function loadAllDispatches() {
 async function loadHistory() {
   try {
     selectedHistoryIds.value = [];
-    dispatchesHistory.value = await dispatchService.getDispatches(historyDateFilter.value);
+    const all = await dispatchService.getDispatches(historyDateFilter.value);
+    dispatchesHistory.value = (all || []).filter((d) => d.dispatchType !== 'guest');
     historyPage.value = 1;
   } catch (err) {
     snackbar.error('Failed to load dispatch history');
@@ -2179,6 +2438,8 @@ async function executeBulkDeleteHistory() {
 function applyRouteQueryState() {
   if (route.query.tab === 'history') {
     activeTab.value = 'history';
+  } else if (route.query.tab === 'guest') {
+    activeTab.value = 'guest';
   }
   if (typeof route.query.date === 'string' && route.query.date) {
     historyDateFilter.value = route.query.date;
@@ -2205,6 +2466,10 @@ watch(
       historyDateFilter.value = newDate;
       loadHistory();
     }
+    if (desktopGuestDate.value === oldDate || !desktopGuestDate.value) {
+      desktopGuestDate.value = newDate;
+      loadDesktopGuestSales();
+    }
   }
 );
 
@@ -2212,20 +2477,25 @@ watch(() => activeTab.value, async (tab) => {
   if (tab === 'new' && currentStep.value === 1) {
     await Promise.all([loadAllDispatches(), businessDayStore.refreshBusinessDay()]);
     syncAvailableSelections();
+  } else if (tab === 'guest') {
+    await loadDesktopGuestSales();
   }
 });
 
 onMounted(async () => {
   await businessDayStore.refreshBusinessDay();
   wizardHeader.value.date = businessDayStore.activeBusinessDate;
+  desktopGuestDate.value = businessDayStore.activeBusinessDate || new Date().toISOString().split('T')[0];
   historyDateFilter.value =
     typeof route.query.date === 'string' && route.query.date
       ? route.query.date
       : businessDayStore.activeBusinessDate;
   if (route.query.tab === 'history') {
     activeTab.value = 'history';
+  } else if (route.query.tab === 'guest') {
+    activeTab.value = 'guest';
   }
-  await Promise.all([loadMasters(), loadAllDispatches(), loadHistory()]);
+  await Promise.all([loadMasters(), loadAllDispatches(), loadHistory(), loadDesktopGuestSales()]);
   syncAvailableSelections();
   if (route.query.editId) {
     const target = dispatchesHistory.value.find((d) => d.id === route.query.editId);

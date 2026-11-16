@@ -1188,13 +1188,18 @@
                   <!-- Left: Route Identity, Live Status & Crew Capsule -->
                   <div class="d-flex align-center gap-3 flex-wrap">
                     <div class="route-identity-block d-flex align-center gap-2">
-                      <span v-if="settlementDispatches.length > 1" class="route-index-badge">
+                      <span v-if="d.dispatchType === 'guest'" class="route-index-badge bg-teal-darken-2 text-white">
+                        🛒 GUEST
+                      </span>
+                      <span v-else-if="settlementDispatches.length > 1" class="route-index-badge">
                         Route {{ index + 1 }}
                       </span>
                       <div class="route-pin-avatar">
-                        <v-icon size="17" color="primary">mdi-map-marker-radius</v-icon>
+                        <v-icon size="17" color="primary">{{ d.dispatchType === 'guest' ? 'mdi-account-cash' : 'mdi-map-marker-radius' }}</v-icon>
                       </div>
-                      <span class="route-area-title">{{ d.areaName }}</span>
+                      <span class="route-area-title">
+                        {{ d.dispatchType === 'guest' ? `Guest Customer: ${d.customerName || 'Walk-in'}` : d.areaName }}
+                      </span>
                     </div>
 
                     <!-- Route Date Badge -->
@@ -1206,39 +1211,57 @@
                     <!-- Route Status Pill -->
                     <div
                       class="route-status-pill"
-                      :class="d.status === 'Dispatched' ? 'status-delivery-out' : 'status-settled'"
+                      :class="d.dispatchType === 'guest' ? 'status-settled' : (d.status === 'Dispatched' ? 'status-delivery-out' : 'status-settled')"
                     >
                       <span class="status-live-dot"></span>
-                      <span>{{ d.status === 'Dispatched' ? 'Delivery Out • Pending Settlement' : 'Returned & Settle Completed' }}</span>
+                      <span>{{ d.dispatchType === 'guest' ? 'Counter Sale • Paid & Settled' : (d.status === 'Dispatched' ? 'Delivery Out • Pending Settlement' : 'Returned & Settle Completed') }}</span>
                     </div>
 
                     <!-- Structured Meta Group -->
                     <div class="route-meta-group d-inline-flex align-center gap-2">
-                      <!-- Vehicle -->
-                      <div class="route-meta-pill pill-vehicle">
-                        <v-icon size="14" class="meta-icon">mdi-truck-outline</v-icon>
-                        <strong class="meta-val">{{ d.vehicleNumber }}</strong>
-                      </div>
+                      <template v-if="d.dispatchType === 'guest'">
+                        <div class="route-meta-pill pill-vehicle">
+                          <v-icon size="14" class="meta-icon">mdi-ticket-outline</v-icon>
+                          <strong class="meta-val">#{{ d.token || 'N/A' }}</strong>
+                        </div>
+                        <div class="route-meta-pill pill-crew">
+                          <v-icon size="14" class="meta-icon">mdi-cash-register</v-icon>
+                          <span class="meta-lbl">Payment:</span>
+                          <strong class="meta-val">{{ d.paymentMethod === 'bank' ? 'Bank Transfer' : 'Cash in Hand' }}</strong>
+                        </div>
+                        <div class="route-meta-pill pill-shops">
+                          <v-icon size="14" class="meta-icon">mdi-currency-usd</v-icon>
+                          <span class="meta-lbl">Rate:</span>
+                          <strong class="meta-val">Rs. {{ d.rate || d.items?.[0]?.price }}/Kg</strong>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <!-- Vehicle -->
+                        <div class="route-meta-pill pill-vehicle">
+                          <v-icon size="14" class="meta-icon">mdi-truck-outline</v-icon>
+                          <strong class="meta-val">{{ d.vehicleNumber }}</strong>
+                        </div>
 
-                      <!-- Driver & Assistant -->
-                      <div class="route-meta-pill pill-crew">
-                        <v-icon size="14" class="meta-icon">mdi-steering</v-icon>
-                        <span class="meta-lbl">Driver:</span>
-                        <strong class="meta-val">{{ d.driverName }}</strong>
-                        <template v-if="d.calanderName">
-                          <span class="meta-dot">•</span>
-                          <v-icon size="14" class="meta-icon">mdi-account-tie-outline</v-icon>
-                          <span class="meta-lbl">Calander:</span>
-                          <strong class="meta-val">{{ d.calanderName }}</strong>
-                        </template>
-                      </div>
+                        <!-- Driver & Assistant -->
+                        <div class="route-meta-pill pill-crew">
+                          <v-icon size="14" class="meta-icon">mdi-steering</v-icon>
+                          <span class="meta-lbl">Driver:</span>
+                          <strong class="meta-val">{{ d.driverName }}</strong>
+                          <template v-if="d.calanderName">
+                            <span class="meta-dot">•</span>
+                            <v-icon size="14" class="meta-icon">mdi-account-tie-outline</v-icon>
+                            <span class="meta-lbl">Calander:</span>
+                            <strong class="meta-val">{{ d.calanderName }}</strong>
+                          </template>
+                        </div>
 
-                      <!-- Shop Count -->
-                      <div class="route-meta-pill pill-shops">
-                        <v-icon size="14" class="meta-icon">mdi-storefront-outline</v-icon>
-                        <strong class="meta-val">{{ (d.items || []).length }}</strong>
-                        <span class="meta-lbl ms-1">{{ (d.items || []).length === 1 ? 'Shop' : 'Shops' }}</span>
-                      </div>
+                        <!-- Shop Count -->
+                        <div class="route-meta-pill pill-shops">
+                          <v-icon size="14" class="meta-icon">mdi-storefront-outline</v-icon>
+                          <strong class="meta-val">{{ (d.items || []).length }}</strong>
+                          <span class="meta-lbl ms-1">{{ (d.items || []).length === 1 ? 'Shop' : 'Shops' }}</span>
+                        </div>
+                      </template>
                     </div>
                   </div>
 
@@ -1382,7 +1405,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="it in (d.items || [])" :key="it.shopId || it.id">
+                      <tr v-for="(it, itIdx) in (d.items || [])" :key="it.shopId || it.shopCode || itIdx">
                         <td>
                           <div class="font-weight-bold text-primary shop-title">{{ it.shopCode }} — {{ it.shopName }}</div>
                           <div class="text-caption text-grey-darken-1">{{ it.ownerName }}</div>
