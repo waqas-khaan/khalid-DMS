@@ -9,7 +9,7 @@
           </v-avatar>
           <div>
             <h2 class="text-h6 font-weight-bold text-primary mb-0">Salary Slip</h2>
-            <div class="text-caption text-grey">Dairy Business Management System</div>
+            <div class="text-caption text-grey">DMS</div>
           </div>
         </div>
         <div class="text-end">

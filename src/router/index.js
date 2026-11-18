@@ -16,19 +16,19 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/views/dashboard/DashboardView.vue'),
-    meta: { requiresAuth: true, title: 'Dairy Dashboard' },
+    meta: { requiresAuth: true, title: 'Dashboard' },
   },
   {
     path: '/milk-arrival',
     name: 'MilkArrival',
     component: () => import('@/views/milk/MilkArrivalView.vue'),
-    meta: { requiresAuth: true, title: 'Milk Arrival Register' },
+    meta: { requiresAuth: true, title: 'Milk Arrival' },
   },
   {
     path: '/milk-dispatch',
     name: 'MilkDispatch',
     component: () => import('@/views/dispatch/MilkDispatchView.vue'),
-    meta: { requiresAuth: true, title: 'Shop Milk Dispatch' },
+    meta: { requiresAuth: true, title: 'Milk Dispatch' },
   },
   {
     path: '/day-closing',
@@ -86,7 +86,7 @@ const routes = [
     path: '/employees',
     name: 'Employees',
     component: () => import('@/views/employees/EmployeesView.vue'),
-    meta: { requiresAuth: true, title: 'Employees & Payroll' },
+    meta: { requiresAuth: true, title: 'Staff & Payroll' },
   },
   {
     path: '/employees/attendance',
@@ -108,13 +108,13 @@ const routes = [
     path: '/expenses',
     name: 'Expenses',
     component: () => import('@/views/expenses/ExpensesView.vue'),
-    meta: { requiresAuth: true, title: 'Expenses Ledger' },
+    meta: { requiresAuth: true, title: 'Expenses' },
   },
   {
     path: '/settings',
     name: 'Settings',
     component: () => import('@/views/settings/SettingsView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true, title: 'Settings & Administration' },
+    meta: { requiresAuth: true, requiresAdmin: true, title: 'Settings' },
   },
   {
     path: '/:pathMatch(.*)*',
@@ -141,10 +141,8 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin);
 
-  // Update page title
-  document.title = to.meta.title
-    ? `${to.meta.title} | Dairy Business Management System`
-    : 'Dairy Business Management System';
+  // Update page title - display only the page title, fallback to DMS
+  document.title = to.meta.title || 'DMS';
 
   // If not authenticated: user MUST login first. No other part of the app is accessible.
   if (!isAuthenticated) {

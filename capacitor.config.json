@@ -1,6 +1,6 @@
 {
   "appId": "com.dairybusiness.app",
-  "appName": "Dairy Business Management System",
+  "appName": "DMS",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"

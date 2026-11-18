@@ -5,7 +5,7 @@ const DEFAULT_SETTINGS = {
   defaultMilkPrice: 180,
   canWeightKg: 50,
   currency: 'Rs.',
-  companyName: 'Dairy Farm Management System',
+  companyName: 'DMS',
   allowedFreeAbsents: 2,
   allowEditDispatch: true,
   allowDeleteDispatch: true,

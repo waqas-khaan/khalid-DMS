@@ -121,7 +121,7 @@ watch(
 const savingSettings = ref(false);
 
 const form = ref({
-  companyName: 'Dairy Business Management System',
+  companyName: 'DMS',
   literToKgFactor: 1.03,
   allowedFreeAbsents: 2,
   allowEditDispatch: true,

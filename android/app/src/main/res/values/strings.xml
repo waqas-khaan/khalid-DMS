@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Dairy Business Management System</string>
-    <string name="title_activity_main">Dairy Business Management System</string>
+    <string name="app_name">DMS</string>
+    <string name="title_activity_main">DMS</string>
     <string name="package_name">com.dairybusiness.app</string>
     <string name="custom_url_scheme">com.dairybusiness.app</string>
 </resources>

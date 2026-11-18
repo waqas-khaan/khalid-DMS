@@ -8,7 +8,7 @@ export const useSettingsStore = defineStore('settings', {
       defaultMilkPrice: 180,
       canWeightKg: 50,
       currency: 'Rs.',
-      companyName: 'Dairy Business Management System',
+      companyName: 'DMS',
       allowedFreeAbsents: 2,
       allowEditDispatch: true,
       allowDeleteDispatch: true,
