@@ -416,36 +416,82 @@
           </span>
         </div>
 
-        <div class="d-flex flex-column gap-2-5">
+        <div v-if="filteredDirectory.length === 0" class="pa-6 bg-white rounded-xl border text-center text-grey-darken-1 shadow-xs">
+          <v-icon size="40" color="grey-lighten-1" class="mb-2">mdi-account-off-outline</v-icon>
+          <div class="font-weight-bold text-body-2 text-slate-800">No Staff Members Found</div>
+          <div class="text-caption text-grey">No employees match your search query.</div>
+        </div>
+
+        <div v-else class="d-flex flex-column gap-2-5">
           <div
             v-for="emp in filteredDirectory"
             :key="emp.id"
-            class="bg-white pa-3 rounded-xl border shadow-xs"
+            class="employee-dir-card bg-white border rounded-xl shadow-xs overflow-hidden"
           >
-            <div class="d-flex align-center justify-space-between mb-1-5">
-              <div>
-                <span class="font-weight-black text-body-2 text-slate-900 d-block">{{ emp.name }}</span>
-                <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold mt-0-5">
-                  {{ getEmployeeRole(emp) }}
-                </v-chip>
+            <!-- Top Identity & Salary Header -->
+            <div class="pa-3-5 d-flex align-center justify-space-between gap-2">
+              <div class="d-flex align-center gap-2-5 min-w-0">
+                <!-- Avatar Box -->
+                <div class="emp-avatar-box flex-shrink-0" :class="getAvatarClass(emp)">
+                  <v-icon v-if="isDriver(emp)" size="20">mdi-steering</v-icon>
+                  <v-icon v-else-if="isCalander(emp)" size="20">mdi-account-hard-hat</v-icon>
+                  <span v-else class="font-weight-black text-body-1">{{ (emp.name || 'E').charAt(0).toUpperCase() }}</span>
+                </div>
+
+                <!-- Name, Status & Role -->
+                <div class="min-w-0">
+                  <div class="d-flex align-center gap-1-5 flex-wrap">
+                    <span class="font-weight-black text-subtitle-2 text-slate-900 text-capitalize text-truncate line-height-tight">
+                      {{ emp.name }}
+                    </span>
+                    <span class="emp-status-badge" :class="emp.active === false ? 'status-inactive' : 'status-active'">
+                      <span class="status-pulse-dot"></span>
+                      {{ emp.active === false ? 'Inactive' : (emp.status || 'Active') }}
+                    </span>
+                  </div>
+
+                  <div class="d-flex align-center gap-1 mt-1">
+                    <span class="emp-role-tag" :class="getRoleTagClass(emp)">
+                      <v-icon size="12" class="me-1">{{ getRoleIcon(emp) }}</v-icon>
+                      {{ getEmployeeRole(emp) }}
+                    </span>
+                    <span v-if="emp.licenseNumber" class="text-caption text-slate-500 font-weight-medium ms-1" style="font-size: 0.68rem !important;">
+                      • {{ emp.licenseNumber }}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div class="text-end">
-                <span class="text-caption text-grey d-block" style="font-size: 0.65rem !important;">FIXED SALARY</span>
-                <strong class="text-primary font-weight-black">{{ formatCurrency(emp.salary) }}</strong>
+              <!-- Salary Block -->
+              <div class="salary-highlight-box text-end flex-shrink-0">
+                <span class="salary-box-label">Fixed Salary</span>
+                <span class="salary-box-value">{{ formatCurrency(emp.salary) }}</span>
               </div>
             </div>
 
-            <div class="pt-2 border-t d-flex align-center justify-space-between text-caption">
-              <a v-if="emp.phone" :href="'tel:' + emp.phone" class="text-decoration-none text-primary font-weight-bold d-flex align-center gap-1">
-                <v-icon size="14">mdi-phone</v-icon>
-                {{ emp.phone }}
-              </a>
-              <span v-else class="text-grey">No phone</span>
+            <!-- Footer: Contact & Joined Info -->
+            <div class="px-3-5 py-2 bg-slate-50 border-t d-flex align-center justify-space-between text-caption">
+              <div class="d-flex align-center gap-1-5">
+                <v-icon size="15" :color="emp.phone ? 'primary' : 'grey-lighten-1'">
+                  {{ emp.phone ? 'mdi-phone' : 'mdi-phone-off' }}
+                </v-icon>
+                <a
+                  v-if="emp.phone"
+                  :href="'tel:' + emp.phone"
+                  class="phone-contact-link text-decoration-none font-weight-bold"
+                >
+                  {{ emp.phone }}
+                </a>
+                <span v-else class="text-grey font-weight-medium" style="font-size: 0.72rem !important;">
+                  No phone recorded
+                </span>
+              </div>
 
-              <v-chip size="x-small" color="success" variant="flat" class="font-weight-bold">
-                {{ emp.status || 'Active' }}
-              </v-chip>
+              <div class="d-flex align-center gap-1-5 text-slate-500 font-weight-medium" style="font-size: 0.70rem !important;">
+                <v-icon size="13" color="grey">mdi-calendar-account</v-icon>
+                <span v-if="emp.joinDate">Joined {{ formatDate(emp.joinDate) }}</span>
+                <span v-else>Staff Member</span>
+              </div>
             </div>
           </div>
         </div>
@@ -518,6 +564,34 @@ function getEmployeeRole(empOrItem) {
     return 'Driver';
   }
   return val;
+}
+
+function isDriver(emp) {
+  const role = (emp?.designation || emp?.role || '').toLowerCase();
+  return role.includes('driver');
+}
+
+function isCalander(emp) {
+  const role = (emp?.designation || emp?.role || '').toLowerCase();
+  return role.includes('calander') || role.includes('calendar') || role.includes('worker');
+}
+
+function getRoleIcon(emp) {
+  if (isDriver(emp)) return 'mdi-steering';
+  if (isCalander(emp)) return 'mdi-account-hard-hat';
+  return 'mdi-account-tie';
+}
+
+function getAvatarClass(emp) {
+  if (isDriver(emp)) return 'avatar-driver';
+  if (isCalander(emp)) return 'avatar-calander';
+  return 'avatar-default';
+}
+
+function getRoleTagClass(emp) {
+  if (isDriver(emp)) return 'role-tag-driver';
+  if (isCalander(emp)) return 'role-tag-calander';
+  return 'role-tag-default';
 }
 
 const salarySearch = ref('');
@@ -849,5 +923,149 @@ onMounted(async () => {
 .mobile-item-card {
   border: 1px solid #e2e8f0 !important;
   border-radius: 12px !important;
+}
+
+.employee-dir-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.employee-dir-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.emp-avatar-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.avatar-driver {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.avatar-calander {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.avatar-default {
+  background: #f1f5f9;
+  color: #063F78;
+  border: 1px solid #e2e8f0;
+}
+
+.emp-status-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.4;
+}
+
+.status-active {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.status-inactive {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.status-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-active .status-pulse-dot {
+  background-color: #10b981;
+}
+
+.status-inactive .status-pulse-dot {
+  background-color: #94a3b8;
+}
+
+.emp-role-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 0.01em;
+}
+
+.role-tag-driver {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.role-tag-calander {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.role-tag-default {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.salary-highlight-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 8px;
+  min-width: 95px;
+}
+
+.salary-box-label {
+  display: block;
+  font-size: 0.60rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.salary-box-value {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #063F78;
+  line-height: 1.3;
+}
+
+.phone-contact-link {
+  color: #063F78;
+  transition: color 0.15s ease;
+}
+
+.phone-contact-link:hover {
+  color: #0284c7;
+  text-decoration: underline !important;
 }
 </style>
