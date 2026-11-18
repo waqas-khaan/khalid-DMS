@@ -52,6 +52,21 @@ function saveMemoryCollection(name, list) {
   memoryCache.set(name, [...list]);
 }
 
+function sanitizePayload(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const clean = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      if (value !== null && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+        clean[key] = sanitizePayload(value);
+      } else {
+        clean[key] = value;
+      }
+    }
+  }
+  return clean;
+}
+
 export const storageAdapter = {
   async getCollection(colName, filters = [], sortField = null, sortDir = 'desc') {
     if (isConfigured && db) {
@@ -59,16 +74,28 @@ export const storageAdapter = {
         let q = collection(db, colName);
         const queryConstraints = [];
         for (const f of filters) {
-          queryConstraints.push(where(f.field, f.operator || '==', f.value));
+          if (f.value !== undefined) {
+            queryConstraints.push(where(f.field, f.operator || '==', f.value));
+          }
         }
-        if (sortField) {
-          queryConstraints.push(orderBy(sortField, sortDir));
-        }
+        // Do NOT pass orderBy to Firestore query when filters exist:
+        // Firestore requires composite indexes for any equality filter combined with orderBy.
+        // Performing sorting in memory guarantees 100% reliability with ZERO manual composite indexes!
         if (queryConstraints.length > 0) {
           q = query(q, ...queryConstraints);
+        } else if (sortField) {
+          q = query(q, orderBy(sortField, sortDir));
         }
         const snapshot = await getDocs(q);
-        const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        let items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        if (sortField) {
+          items.sort((a, b) => {
+            const valA = a[sortField] !== undefined && a[sortField] !== null ? a[sortField] : '';
+            const valB = b[sortField] !== undefined && b[sortField] !== null ? b[sortField] : '';
+            if (sortDir === 'asc') return valA > valB ? 1 : (valA < valB ? -1 : 0);
+            return valA < valB ? 1 : (valA > valB ? -1 : 0);
+          });
+        }
         saveMemoryCollection(colName, items);
         return items;
       } catch (err) {
@@ -121,7 +148,7 @@ export const storageAdapter = {
   },
 
   async setDoc(colName, id, data, merge = true) {
-    const payload = { ...data, updatedAt: new Date().toISOString() };
+    const payload = sanitizePayload({ ...data, updatedAt: new Date().toISOString() });
     
     // Save in-memory cache
     const list = getMemoryCollection(colName);
@@ -143,12 +170,12 @@ export const storageAdapter = {
 
   async addDoc(colName, data) {
     const id = `${colName}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const payload = {
+    const payload = sanitizePayload({
       ...data,
       id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
+    });
 
     // Save in-memory cache
     const list = getMemoryCollection(colName);
@@ -164,7 +191,7 @@ export const storageAdapter = {
   },
 
   async updateDoc(colName, id, updates) {
-    const payload = { ...updates, updatedAt: new Date().toISOString() };
+    const payload = sanitizePayload({ ...updates, updatedAt: new Date().toISOString() });
     const list = getMemoryCollection(colName);
     const index = list.findIndex((item) => item.id === id);
     let updatedItem = null;

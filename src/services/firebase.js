@@ -8,28 +8,22 @@ import {
 } from 'firebase/firestore';
 
 const envApiKey = (typeof process !== 'undefined' && process.env?.VUE_APP_FIREBASE_API_KEY) ||
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_API_KEY) ||
-  '';
+  'AIzaSyCAROQvlMsPVVucvRzc1hVW0KKHztWY0UY';
 
 const envAuthDomain = (typeof process !== 'undefined' && process.env?.VUE_APP_FIREBASE_AUTH_DOMAIN) ||
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN) ||
-  '';
+  'khalid-dms.firebaseapp.com';
 
 const envProjectId = (typeof process !== 'undefined' && process.env?.VUE_APP_FIREBASE_PROJECT_ID) ||
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_PROJECT_ID) ||
-  '';
+  'khalid-dms';
 
 const envStorageBucket = (typeof process !== 'undefined' && process.env?.VUE_APP_FIREBASE_STORAGE_BUCKET) ||
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET) ||
-  '';
+  'khalid-dms.firebasestorage.app';
 
 const envSenderId = (typeof process !== 'undefined' && process.env?.VUE_APP_FIREBASE_MESSAGING_SENDER_ID) ||
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID) ||
-  '';
+  '231068831912';
 
 const envAppId = (typeof process !== 'undefined' && process.env?.VUE_APP_FIREBASE_APP_ID) ||
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_APP_ID) ||
-  '';
+  '1:231068831912:web:9a1f9d33c36b1b72d2329d';
 
 // Strictly verify whether valid production Firebase credentials are provided
 export const isConfigured = Boolean(
