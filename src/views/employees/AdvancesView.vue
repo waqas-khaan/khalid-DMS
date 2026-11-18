@@ -251,15 +251,29 @@
 
             <v-textarea
               v-model="form.reason"
-              label="Reason (Kis Kaam Ke Liye) *"
-              placeholder="e.g. Emergency family medical treatment, home rent, bike repair"
+              label="Reason / Remarks (Optional)"
+              placeholder="e.g. General advance, emergency, medical, bike repair"
               variant="outlined"
-              rows="3"
+              rows="2"
               density="comfortable"
-              :rules="[v => !!v || 'Please specify the reason']"
-              hint="Specify the purpose of this cash advance"
+              hint="Specify purpose or leave blank for 'General advance'"
               persistent-hint
             />
+
+            <div class="d-flex align-center gap-1-5 flex-wrap mt-2">
+              <span class="text-caption text-grey">Quick select:</span>
+              <v-chip
+                v-for="r in ['General advance', 'Medical / Emergency', 'Home expense', 'Bike / Fuel']"
+                :key="r"
+                size="x-small"
+                variant="outlined"
+                color="primary"
+                class="cursor-pointer"
+                @click="form.reason = r"
+              >
+                {{ r }}
+              </v-chip>
+            </div>
           </v-form>
         </v-card-text>
         <v-card-actions class="px-4 pb-3 justify-end">
@@ -426,12 +440,13 @@ function openDialog() {
     snackbar.error(businessDayStore.lockReason);
     return;
   }
+  const defaultEmp = employees.value.length > 0 ? employees.value[0] : null;
   form.value = {
-    employeeId: employees.value.length > 0 ? employees.value[0].id : '',
-    employeeName: employees.value.length > 0 ? employees.value[0].name : '',
-    date: businessDayStore.activeBusinessDate,
+    employeeId: defaultEmp ? defaultEmp.id : '',
+    employeeName: defaultEmp ? defaultEmp.name : '',
+    date: businessDayStore.activeBusinessDate || new Date().toISOString().substring(0, 10),
     amount: 3000,
-    reason: '',
+    reason: 'General advance',
   };
   dialog.value = true;
 }
@@ -442,19 +457,39 @@ async function saveAdvance() {
     snackbar.error(businessDayStore.lockReason);
     return;
   }
-  const dateCheck = businessDayStore.validateOperationDate(form.value.date);
+  const targetDate = form.value.date || businessDayStore.activeBusinessDate;
+  const dateCheck = businessDayStore.validateOperationDate(targetDate);
   if (!dateCheck.valid) {
     snackbar.error(dateCheck.message);
     return;
   }
 
-  if (!form.value.employeeId || !form.value.amount || !form.value.reason) {
-    snackbar.error('Please fill required fields (Employee, Amount, Reason)');
+  if (!form.value.employeeId) {
+    snackbar.error('Please select an employee');
     return;
   }
+
+  const amount = Number(form.value.amount);
+  if (!amount || amount <= 0) {
+    snackbar.error('Please enter a valid advance amount greater than 0');
+    return;
+  }
+
+  const selectedEmp = employees.value.find(
+    (e) => String(e.id) === String(form.value.employeeId)
+  );
+  const employeeName = selectedEmp ? selectedEmp.name : (form.value.employeeName || 'Staff Member');
+  const reason = form.value.reason?.trim() || 'General advance';
+
   saving.value = true;
   try {
-    await employeeService.addAdvance(form.value);
+    await employeeService.addAdvance({
+      ...form.value,
+      employeeName,
+      amount,
+      reason,
+      date: targetDate,
+    });
     snackbar.success('Advance recorded successfully');
     dialog.value = false;
     await loadAdvances();
