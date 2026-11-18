@@ -120,7 +120,9 @@
         label="Pending Dispatches"
         :value="String(summary.pendingDispatchCount)"
         :color="summary.pendingDispatchCount > 0 ? 'warning' : 'success'"
-        :subtitle="summary.pendingDispatchCount > 0 ? 'Must Mark Back to close day' : 'All deliveries returned'"
+        :subtitle="summary.pendingDispatchCount > 0 ? 'Click to open settlement & Mark Back' : 'All deliveries returned'"
+        :class="{ 'cursor-pointer': summary.pendingDispatchCount > 0 }"
+        @click="summary.pendingDispatchCount > 0 ? openRouteSettlementsDialog() : null"
       />
     </div>
 
@@ -156,7 +158,7 @@
             color="teal-darken-1"
             variant="tonal"
             size="large"
-            class="text-capitalize font-weight-bold px-4"
+            class="preserved-settlements-btn text-capitalize font-weight-bold px-4"
             prepend-icon="mdi-cash-register"
             @click="openRouteSettlementsDialog"
           >
@@ -167,7 +169,7 @@
             color="primary"
             variant="flat"
             size="large"
-            class="text-capitalize font-weight-bold px-6"
+            class="preserved-close-day-btn text-capitalize font-weight-bold px-6"
             prepend-icon="mdi-lock-check"
             :disabled="!inspection?.canClose"
             :title="!inspection?.canClose ? (summary.arrivalsCount === 0 ? 'Day not open — record milk arrival first' : 'Mark back all dispatches before closing') : `Close Day (${formatDate(selectedDate)})`"
@@ -181,57 +183,13 @@
             color="warning"
             variant="tonal"
             size="large"
-            class="text-capitalize font-weight-bold px-5"
+            class="reopen-day-admin-btn text-capitalize font-weight-bold px-5"
             prepend-icon="mdi-lock-open-variant"
             :loading="reopening"
             @click="confirmReopen(selectedDate)"
           >
             Reopen Day (Admin)
           </v-btn>
-        </div>
-      </div>
-
-      <!-- Pending Dispatches Blocking List -->
-      <div v-if="inspection && inspection.pendingDispatches.length > 0" class="mt-3 pt-3 border-t">
-        <div class="d-flex align-center justify-space-between mb-2">
-          <span class="text-caption font-weight-bold text-orange-darken-4 text-uppercase">
-            Unreturned Dispatches Blocking {{ formatDate(selectedDate) }} Closing
-          </span>
-          <div class="d-flex align-center gap-2">
-            <v-btn
-              size="x-small"
-              color="success"
-              variant="flat"
-              class="text-capitalize font-weight-bold"
-              prepend-icon="mdi-cash-register"
-              @click="openRouteSettlementsDialog"
-            >
-              Settle Route Collections ({{ inspection.pendingDispatches.length }})
-            </v-btn>
-            <v-btn
-              size="x-small"
-              color="primary"
-              variant="tonal"
-              class="text-capitalize font-weight-bold"
-              prepend-icon="mdi-open-in-new"
-              @click="goToPendingDispatches"
-            >
-              Open in Dispatches History
-            </v-btn>
-          </div>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-          <div
-            v-for="d in inspection.pendingDispatches"
-            :key="d.id"
-            class="pending-dispatch-pill"
-          >
-            <span class="erp-tag erp-tag-orange">DISPATCHED</span>
-            <span class="font-weight-bold text-primary">{{ d.areaName }}</span>
-            <span class="text-caption text-grey-darken-2">
-              {{ d.vehicleNumber }} • {{ d.driverName }} • Calander: {{ d.calanderName || '-' }}
-            </span>
-          </div>
         </div>
       </div>
     </v-card>
@@ -338,7 +296,7 @@
               <th class="text-end">Today Collection</th>
               <th class="text-end">Expenses</th>
               <th>Closed By / At</th>
-              <th>Remarks</th>
+              <th>Allocation Method</th>
               <th class="text-end">Actions</th>
             </tr>
           </thead>
@@ -415,56 +373,14 @@
                   </div>
                 </template>
               </td>
-              <td class="text-caption text-grey-darken-2">
-                <template v-if="row.isClosed">
-                  <div v-if="row.closing?.allocation" class="mb-1">
-                    <v-chip
-                      v-if="row.closing.allocation.type === 'bank'"
-                      size="x-small"
-                      color="primary"
-                      variant="tonal"
-                      class="font-weight-bold"
-                    >
-                      <v-icon start size="12">mdi-bank</v-icon>
-                      Bank: {{ formatCurrency(row.closing.allocation.bankAmount) }}
-                      <span v-if="row.closing.allocation.bankName" class="ms-1 font-weight-regular">({{ row.closing.allocation.bankName }})</span>
-                    </v-chip>
-                    <v-chip
-                      v-else-if="row.closing.allocation.type === 'cash'"
-                      size="x-small"
-                      color="success"
-                      variant="tonal"
-                      class="font-weight-bold"
-                    >
-                      <v-icon start size="12">mdi-cash</v-icon>
-                      Cash: {{ formatCurrency(row.closing.allocation.cashAmount) }}
-                    </v-chip>
-                    <div v-else-if="row.closing.allocation.type === 'split'" class="d-flex align-center gap-1 flex-wrap">
-                      <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold">
-                        <v-icon start size="12">mdi-bank</v-icon>
-                        Bank: {{ formatCurrency(row.closing.allocation.bankAmount) }}
-                      </v-chip>
-                      <v-chip size="x-small" color="success" variant="tonal" class="font-weight-bold">
-                        <v-icon start size="12">mdi-cash</v-icon>
-                        Cash: {{ formatCurrency(row.closing.allocation.cashAmount) }}
-                      </v-chip>
-                    </div>
-                  </div>
-                  <div>{{ row.closing?.remarks || (!row.closing?.allocation ? '-' : '') }}</div>
-                </template>
-                <template v-else-if="row.summary.pendingDispatchCount > 0">
-                  <span class="text-orange-darken-4 font-weight-bold">
-                    Mark Back pending dispatch(es) before closing
-                  </span>
-                </template>
-                <template v-else-if="row.isPreviousUnclosed">
-                  <span class="text-red-darken-2 font-weight-bold">
-                    Previous day open — Close Day to advance to {{ formatDate(businessDayStore.realToday) }}
-                  </span>
-                </template>
-                <template v-else>
-                  Active working day
-                </template>
+              <td>
+                <span
+                  class="erp-tag"
+                  :class="getLedgerRowAllocationTagClass(row)"
+                  :title="row.closing?.allocation?.bankName ? `Bank: ${row.closing.allocation.bankName}` : (row.closing?.remarks || '')"
+                >
+                  {{ getLedgerRowAllocationLabel(row) }}
+                </span>
               </td>
               <td class="text-end" style="white-space: nowrap;">
                 <div class="table-actions-cluster d-inline-flex align-center justify-end">
@@ -473,8 +389,8 @@
                     v-if="!row.isClosed && row.summary.pendingDispatchCount > 0"
                     type="button"
                     class="action-btn-mark-back"
-                    title="Open Dispatches History to Mark Back"
-                    @click.stop="goToPendingDispatchesForDate(row.date)"
+                    title="Open Route Collections & Settlements to Mark Back"
+                    @click.stop="openRouteSettlementsDialog(row.date)"
                   >
                     <v-icon size="14">mdi-truck-check</v-icon>
                     <span>Mark Back ({{ row.summary.pendingDispatchCount }})</span>
@@ -493,15 +409,15 @@
                   </button>
 
                   <!-- Reopen Button (Admin only) -->
-                  <button
+                  <v-btn
                     v-if="authStore.isAdmin && row.isClosed"
-                    type="button"
-                    class="action-icon-btn action-btn-reopen"
+                    icon="mdi-lock-open-variant-outline"
+                    size="small"
+                    variant="text"
+                    color="warning"
                     title="Reopen Day (Admin)"
                     @click.stop="confirmReopen(row.date)"
-                  >
-                    <v-icon size="16">mdi-lock-open-variant-outline</v-icon>
-                  </button>
+                  />
 
                   <!-- Delete Button (Admin only) -->
                   <v-btn
@@ -678,36 +594,12 @@
                 {{ formatCurrency(row.remainingAmount) }}
               </td>
               <td>
-                <v-chip
-                  v-if="row.type === 'bank'"
-                  size="small"
-                  color="primary"
-                  variant="tonal"
-                  class="font-weight-bold"
+                <span
+                  class="erp-tag"
+                  :class="getAllocationTagClass(row.type)"
                 >
-                  <v-icon start size="14">mdi-bank</v-icon>
-                  Bank Deposit
-                </v-chip>
-                <v-chip
-                  v-else-if="row.type === 'cash'"
-                  size="small"
-                  color="success"
-                  variant="tonal"
-                  class="font-weight-bold"
-                >
-                  <v-icon start size="14">mdi-cash</v-icon>
-                  Cash in Hand
-                </v-chip>
-                <v-chip
-                  v-else-if="row.type === 'split'"
-                  size="small"
-                  color="indigo"
-                  variant="tonal"
-                  class="font-weight-bold"
-                >
-                  <v-icon start size="14">mdi-call-split</v-icon>
-                  Custom Split
-                </v-chip>
+                  {{ getAllocationLabel(row.type) }}
+                </span>
               </td>
               <td class="text-end font-weight-bold text-primary tabular-nums" style="white-space: nowrap;">
                 {{ row.bankAmount > 0 ? formatCurrency(row.bankAmount) : '-' }}
@@ -729,15 +621,15 @@
               </td>
               <td class="text-end" style="white-space: nowrap;">
                 <div class="table-actions-cluster d-inline-flex align-center justify-end">
-                  <button
+                  <v-btn
                     v-if="authStore.isAdmin"
-                    type="button"
-                    class="action-icon-btn action-btn-reopen"
+                    icon="mdi-lock-open-variant-outline"
+                    size="small"
+                    variant="text"
+                    color="warning"
                     title="Reopen Day (Admin)"
                     @click.stop="confirmReopen(row.date)"
-                  >
-                    <v-icon size="16">mdi-lock-open-variant-outline</v-icon>
-                  </button>
+                  />
                 </div>
               </td>
             </tr>
@@ -1015,40 +907,78 @@
     >
       <v-card class="d-flex flex-column bg-white rounded-0" elevation="0">
         <!-- Dialog Header Toolbar -->
-        <div class="closing-modal-header px-5 py-3 d-flex align-center justify-space-between flex-wrap gap-2 flex-shrink-0">
-          <div class="d-flex align-center gap-3">
-            <v-icon color="white" size="26">mdi-cash-register</v-icon>
-            <div>
-              <h2 class="text-h6 font-weight-bold text-white mb-0">
-                Route Collections &amp; Settlements — {{ settlementFilterDisplayTitle }}
-              </h2>
-              <div class="text-caption text-blue-lighten-4">
-                Record shop collections, verify returned milk, and settle live balances before finalizing day closing
+        <!-- Executive Luxury Dialog Header Toolbar (Single Row flex-nowrap) -->
+        <div class="closing-modal-header px-6 py-3 d-flex align-center justify-space-between flex-nowrap gap-3 flex-shrink-0">
+          <!-- Left: Branding, Title, Date Badge & Subtitle (Gracefully truncates on narrow viewports) -->
+          <div class="d-flex align-center gap-3 overflow-hidden" style="min-width: 0; flex: 1 1 auto;">
+            <div class="header-icon-box flex-shrink-0">
+              <v-icon color="#38bdf8" size="24">mdi-cash-register</v-icon>
+            </div>
+            <div class="overflow-hidden" style="min-width: 0; flex: 1 1 auto;">
+              <div class="d-flex align-center gap-2 flex-nowrap overflow-hidden">
+                <h2 class="header-main-title mb-0 text-truncate">
+                  Route Collections &amp; Settlements
+                </h2>
+                <div class="header-date-badge flex-shrink-0">
+                  <v-icon size="13" color="#38bdf8">mdi-calendar-check</v-icon>
+                  <span>{{ settlementFilterDisplayTitle }}</span>
+                </div>
+              </div>
+              <div class="header-subtitle text-truncate">
+                Verify returned milk cans, record shop collections, and settle accounts before closing the day
               </div>
             </div>
           </div>
 
-          <div class="d-flex align-center flex-wrap gap-2">
-            <v-chip color="info" variant="flat" size="small" class="font-weight-bold">
-              <v-icon start size="15">mdi-pail</v-icon>
-              Dispatched: {{ formatNumber(activeSettlementSummary.milkDispatchedKg) }} Kg
-            </v-chip>
-            <v-chip color="blue-lighten-4" variant="flat" size="small" class="font-weight-bold text-primary">
-              <v-icon start size="15">mdi-tag-text</v-icon>
-              Sales: {{ formatCurrency(activeSettlementSummary.totalDispatchAmount) }}
-            </v-chip>
-            <v-chip color="success" variant="flat" size="small" class="font-weight-bold">
-              <v-icon start size="15">mdi-cash-check</v-icon>
-              Collections: {{ formatCurrency(activeSettlementSummary.totalCollection) }}
-            </v-chip>
-            <v-btn
-              icon="mdi-close"
-              variant="text"
-              size="small"
-              color="white"
-              class="ms-2"
+          <!-- Right: Search Box + Status Badges + Clean Close Button (Always visible on one row) -->
+          <div class="d-flex align-center gap-3 flex-nowrap flex-shrink-0 ms-auto">
+            <!-- Glassmorphic Search Shop Field -->
+            <div class="header-search-box">
+              <v-text-field
+                v-model="routeShopSearch"
+                density="compact"
+                variant="solo"
+                flat
+                placeholder="Search shop name, code..."
+                hide-details
+                prepend-inner-icon="mdi-magnify"
+                clearable
+                class="header-search-input"
+              />
+            </div>
+
+            <!-- Status Badges (Pure Solid Color, No Gradient) -->
+            <div
+              v-if="inspection?.isClosed"
+              class="header-badge-closed-yellow"
+            >
+              <v-icon size="16">mdi-lock-check</v-icon>
+              <span>Day Closed</span>
+            </div>
+            <div
+              v-else-if="regularSettlementDispatches.some(r => r.status === 'Dispatched')"
+              class="header-badge-pending-amber"
+            >
+              <v-icon size="16">mdi-truck-fast</v-icon>
+              <span>{{ regularSettlementDispatches.filter(r => r.status === 'Dispatched').length }} Route(s) Pending</span>
+            </div>
+            <div
+              v-else
+              class="header-badge-settled-emerald"
+            >
+              <v-icon size="16">mdi-check-all</v-icon>
+              <span>All Routes Settled</span>
+            </div>
+
+            <!-- Plain, clean X close button -->
+            <button
+              type="button"
+              class="header-close-btn"
+              title="Close (Esc)"
               @click="routeSettlementsDialog = false"
-            />
+            >
+              <v-icon size="22">mdi-close</v-icon>
+            </button>
           </div>
         </div>
 
@@ -1122,28 +1052,57 @@
               </button>
             </div>
           </div>
+        </div>
 
-          <div class="d-flex align-center gap-3">
-            <div class="route-count-capsule">
-              <v-icon size="15" color="primary">mdi-truck-check-outline</v-icon>
-              <span>Showing <strong>{{ settlementDispatches.length }}</strong> Route{{ settlementDispatches.length === 1 ? '' : 's' }}</span>
-              <span v-if="settlementFilterLabel" class="text-grey-darken-1 ms-1">({{ settlementFilterLabel }})</span>
-            </div>
-            <v-btn
-              variant="flat"
-              color="primary"
-              class="refresh-filter-btn text-capitalize font-weight-bold rounded-lg px-4 shadow-sm"
-              prepend-icon="mdi-refresh"
-              :loading="loadingSettlementPeriod"
-              @click="loadSettlementPeriodData"
+        <!-- Segmented Category Switcher (Delivery Routes vs Walk-in Counter Sales) -->
+        <div
+          v-if="guestSettlementDispatches.length > 0 && regularSettlementDispatches.length > 0"
+          class="settlement-category-strip px-6 py-2 bg-white border-b d-flex align-center justify-space-between flex-wrap gap-2 flex-shrink-0"
+        >
+          <div class="d-flex align-center gap-2">
+            <button
+              type="button"
+              class="category-tab-pill"
+              :class="{ 'tab-pill-active': settlementActiveTab === 'routes' }"
+              @click="settlementActiveTab = 'routes'"
             >
-              Refresh
-            </v-btn>
+              <v-icon size="16">mdi-truck-fast</v-icon>
+              <span>Delivery Routes</span>
+              <span class="tab-pill-count">{{ regularSettlementDispatches.length }}</span>
+              <span
+                v-if="regularSettlementDispatches.some(r => r.status === 'Dispatched')"
+                class="tab-pill-status pill-status-pending"
+              >
+                {{ regularSettlementDispatches.filter(r => r.status === 'Dispatched').length }} Pending
+              </span>
+              <span v-else class="tab-pill-status pill-status-settled">✓ All Settled</span>
+            </button>
+
+            <button
+              type="button"
+              class="category-tab-pill"
+              :class="{ 'tab-pill-active': settlementActiveTab === 'guest' }"
+              @click="settlementActiveTab = 'guest'"
+            >
+              <v-icon size="16">mdi-account-cash</v-icon>
+              <span>Counter &amp; Walk-in Sales</span>
+              <span class="tab-pill-count">{{ guestSettlementDispatches.length }}</span>
+              <span class="tab-pill-status pill-status-settled">✓ Auto-Settled</span>
+            </button>
+          </div>
+
+          <div class="text-caption text-slate-500 font-weight-medium">
+            <span v-if="settlementActiveTab === 'routes'">
+              🚚 Focus Mode: Settle live shop collections &amp; returns for delivery routes
+            </span>
+            <span v-else>
+              🏪 Retail Mode: Review cash/bank walk-in counter sales
+            </span>
           </div>
         </div>
 
         <!-- Dialog Scrollable Body (Edge-to-edge, full width, no outer card border) -->
-        <v-card-text class="pa-0 flex-grow-1 overflow-y-auto bg-white rounded-0">
+        <v-card-text ref="settlementDialogBody" class="pa-0 flex-grow-1 overflow-y-auto bg-white rounded-0">
           <!-- If no dispatches for selected filter -->
           <div v-if="settlementDispatches.length === 0" class="text-center pa-10 bg-white">
             <v-icon size="48" color="grey-lighten-1" class="mb-2">mdi-truck-outline</v-icon>
@@ -1153,52 +1112,405 @@
 
           <!-- Dispatches Full-Width List -->
           <div v-else class="w-100">
+            <!-- 1. Single Unified Guest Customer Sales Table Section (Placed Above Other Routes) -->
             <section
-              v-for="(d, index) in settlementDispatches"
-              :key="d.id"
-              class="route-settlement-section w-100 bg-white"
+              v-if="guestSettlementDispatches.length > 0 && settlementActiveTab === 'guest'"
+              class="route-settlement-section w-100 bg-white border-b"
             >
-              <!-- Route Section Separator Header when multiple routes exist -->
+              <!-- Route Section Header for Guest Sales -->
               <div
-                v-if="index > 0"
-                class="route-section-separator px-5 py-2-5 bg-blue-grey-lighten-5 border-y d-flex align-center justify-space-between flex-wrap gap-2 w-100"
+                class="route-section-separator px-5 py-2-5 bg-blue-grey-lighten-5 border-b d-flex align-center justify-space-between flex-wrap gap-2 w-100"
               >
                 <div class="d-flex align-center gap-2">
-                  <v-icon color="primary" size="20">mdi-routes</v-icon>
+                  <v-icon color="teal-darken-2" size="20">mdi-account-cash</v-icon>
                   <span class="text-caption font-weight-black text-uppercase text-blue-grey-darken-4 tracking-wide">
-                    Route #{{ index + 1 }} — {{ d.areaName }}
+                    Counter Retail &amp; Guest Sales
                   </span>
-                  <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold ms-1">
-                    <v-icon start size="12">mdi-calendar</v-icon>
-                    {{ formatDate(d.date) }}
+                  <v-chip size="x-small" color="teal-darken-2" variant="tonal" class="font-weight-bold ms-1">
+                    <v-icon start size="12">mdi-ticket-account</v-icon>
+                    {{ guestSettlementDispatches.length }} Walk-in Sale{{ guestSettlementDispatches.length === 1 ? '' : 's' }}
                   </v-chip>
                 </div>
                 <div class="text-caption font-weight-medium text-grey-darken-2">
-                  Separate Route / Area ({{ index + 1 }} of {{ settlementDispatches.length }})
+                  Unified Counter Sales (All walk-in retail records in 1 table)
                 </div>
               </div>
 
-              <!-- Executive Sophisticated Route Section Card -->
+              <!-- Executive Sophisticated Guest Section Card (No redundant Image 5 per-sale header bar) -->
               <div class="route-executive-card w-100">
+                <!-- Tier 2: Connected Financial Ribbon for All Guest Sales (Image 4) -->
+                <div class="metrics-ribbon-wrapper px-6 pb-4 pt-4">
+                  <div class="metrics-ribbon">
+                    <!-- 1. Volume: Milk Dispatched -->
+                    <div class="ribbon-segment segment-milk">
+                      <div class="segment-label">
+                        <span class="segment-badge badge-sky">
+                          <v-icon size="13" color="#0284c7">mdi-water-outline</v-icon>
+                        </span>
+                        <span>Milk Dispatched</span>
+                      </div>
+                      <div class="segment-value text-sky-darken-3 font-weight-black">
+                        {{ formatNumber(guestSettlementTotals.milkDispatchedKg) }} <span class="segment-unit">Kg</span>
+                      </div>
+                      <div class="segment-sub">
+                        <span v-if="guestSettlementTotals.returnMilkKg > 0" class="sub-pill pill-amber">
+                          <v-icon size="11" class="me-0.5">mdi-arrow-u-left-bottom</v-icon>
+                          {{ formatNumber(guestSettlementTotals.returnMilkKg) }} Kg Returned
+                        </span>
+                        <span v-else class="text-slate-400 font-weight-medium">0.00 Kg Returns</span>
+                      </div>
+                    </div>
+
+                    <!-- 2. Today Sales Amount -->
+                    <div class="ribbon-segment segment-sales">
+                      <div class="segment-label">
+                        <span class="segment-badge badge-primary">
+                          <v-icon size="13" color="#063F78">mdi-cash-multiple</v-icon>
+                        </span>
+                        <span>Route Sales</span>
+                      </div>
+                      <div class="segment-value text-slate-900 font-weight-black">
+                        {{ formatCurrency(guestSettlementTotals.totalAmount) }}
+                      </div>
+                      <div class="segment-sub text-slate-400 font-weight-medium">
+                        Current Day Revenue
+                      </div>
+                    </div>
+
+                    <!-- 3. Previous Arrears -->
+                    <div class="ribbon-segment segment-prev">
+                      <div class="segment-label">
+                        <span class="segment-badge badge-neutral">
+                          <v-icon size="13" color="#64748b">mdi-history</v-icon>
+                        </span>
+                        <span>Prev. Arrears</span>
+                      </div>
+                      <div class="segment-value text-slate-800 font-weight-bold">
+                        {{ formatCurrency(guestSettlementTotals.totalPreviousArrears) }}
+                      </div>
+                      <div class="segment-sub text-slate-400 font-weight-medium">
+                        Opening Balance
+                      </div>
+                    </div>
+
+                    <!-- 4. Total Payable (Sales + Prev) -->
+                    <div class="ribbon-segment segment-payable">
+                      <div class="segment-label">
+                        <span class="segment-badge badge-indigo">
+                          <v-icon size="13" color="#4338ca">mdi-calculator-variant-outline</v-icon>
+                        </span>
+                        <span>Total Payable</span>
+                      </div>
+                      <div class="segment-value text-indigo-darken-3 font-weight-black">
+                        {{ formatCurrency(guestSettlementTotals.totalPayable) }}
+                      </div>
+                      <div class="segment-sub text-slate-400 font-weight-medium">
+                        Sales + Opening Due
+                      </div>
+                    </div>
+
+                    <!-- 5. Today Collection (Hero Accent) -->
+                    <div class="ribbon-segment segment-hero-collection">
+                      <div class="segment-label text-emerald-800">
+                        <span class="segment-badge badge-emerald">
+                          <v-icon size="13" color="#059669">mdi-check-decagram</v-icon>
+                        </span>
+                        <span>Today Collected</span>
+                      </div>
+                      <div class="segment-value text-emerald-700 font-weight-black">
+                        {{ formatCurrency(guestSettlementTotals.totalCollection) }}
+                      </div>
+                      <div class="segment-sub">
+                        <span class="sub-pill pill-emerald">
+                          {{ guestSettlementTotals.recoveredPct }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- 6. New Arrears (Balance Outcome) -->
+                    <div
+                      class="ribbon-segment"
+                      :class="guestSettlementTotals.totalNewArrears > 0 ? 'segment-outcome-arrears' : 'segment-outcome-cleared'"
+                    >
+                      <div class="segment-label" :class="guestSettlementTotals.totalNewArrears > 0 ? 'text-rose-800' : 'text-emerald-800'">
+                        <span
+                          class="segment-badge"
+                          :class="guestSettlementTotals.totalNewArrears > 0 ? 'badge-rose' : 'badge-emerald'"
+                        >
+                          <v-icon size="13" :color="guestSettlementTotals.totalNewArrears > 0 ? '#e11d48' : '#059669'">
+                            {{ guestSettlementTotals.totalNewArrears > 0 ? 'mdi-alert-circle-outline' : 'mdi-shield-check' }}
+                          </v-icon>
+                        </span>
+                        <span>Closing Arrears</span>
+                      </div>
+                      <div
+                        class="segment-value font-weight-black"
+                        :class="guestSettlementTotals.totalNewArrears > 0 ? 'text-rose-600' : 'text-emerald-700'"
+                      >
+                        {{ formatCurrency(guestSettlementTotals.totalNewArrears) }}
+                      </div>
+                      <div class="segment-sub">
+                        <span
+                          class="sub-pill"
+                          :class="guestSettlementTotals.totalNewArrears > 0 ? 'pill-rose' : 'pill-emerald'"
+                        >
+                          {{ guestSettlementTotals.totalNewArrears > 0 ? 'Uncollected Balance' : 'Fully Settled' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Single Unified 1 Table for ALL Guest Customers (Image 3 & 4) -->
+              <div class="w-100 overflow-x-auto border-t">
+                <v-table density="compact" class="dispatch-table settlement-table w-100 border-0 rounded-0">
+                  <thead>
+                    <tr class="settlement-th-row">
+                      <th style="min-width: 190px;">SHOP / OWNER</th>
+                      <th style="min-width: 105px;" class="text-end">PRICE</th>
+                      <th style="min-width: 115px;" class="text-end">SENT (KG)</th>
+                      <th style="min-width: 115px;" class="text-end">RETURN (KG)</th>
+                      <th style="min-width: 110px;" class="text-end">NET MILK</th>
+                      <th style="min-width: 130px;" class="text-end">TODAY AMOUNT</th>
+                      <th style="min-width: 120px;" class="text-end">PREV ARREARS</th>
+                      <th style="min-width: 130px;" class="text-end">TOTAL PAYABLE</th>
+                      <th style="min-width: 180px;" class="text-end th-collection">TODAY COLLECTION</th>
+                      <th style="min-width: 125px;" class="text-end">NEW ARREARS</th>
+                      <th style="min-width: 130px;" class="text-center">COLLECTION STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="d in guestSettlementDispatches"
+                      :key="d.id"
+                    >
+                      <template v-for="it in (d.items && d.items.length > 0 ? d.items : [d])" :key="it.shopId || d.id">
+                        <td>
+                          <div class="font-weight-bold text-primary shop-title">
+                            GUEST — {{ d.customerName || it.shopName || 'Guest Customer' }}
+                          </div>
+                          <div class="text-caption text-grey-darken-1 d-flex align-center gap-1">
+                            <span v-if="d.token" class="font-mono font-weight-bold">#{{ d.token }}</span>
+                            <span v-if="d.token && (d.customerPhone || d.paymentMethod)">•</span>
+                            <span v-if="d.customerPhone">{{ d.customerPhone }}</span>
+                            <span v-if="d.customerPhone && d.paymentMethod">•</span>
+                            <span>{{ d.paymentMethod === 'bank' ? 'Bank Transfer' : 'Cash in Hand' }}</span>
+                          </div>
+                        </td>
+                        <td class="text-end font-weight-medium text-slate-800 tabular-nums" style="white-space: nowrap;">
+                          Rs. {{ it.price || d.rate || 0 }}
+                        </td>
+                        <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
+                          <div>{{ formatNumber(it.kgs !== undefined ? it.kgs : d.totalMilk) }} Kg</div>
+                        </td>
+                        <td
+                          class="text-end font-weight-medium tabular-nums"
+                          :class="Number(it.returnKgs || d.totalReturnMilk || 0) > 0 ? 'text-orange-darken-3 font-weight-bold' : 'text-slate-500'"
+                          style="white-space: nowrap;"
+                        >
+                          {{ formatNumber(it.returnKgs || d.totalReturnMilk || 0) }} Kg
+                        </td>
+                        <td class="text-end font-weight-bold text-info tabular-nums" style="white-space: nowrap;">
+                          {{ formatNumber(it.todayMilk !== undefined ? it.todayMilk : d.totalMilk) }} Kg
+                        </td>
+                        <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
+                          {{ formatCurrency(it.todayAmount !== undefined ? it.todayAmount : d.totalAmount) }}
+                        </td>
+                        <td class="text-end text-slate-700 font-weight-medium tabular-nums" style="white-space: nowrap;">
+                          {{ formatCurrency(it.previousArrears || 0) }}
+                        </td>
+                        <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
+                          {{ formatCurrency(it.totalPayable !== undefined ? it.totalPayable : d.totalAmount) }}
+                        </td>
+                        <td class="text-end font-weight-bold text-success tabular-nums" style="white-space: nowrap;">
+                          {{ formatCurrency(it.todayCollection !== undefined ? it.todayCollection : d.totalCollection) }}
+                        </td>
+                        <td
+                          class="text-end font-weight-bold tabular-nums"
+                          :class="(it.newArrears || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'"
+                          style="white-space: nowrap;"
+                        >
+                          {{ formatCurrency(it.newArrears || 0) }}
+                        </td>
+                        <td class="text-center">
+                          <span
+                            class="erp-tag"
+                            :class="getCollectionStatusTagClass(it)"
+                          >
+                            {{ getCollectionStatusLabel(it) }}
+                          </span>
+                        </td>
+                      </template>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr class="settlement-tfoot-row font-weight-black text-body-2 border-t">
+                      <td class="text-uppercase font-weight-black text-slate-800">
+                        GUEST CUSTOMER SALES TOTALS:
+                      </td>
+                      <td class="text-end text-grey-darken-1">-</td>
+                      <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">
+                        {{ formatNumber(guestSettlementTotals.milkDispatchedKg) }} Kg
+                      </td>
+                      <td class="text-end text-orange-darken-3 tabular-nums" style="white-space: nowrap;">
+                        {{ formatNumber(guestSettlementTotals.returnMilkKg) }} Kg
+                      </td>
+                      <td class="text-end text-info tabular-nums" style="white-space: nowrap;">
+                        {{ formatNumber(guestSettlementTotals.totalMilk) }} Kg
+                      </td>
+                      <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">
+                        {{ formatCurrency(guestSettlementTotals.totalAmount) }}
+                      </td>
+                      <td class="text-end text-slate-700 tabular-nums" style="white-space: nowrap;">
+                        {{ formatCurrency(guestSettlementTotals.totalPreviousArrears) }}
+                      </td>
+                      <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">
+                        {{ formatCurrency(guestSettlementTotals.totalPayable) }}
+                      </td>
+                      <td class="text-end text-emerald-700 tfoot-collection tabular-nums" style="white-space: nowrap; font-size: 0.95rem;">
+                        {{ formatCurrency(guestSettlementTotals.totalCollection) }}
+                      </td>
+                      <td class="text-end tabular-nums" :class="guestSettlementTotals.totalNewArrears > 0 ? 'text-rose-600' : 'text-emerald-700'" style="white-space: nowrap;">
+                        {{ formatCurrency(guestSettlementTotals.totalNewArrears) }}
+                      </td>
+                      <td class="text-center">
+                        <span
+                          class="erp-tag"
+                          :class="guestSettlementTotals.totalNewArrears > 0 ? 'erp-tag-orange' : 'erp-tag-green'"
+                        >
+                          {{ guestSettlementTotals.totalNewArrears > 0 ? 'PARTIAL' : 'SETTLED' }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </v-table>
+
+                <!-- Under-Table Action Bar for Guest Sales -->
+                <div class="px-6 py-3 bg-grey-lighten-5 border-t d-flex align-center justify-space-between flex-wrap gap-3">
+                  <div class="text-caption text-grey-darken-1 d-flex align-center gap-2">
+                    <v-icon size="16" color="teal-darken-2">mdi-check-circle-outline</v-icon>
+                    <span>All <strong>{{ guestSettlementDispatches.length }}</strong> walk-in counter guest sales recorded in 1 table. Milk returns and cash refunds are managed via Masters / Milk Dispatch.</span>
+                  </div>
+                  <div class="d-flex align-center gap-2 ms-auto">
+                    <v-btn
+                      variant="outlined"
+                      size="small"
+                      color="primary"
+                      prepend-icon="mdi-pencil-box-outline"
+                      to="/masters/dispatches"
+                      class="text-capitalize font-weight-bold"
+                    >
+                      Manage in Dispatches Master
+                    </v-btn>
+                    <v-chip
+                      color="success"
+                      variant="tonal"
+                      class="font-weight-bold px-4"
+                    >
+                      <v-icon start size="16">mdi-check-decagram</v-icon>
+                      Counter Sales Settled
+                    </v-chip>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 2. Regular Route Dispatches Section (Placed Below Guest Customer, with Next Route Stepper) -->
+            <section
+              v-if="regularSettlementDispatches.length > 0 && settlementActiveTab === 'routes'"
+              class="route-settlement-section w-100 bg-white"
+            >
+              <!-- Route Stepper Header with Interactive Route Cards -->
+              <div
+                v-if="regularSettlementDispatches.length > 1"
+                class="route-stepper-header px-6 py-4 bg-slate-50 border-b d-flex align-center justify-space-between flex-wrap gap-3 w-100"
+              >
+                <!-- Left: Route Cards Carousel -->
+                <div class="d-flex align-center gap-2 flex-wrap">
+                  <div
+                    v-for="(r, idx) in regularSettlementDispatches"
+                    :key="r.id"
+                    class="route-nav-card"
+                    :class="{
+                      'is-active': activeRouteIndex === idx,
+                      'is-dispatched': r.status === 'Dispatched',
+                      'is-settled': r.status !== 'Dispatched',
+                    }"
+                    @click="setActiveRouteIndex(idx)"
+                  >
+                    <div class="nav-card-num">R{{ idx + 1 }}</div>
+                    <div class="nav-card-info">
+                      <div class="nav-card-title">{{ r.areaName }}</div>
+                      <div class="nav-card-sub">
+                        <span>{{ (r.items || []).length }} Shops</span>
+                        <span class="nav-card-dot">•</span>
+                        <span :class="r.status === 'Dispatched' ? 'text-amber-800 font-weight-bold' : 'text-emerald-800 font-weight-bold'">
+                          {{ r.status === 'Dispatched' ? 'Pending' : 'Settled' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right: Route Stepper (Prev / Next Route Buttons) -->
+                <div class="d-flex align-center gap-2 flex-wrap">
+                  <span class="text-caption font-weight-bold text-slate-500 me-1">
+                    Route {{ activeRouteIndex + 1 }} of {{ regularSettlementDispatches.length }}
+                  </span>
+                  <!-- Previous Route Button -->
+                  <v-btn
+                    height="38"
+                    variant="outlined"
+                    color="primary"
+                    class="route-nav-btn text-capitalize font-weight-bold rounded-lg px-3 bg-white"
+                    prepend-icon="mdi-chevron-left"
+                    :disabled="activeRouteIndex <= 0"
+                    @click="prevRegularRoute"
+                  >
+                    Previous Route
+                  </v-btn>
+
+                  <!-- Next Route Button -->
+                  <v-btn
+                    height="38"
+                    variant="flat"
+                    color="primary"
+                    class="route-nav-btn text-capitalize font-weight-bold rounded-lg px-4 shadow-sm"
+                    append-icon="mdi-chevron-right"
+                    :disabled="activeRouteIndex >= regularSettlementDispatches.length - 1"
+                    @click="nextRegularRoute"
+                  >
+                    Next Route {{ activeRouteIndex + 1 < regularSettlementDispatches.length ? `(${regularSettlementDispatches[activeRouteIndex + 1]?.areaName})` : '' }}
+                  </v-btn>
+                </div>
+              </div>
+
+              <!-- Route Card(s) Rendering -->
+              <div
+                v-for="(d, loopIdx) in displayedRegularDispatches"
+                :key="d.id"
+                class="route-card-container w-100"
+                :class="{ 'border-t-2': loopIdx > 0 }"
+              >
+                <!-- Executive Sophisticated Route Section Card -->
+                <div class="route-executive-card w-100">
                 <!-- Tier 1: Identity & Action Command Bar -->
                 <div
-                  class="route-command-bar d-flex align-center justify-space-between flex-wrap gap-3 px-6 py-3"
+                  class="route-command-bar d-flex align-center justify-space-between flex-wrap gap-3 px-6 py-3.5"
                   :class="d.status === 'Dispatched' ? 'status-dispatched-bar' : 'status-settled-bar'"
                 >
                   <!-- Left: Route Identity, Live Status & Crew Capsule -->
                   <div class="d-flex align-center gap-3 flex-wrap">
                     <div class="route-identity-block d-flex align-center gap-2">
-                      <span v-if="d.dispatchType === 'guest'" class="route-index-badge bg-teal-darken-2 text-white">
-                        🛒 GUEST
-                      </span>
-                      <span v-else-if="settlementDispatches.length > 1" class="route-index-badge">
-                        Route {{ index + 1 }}
+                      <span v-if="regularSettlementDispatches.length > 1" class="route-index-badge">
+                        Route {{ (settlementRouteViewMode === 'stepper' && regularSettlementDispatches.length > 1 ? activeRouteIndex : loopIdx) + 1 }}
                       </span>
                       <div class="route-pin-avatar">
-                        <v-icon size="17" color="primary">{{ d.dispatchType === 'guest' ? 'mdi-account-cash' : 'mdi-map-marker-radius' }}</v-icon>
+                        <v-icon size="17" color="primary">mdi-map-marker-radius</v-icon>
                       </div>
                       <span class="route-area-title">
-                        {{ d.dispatchType === 'guest' ? `Guest Customer: ${d.customerName || 'Walk-in'}` : d.areaName }}
+                        {{ d.areaName }}
                       </span>
                     </div>
 
@@ -1211,66 +1523,58 @@
                     <!-- Route Status Pill -->
                     <div
                       class="route-status-pill"
-                      :class="d.dispatchType === 'guest' ? 'status-settled' : (d.status === 'Dispatched' ? 'status-delivery-out' : 'status-settled')"
+                      :class="d.status === 'Dispatched' ? 'status-delivery-out' : 'status-settled'"
                     >
                       <span class="status-live-dot"></span>
-                      <span>{{ d.dispatchType === 'guest' ? 'Counter Sale • Paid & Settled' : (d.status === 'Dispatched' ? 'Delivery Out • Pending Settlement' : 'Returned & Settle Completed') }}</span>
+                      <span>{{ d.status === 'Dispatched' ? 'Delivery Out • Pending Settlement' : 'Returned & Settle Completed' }}</span>
                     </div>
 
                     <!-- Structured Meta Group -->
                     <div class="route-meta-group d-inline-flex align-center gap-2">
-                      <template v-if="d.dispatchType === 'guest'">
-                        <div class="route-meta-pill pill-vehicle">
-                          <v-icon size="14" class="meta-icon">mdi-ticket-outline</v-icon>
-                          <strong class="meta-val">#{{ d.token || 'N/A' }}</strong>
-                        </div>
-                        <div class="route-meta-pill pill-crew">
-                          <v-icon size="14" class="meta-icon">mdi-cash-register</v-icon>
-                          <span class="meta-lbl">Payment:</span>
-                          <strong class="meta-val">{{ d.paymentMethod === 'bank' ? 'Bank Transfer' : 'Cash in Hand' }}</strong>
-                        </div>
-                        <div class="route-meta-pill pill-shops">
-                          <v-icon size="14" class="meta-icon">mdi-currency-usd</v-icon>
-                          <span class="meta-lbl">Rate:</span>
-                          <strong class="meta-val">Rs. {{ d.rate || d.items?.[0]?.price }}/Kg</strong>
-                        </div>
-                      </template>
-                      <template v-else>
-                        <!-- Vehicle -->
-                        <div class="route-meta-pill pill-vehicle">
-                          <v-icon size="14" class="meta-icon">mdi-truck-outline</v-icon>
-                          <strong class="meta-val">{{ d.vehicleNumber }}</strong>
-                        </div>
+                      <!-- Vehicle -->
+                      <div class="route-meta-pill pill-vehicle">
+                        <v-icon size="14" class="meta-icon">mdi-truck-outline</v-icon>
+                        <strong class="meta-val">{{ d.vehicleNumber }}</strong>
+                      </div>
 
-                        <!-- Driver & Assistant -->
-                        <div class="route-meta-pill pill-crew">
-                          <v-icon size="14" class="meta-icon">mdi-steering</v-icon>
-                          <span class="meta-lbl">Driver:</span>
-                          <strong class="meta-val">{{ d.driverName }}</strong>
-                          <template v-if="d.calanderName">
-                            <span class="meta-dot">•</span>
-                            <v-icon size="14" class="meta-icon">mdi-account-tie-outline</v-icon>
-                            <span class="meta-lbl">Calander:</span>
-                            <strong class="meta-val">{{ d.calanderName }}</strong>
-                          </template>
-                        </div>
+                      <!-- Driver & Assistant -->
+                      <div class="route-meta-pill pill-crew">
+                        <v-icon size="14" class="meta-icon">mdi-steering</v-icon>
+                        <span class="meta-lbl">Driver:</span>
+                        <strong class="meta-val">{{ d.driverName }}</strong>
+                        <template v-if="d.calanderName">
+                          <span class="meta-dot">•</span>
+                          <v-icon size="14" class="meta-icon">mdi-account-tie-outline</v-icon>
+                          <span class="meta-lbl">Calander:</span>
+                          <strong class="meta-val">{{ d.calanderName }}</strong>
+                        </template>
+                      </div>
 
-                        <!-- Shop Count -->
-                        <div class="route-meta-pill pill-shops">
-                          <v-icon size="14" class="meta-icon">mdi-storefront-outline</v-icon>
-                          <strong class="meta-val">{{ (d.items || []).length }}</strong>
-                          <span class="meta-lbl ms-1">{{ (d.items || []).length === 1 ? 'Shop' : 'Shops' }}</span>
-                        </div>
-                      </template>
+                      <!-- Shop Count -->
+                      <div class="route-meta-pill pill-shops">
+                        <v-icon size="14" class="meta-icon">mdi-storefront-outline</v-icon>
+                        <strong class="meta-val">{{ (d.items || []).length }}</strong>
+                        <span class="meta-lbl ms-1">{{ (d.items || []).length === 1 ? 'Shop' : 'Shops' }}</span>
+                      </div>
                     </div>
                   </div>
 
                   <!-- Right: Action Center -->
-                  <div
-                    v-if="authStore.isAdmin && settingsStore.settings.allowDeleteDispatch !== false"
-                    class="d-flex align-center gap-2"
-                  >
+                  <div class="d-flex align-center gap-2">
                     <v-btn
+                      v-if="d.status === 'Dispatched' && !inspection?.isClosed"
+                      color="warning"
+                      variant="flat"
+                      size="small"
+                      class="text-capitalize font-weight-bold shadow-sm"
+                      prepend-icon="mdi-truck-check"
+                      :loading="savingDispatchId === d.id"
+                      @click="saveInlineDispatchSettlement(d)"
+                    >
+                      Mark Back Route
+                    </v-btn>
+                    <v-btn
+                      v-if="authStore.isAdmin && settingsStore.settings.allowDeleteDispatch !== false && !inspection?.isClosed"
                       icon="mdi-delete"
                       size="small"
                       variant="text"
@@ -1282,63 +1586,72 @@
                 </div>
 
                 <!-- Tier 2: Connected Financial Ribbon -->
-                <div class="metrics-ribbon-wrapper px-6 pb-4 pt-1">
+                <div class="metrics-ribbon-wrapper px-6 pb-4 pt-4">
                   <div class="metrics-ribbon">
                     <!-- 1. Volume: Milk Dispatched -->
-                    <div class="ribbon-segment">
+                    <div class="ribbon-segment segment-milk">
                       <div class="segment-label">
-                        <span class="segment-dot dot-info"></span>
+                        <span class="segment-badge badge-sky">
+                          <v-icon size="13" color="#0284c7">mdi-water-outline</v-icon>
+                        </span>
                         <span>Milk Dispatched</span>
                       </div>
-                      <div class="segment-value text-info font-weight-bold">
+                      <div class="segment-value text-sky-darken-3 font-weight-black">
                         {{ formatNumber(d.totalMilk) }} <span class="segment-unit">Kg</span>
                       </div>
                       <div class="segment-sub">
-                        <span v-if="(d.totalReturnMilk || 0) > 0" class="text-orange-darken-3 font-weight-medium">
+                        <span v-if="(d.totalReturnMilk || 0) > 0" class="sub-pill pill-amber">
+                          <v-icon size="11" class="me-0.5">mdi-arrow-u-left-bottom</v-icon>
                           {{ formatNumber(d.totalReturnMilk) }} Kg Returned
                         </span>
-                        <span v-else class="text-slate-400">0.00 Kg Returns</span>
+                        <span v-else class="text-slate-400 font-weight-medium">0.00 Kg Returns</span>
                       </div>
                     </div>
 
                     <!-- 2. Today Sales Amount -->
-                    <div class="ribbon-segment">
+                    <div class="ribbon-segment segment-sales">
                       <div class="segment-label">
-                        <span class="segment-dot dot-primary"></span>
+                        <span class="segment-badge badge-primary">
+                          <v-icon size="13" color="#063F78">mdi-cash-multiple</v-icon>
+                        </span>
                         <span>Route Sales</span>
                       </div>
-                      <div class="segment-value text-slate-800 font-weight-bold">
+                      <div class="segment-value text-slate-900 font-weight-black">
                         {{ formatCurrency(d.totalAmount) }}
                       </div>
-                      <div class="segment-sub text-slate-400">
+                      <div class="segment-sub text-slate-400 font-weight-medium">
                         Current Day Revenue
                       </div>
                     </div>
 
                     <!-- 3. Previous Arrears -->
-                    <div class="ribbon-segment">
+                    <div class="ribbon-segment segment-prev">
                       <div class="segment-label">
-                        <span class="segment-dot dot-neutral"></span>
+                        <span class="segment-badge badge-neutral">
+                          <v-icon size="13" color="#64748b">mdi-history</v-icon>
+                        </span>
                         <span>Prev. Arrears</span>
                       </div>
-                      <div class="segment-value text-slate-700 font-weight-medium">
+                      <div class="segment-value text-slate-800 font-weight-bold">
                         {{ formatCurrency(d.totalPreviousArrears) }}
                       </div>
-                      <div class="segment-sub text-slate-400">
+                      <div class="segment-sub text-slate-400 font-weight-medium">
                         Opening Balance
                       </div>
                     </div>
 
                     <!-- 4. Total Payable (Sales + Prev) -->
-                    <div class="ribbon-segment">
+                    <div class="ribbon-segment segment-payable">
                       <div class="segment-label">
-                        <span class="segment-dot dot-indigo"></span>
+                        <span class="segment-badge badge-indigo">
+                          <v-icon size="13" color="#4338ca">mdi-calculator-variant-outline</v-icon>
+                        </span>
                         <span>Total Payable</span>
                       </div>
-                      <div class="segment-value text-indigo-darken-3 font-weight-bold">
+                      <div class="segment-value text-indigo-darken-3 font-weight-black">
                         {{ formatCurrency((d.totalAmount || 0) + (d.totalPreviousArrears || 0)) }}
                       </div>
-                      <div class="segment-sub text-slate-400">
+                      <div class="segment-sub text-slate-400 font-weight-medium">
                         Sales + Opening Due
                       </div>
                     </div>
@@ -1346,14 +1659,18 @@
                     <!-- 5. Today Collection (Hero Accent) -->
                     <div class="ribbon-segment segment-hero-collection">
                       <div class="segment-label text-emerald-800">
-                        <span class="segment-dot dot-emerald"></span>
+                        <span class="segment-badge badge-emerald">
+                          <v-icon size="13" color="#059669">mdi-check-decagram</v-icon>
+                        </span>
                         <span>Today Collected</span>
                       </div>
                       <div class="segment-value text-emerald-700 font-weight-black">
                         {{ formatCurrency(d.totalCollection) }}
                       </div>
-                      <div class="segment-sub text-emerald-600 font-weight-medium">
-                        {{ getRouteCollectionPercentage(d) }}
+                      <div class="segment-sub">
+                        <span class="sub-pill pill-emerald">
+                          {{ getRouteCollectionPercentage(d) }}
+                        </span>
                       </div>
                     </div>
 
@@ -1364,257 +1681,275 @@
                     >
                       <div class="segment-label" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-800' : 'text-emerald-800'">
                         <span
-                          class="segment-dot"
-                          :class="(d.totalNewArrears || 0) > 0 ? 'dot-rose' : 'dot-emerald'"
-                        ></span>
+                          class="segment-badge"
+                          :class="(d.totalNewArrears || 0) > 0 ? 'badge-rose' : 'badge-emerald'"
+                        >
+                          <v-icon size="13" :color="(d.totalNewArrears || 0) > 0 ? '#e11d48' : '#059669'">
+                            {{ (d.totalNewArrears || 0) > 0 ? 'mdi-alert-circle-outline' : 'mdi-shield-check' }}
+                          </v-icon>
+                        </span>
                         <span>Closing Arrears</span>
                       </div>
                       <div
-                        class="segment-value font-weight-bold"
+                        class="segment-value font-weight-black"
                         :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-600' : 'text-emerald-700'"
                       >
                         {{ formatCurrency(d.totalNewArrears) }}
                       </div>
-                      <div
-                        class="segment-sub font-weight-medium"
-                        :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'"
-                      >
-                        {{ (d.totalNewArrears || 0) > 0 ? 'Uncollected Balance' : 'Fully Settled' }}
+                      <div class="segment-sub">
+                        <span
+                          class="sub-pill"
+                          :class="(d.totalNewArrears || 0) > 0 ? 'pill-rose' : 'pill-emerald'"
+                        >
+                          {{ (d.totalNewArrears || 0) > 0 ? 'Uncollected Balance' : 'Fully Settled' }}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Full-width Shop-by-Shop Breakdown Table (Always visible & directly editable inline) -->
+              <!-- Full-width Shop-by-Shop Breakdown Table -->
               <div class="w-100 overflow-x-auto border-t">
                 <v-table density="compact" class="dispatch-table settlement-table w-100 border-0 rounded-0">
-                    <thead>
-                      <tr class="settlement-th-row">
-                        <th style="min-width: 190px;">SHOP / OWNER</th>
-                        <th style="min-width: 105px;" class="text-end">PRICE</th>
-                        <th style="min-width: 115px;" class="text-end">SENT (KG)</th>
-                        <th style="min-width: 115px;" class="text-end">RETURN (KG)</th>
-                        <th style="min-width: 110px;" class="text-end">NET MILK</th>
-                        <th style="min-width: 130px;" class="text-end">TODAY AMOUNT</th>
-                        <th style="min-width: 120px;" class="text-end">PREV ARREARS</th>
-                        <th style="min-width: 130px;" class="text-end">TOTAL PAYABLE</th>
-                        <th style="min-width: 180px;" class="text-end th-collection">TODAY COLLECTION</th>
-                        <th style="min-width: 125px;" class="text-end">NEW ARREARS</th>
-                        <th style="min-width: 130px;" class="text-center">COLLECTION STATUS</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(it, itIdx) in (d.items || [])" :key="it.shopId || it.shopCode || itIdx">
-                        <td>
-                          <div class="font-weight-bold text-primary shop-title">{{ it.shopCode }} — {{ it.shopName }}</div>
-                          <div class="text-caption text-grey-darken-1">{{ it.ownerName }}</div>
-                        </td>
-                        <td class="editable-cell-highlight text-end">
+                  <thead>
+                    <tr class="settlement-th-row">
+                      <th style="min-width: 190px;">SHOP / OWNER</th>
+                      <th style="min-width: 105px;" class="text-end">PRICE</th>
+                      <th style="min-width: 115px;" class="text-end">SENT (KG)</th>
+                      <th style="min-width: 115px;" class="text-end">RETURN (KG)</th>
+                      <th style="min-width: 110px;" class="text-end">NET MILK</th>
+                      <th style="min-width: 130px;" class="text-end">TODAY AMOUNT</th>
+                      <th style="min-width: 120px;" class="text-end">PREV ARREARS</th>
+                      <th style="min-width: 130px;" class="text-end">TOTAL PAYABLE</th>
+                      <th style="min-width: 180px;" class="text-end th-collection">TODAY COLLECTION</th>
+                      <th style="min-width: 125px;" class="text-end">NEW ARREARS</th>
+                      <th style="min-width: 130px;" class="text-center">COLLECTION STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(it, itIdx) in getFilteredRouteItems(d)" :key="it.shopId || it.shopCode || itIdx">
+                      <td>
+                        <div class="font-weight-bold text-primary shop-title">{{ it.shopCode }} — {{ it.shopName }}</div>
+                        <div class="text-caption text-grey-darken-1">{{ it.ownerName }}</div>
+                      </td>
+                      <td :class="['text-end', { 'editable-cell-highlight': !inspection?.isClosed }]">
+                        <v-text-field
+                          v-model.number="it.price"
+                          type="number"
+                          min="0"
+                          density="compact"
+                          variant="outlined"
+                          hide-details
+                          class="editable-input price-input"
+                          style="min-width: 90px;"
+                          :disabled="Boolean(inspection?.isClosed)"
+                          :readonly="Boolean(inspection?.isClosed)"
+                          @update:model-value="(val) => onInlineItemChange(d, it, 'price', val)"
+                        />
+                      </td>
+                      <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
+                        <div>{{ formatNumber(it.kgs) }} Kg</div>
+                        <div v-if="Number(it.cans) > 0" class="text-caption text-slate-500">
+                          ({{ formatNumber(it.cans) }} Cans)
+                        </div>
+                      </td>
+                      <td :class="['text-end', { 'editable-cell-highlight': !inspection?.isClosed }]">
+                        <v-text-field
+                          v-model.number="it.returnKgs"
+                          type="number"
+                          min="0"
+                          :max="it.kgs"
+                          density="compact"
+                          variant="outlined"
+                          hide-details
+                          class="editable-input return-input font-weight-bold"
+                          style="min-width: 95px;"
+                          :disabled="Boolean(inspection?.isClosed)"
+                          :readonly="Boolean(inspection?.isClosed)"
+                          @update:model-value="(val) => onInlineItemChange(d, it, 'returnKgs', val)"
+                        />
+                      </td>
+                      <td class="text-end font-weight-bold text-info tabular-nums" style="white-space: nowrap;">
+                        {{ formatNumber(it.todayMilk) }} Kg
+                      </td>
+                      <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
+                        {{ formatCurrency(it.todayAmount) }}
+                      </td>
+                      <td class="text-end text-slate-700 font-weight-medium tabular-nums" style="white-space: nowrap;">
+                        {{ formatCurrency(it.previousArrears) }}
+                      </td>
+                      <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
+                        {{ formatCurrency(it.totalPayable) }}
+                      </td>
+                      <td :class="['text-end', { 'editable-cell-highlight bg-green-lighten-5': !inspection?.isClosed }]">
+                        <div class="d-flex align-center gap-1.5 justify-end">
                           <v-text-field
-                            v-model.number="it.price"
+                            v-model.number="it.todayCollection"
                             type="number"
                             min="0"
                             density="compact"
                             variant="outlined"
                             hide-details
-                            class="editable-input price-input"
-                            style="min-width: 90px;"
-                            :disabled="inspection?.isClosed && !authStore.isAdmin"
-                            @update:model-value="(val) => onInlineItemChange(d, it, 'price', val)"
+                            class="editable-input collection-input font-weight-bold text-success"
+                            style="min-width: 110px;"
+                            :disabled="Boolean(inspection?.isClosed)"
+                            :readonly="Boolean(inspection?.isClosed)"
+                            @update:model-value="(val) => onInlineItemChange(d, it, 'todayCollection', val)"
                           />
-                        </td>
-                        <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
-                          <div>{{ formatNumber(it.kgs) }} Kg</div>
-                          <div v-if="Number(it.cans) > 0" class="text-caption text-slate-500">
-                            ({{ formatNumber(it.cans) }} Cans)
-                          </div>
-                        </td>
-                        <td class="editable-cell-highlight text-end">
-                          <v-text-field
-                            v-model.number="it.returnKgs"
-                            type="number"
-                            min="0"
-                            :max="it.kgs"
-                            density="compact"
-                            variant="outlined"
-                            hide-details
-                            class="editable-input return-input font-weight-bold"
-                            style="min-width: 95px;"
-                            :disabled="inspection?.isClosed && !authStore.isAdmin"
-                            @update:model-value="(val) => onInlineItemChange(d, it, 'returnKgs', val)"
-                          />
-                        </td>
-                        <td class="text-end font-weight-bold text-info tabular-nums" style="white-space: nowrap;">
-                          {{ formatNumber(it.todayMilk) }} Kg
-                        </td>
-                        <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
-                          {{ formatCurrency(it.todayAmount) }}
-                        </td>
-                        <td class="text-end text-slate-700 font-weight-medium tabular-nums" style="white-space: nowrap;">
-                          {{ formatCurrency(it.previousArrears) }}
-                        </td>
-                        <td class="text-end font-weight-bold text-slate-900 tabular-nums" style="white-space: nowrap;">
-                          {{ formatCurrency(it.totalPayable) }}
-                        </td>
-                        <td class="editable-cell-highlight bg-green-lighten-5 text-end">
-                          <div class="d-flex align-center gap-1 justify-end">
-                            <v-text-field
-                              v-model.number="it.todayCollection"
-                              type="number"
-                              min="0"
-                              density="compact"
-                              variant="outlined"
-                              hide-details
-                              class="editable-input collection-input font-weight-bold text-success"
-                              style="min-width: 115px;"
-                              :disabled="inspection?.isClosed && !authStore.isAdmin"
-                              @update:model-value="(val) => onInlineItemChange(d, it, 'todayCollection', val)"
-                            />
-                            <v-btn
-                              v-if="!inspection?.isClosed || authStore.isAdmin"
-                              icon="mdi-check"
-                              size="x-small"
-                              variant="flat"
-                              color="success"
-                              class="btn-quick-collect"
-                              title="Collect Full Total Payable"
-                              @click="collectFullPayableInline(d, it)"
-                            >
-                              <v-icon size="14">mdi-check</v-icon>
-                            </v-btn>
-                          </div>
-                        </td>
-                        <td
-                          class="text-end font-weight-bold tabular-nums"
-                          :class="it.newArrears > 0 ? 'text-rose-600' : 'text-emerald-600'"
-                          style="white-space: nowrap;"
-                        >
-                          {{ formatCurrency(it.newArrears) }}
-                        </td>
-                        <td class="text-center">
-                          <span
-                            class="erp-tag"
-                            :class="getCollectionStatusTagClass(it)"
+                          <button
+                            v-if="!inspection?.isClosed && (Number(it.todayCollection) || 0) < (Number(it.totalPayable) || 0)"
+                            type="button"
+                            class="quick-paid-full-chip"
+                            title="Quick 1-Click Paid in Full"
+                            @click="collectFullPayableInline(d, it)"
                           >
-                            {{ getCollectionStatusLabel(it) }}
-                          </span>
-                        </td>
-                      </tr>
-                      <tr v-if="!d.items || d.items.length === 0">
-                        <td colspan="11" class="text-center pa-6 text-grey">
-                          No shop items recorded for this route dispatch.
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tfoot v-if="d.items && d.items.length > 0">
-                      <tr class="settlement-tfoot-row font-weight-black text-body-2 border-t">
-                        <td class="text-uppercase font-weight-black text-slate-800">
-                          {{ settlementDispatches.length > 1 ? `ROUTE #${index + 1} (${d.areaName}) TOTALS:` : 'GRAND TOTALS:' }}
-                        </td>
-                        <td class="text-end text-grey-darken-1">-</td>
-                        <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">{{ formatNumber(getRouteTotalSent(d)) }} Kg</td>
-                        <td class="text-end text-orange-darken-3 tabular-nums" style="white-space: nowrap;">{{ formatNumber(d.totalReturnMilk || 0) }} Kg</td>
-                        <td class="text-end text-info tabular-nums" style="white-space: nowrap;">{{ formatNumber(d.totalMilk) }} Kg</td>
-                        <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">{{ formatCurrency(d.totalAmount) }}</td>
-                        <td class="text-end text-slate-700 tabular-nums" style="white-space: nowrap;">{{ formatCurrency(d.totalPreviousArrears) }}</td>
-                        <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">{{ formatCurrency((d.totalAmount || 0) + (d.totalPreviousArrears || 0)) }}</td>
-                        <td class="text-end text-emerald-700 tfoot-collection tabular-nums" style="white-space: nowrap; font-size: 0.95rem;">
-                          {{ formatCurrency(d.totalCollection) }}
-                        </td>
-                        <td class="text-end tabular-nums" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-600' : 'text-emerald-700'" style="white-space: nowrap;">
-                          {{ formatCurrency(d.totalNewArrears) }}
-                        </td>
-                        <td class="text-center">
+                            <v-icon size="13">mdi-check</v-icon>
+                            <span>Full</span>
+                          </button>
                           <span
-                            class="erp-tag"
-                            :class="d.status === 'Dispatched' ? 'erp-tag-orange' : 'erp-tag-green'"
+                            v-else-if="(Number(it.todayCollection) || 0) >= (Number(it.totalPayable) || 0) && (Number(it.totalPayable) || 0) > 0"
+                            class="quick-paid-check"
+                            title="Paid in Full"
                           >
-                            {{ d.status === 'Dispatched' ? 'PENDING' : 'SETTLED' }}
+                            <v-icon size="18" color="success">mdi-check-circle</v-icon>
                           </span>
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </v-table>
-
-                  <!-- Under-Table Action & Remarks Bar -->
-                  <div class="px-6 py-3 bg-grey-lighten-5 border-t d-flex align-center justify-space-between flex-wrap gap-3">
-                    <div style="flex: 1 1 340px; max-width: 520px;">
-                      <v-text-field
-                        v-model="d.returnNotes"
-                        label="Return Remarks / Settlement Note (Optional)"
-                        placeholder="e.g., 5 Kg returned unsold, cash collection settled"
-                        variant="outlined"
-                        density="compact"
-                        hide-details
-                        prepend-inner-icon="mdi-note-text-outline"
-                        class="bg-white rounded-lg"
-                        :disabled="inspection?.isClosed && !authStore.isAdmin"
-                        @update:model-value="() => markDispatchDirty(d.id)"
-                      />
-                    </div>
-                    <div class="d-flex align-center gap-2 ms-auto">
-                      <v-btn
-                        v-if="isDispatchDirty(d.id)"
-                        variant="outlined"
-                        color="grey-darken-2"
-                        size="default"
-                        class="text-capitalize rounded-lg font-weight-medium bg-white"
-                        @click="resetDispatchChanges(d)"
+                        </div>
+                      </td>
+                      <td
+                        class="text-end font-weight-bold tabular-nums"
+                        :class="it.newArrears > 0 ? 'text-rose-600' : 'text-emerald-600'"
+                        style="white-space: nowrap;"
                       >
-                        Discard
+                        {{ formatCurrency(it.newArrears) }}
+                      </td>
+                      <td class="text-center">
+                        <span
+                          class="erp-tag"
+                          :class="getCollectionStatusTagClass(it)"
+                        >
+                          {{ getCollectionStatusLabel(it) }}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr v-if="getFilteredRouteItems(d).length === 0">
+                      <td colspan="11" class="text-center pa-6 text-grey">
+                        <v-icon size="24" color="grey" class="mb-1">mdi-storefront-remove-outline</v-icon>
+                        <div v-if="routeShopSearch">No shops match the search filter "{{ routeShopSearch }}".</div>
+                        <div v-else>No shop items recorded for this route dispatch.</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot v-if="d.items && d.items.length > 0">
+                    <tr class="settlement-tfoot-row font-weight-black text-body-2 border-t">
+                      <td class="text-uppercase font-weight-black text-slate-800">
+                        {{ regularSettlementDispatches.length > 1 ? `ROUTE #${(settlementRouteViewMode === 'stepper' && regularSettlementDispatches.length > 1 ? activeRouteIndex : loopIdx) + 1} (${d.areaName}) TOTALS:` : 'GRAND TOTALS:' }}
+                      </td>
+                      <td class="text-end text-grey-darken-1">-</td>
+                      <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">{{ formatNumber(getRouteTotalSent(d)) }} Kg</td>
+                      <td class="text-end text-orange-darken-3 tabular-nums" style="white-space: nowrap;">{{ formatNumber(d.totalReturnMilk || 0) }} Kg</td>
+                      <td class="text-end text-info tabular-nums" style="white-space: nowrap;">{{ formatNumber(d.totalMilk) }} Kg</td>
+                      <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">{{ formatCurrency(d.totalAmount) }}</td>
+                      <td class="text-end text-slate-700 tabular-nums" style="white-space: nowrap;">{{ formatCurrency(d.totalPreviousArrears) }}</td>
+                      <td class="text-end text-slate-900 tabular-nums" style="white-space: nowrap;">{{ formatCurrency((d.totalAmount || 0) + (d.totalPreviousArrears || 0)) }}</td>
+                      <td class="text-end text-emerald-700 tfoot-collection tabular-nums" style="white-space: nowrap; font-size: 0.95rem;">
+                        {{ formatCurrency(d.totalCollection) }}
+                      </td>
+                      <td class="text-end tabular-nums" :class="(d.totalNewArrears || 0) > 0 ? 'text-rose-600' : 'text-emerald-700'" style="white-space: nowrap;">
+                        {{ formatCurrency(d.totalNewArrears) }}
+                      </td>
+                      <td class="text-center">
+                        <span
+                          class="erp-tag"
+                          :class="d.status === 'Dispatched' ? 'erp-tag-orange' : 'erp-tag-green'"
+                        >
+                          {{ d.status === 'Dispatched' ? 'PENDING' : 'SETTLED' }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </v-table>
+
+                <!-- Under-Table Action & Remarks Bar -->
+                <div class="px-6 py-3 bg-grey-lighten-5 border-t d-flex align-center justify-space-between flex-wrap gap-3">
+                  <div style="flex: 1 1 340px; max-width: 520px;">
+                    <v-text-field
+                      v-model="d.returnNotes"
+                      label="Return Remarks / Settlement Note (Optional)"
+                      placeholder="e.g., 5 Kg returned unsold, cash collection settled"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      prepend-inner-icon="mdi-note-text-outline"
+                      class="bg-white rounded-lg return-notes-field"
+                      :disabled="Boolean(inspection?.isClosed)"
+                      :readonly="Boolean(inspection?.isClosed)"
+                      @update:model-value="() => markDispatchDirty(d.id)"
+                    />
+                  </div>
+                  <div class="d-flex align-center gap-2 ms-auto flex-wrap">
+                    <template v-if="!inspection?.isClosed">
+                      <v-btn
+                        size="default"
+                        variant="tonal"
+                        color="success"
+                        class="text-capitalize font-weight-bold rounded-lg px-3 shadow-none"
+                        prepend-icon="mdi-check-all"
+                        @click="collectAllFullPayable(d)"
+                        title="Set Today Collection to Total Payable for all shops in this route"
+                      >
+                        Collect All in Full
                       </v-btn>
                       <v-btn
-                        v-if="!inspection?.isClosed || authStore.isAdmin"
                         color="success"
                         variant="flat"
                         size="default"
                         class="text-capitalize rounded-lg px-6 font-weight-bold shadow-sm"
-                        prepend-icon="mdi-cash-check"
+                        :prepend-icon="d.status === 'Dispatched' ? 'mdi-truck-check' : 'mdi-cash-check'"
                         :loading="savingDispatchId === d.id"
                         @click="saveInlineDispatchSettlement(d)"
                       >
-                        Save Today Collection &amp; Settle Route
+                        {{ d.status === 'Dispatched' ? 'Save Today Collection & Settle Route (Mark Back)' : 'Save Today Collection & Settle Route' }}
                       </v-btn>
-                      <v-chip
-                        v-else
-                        color="success"
-                        variant="tonal"
-                        class="font-weight-bold px-4"
-                      >
-                        <v-icon start size="16">mdi-lock-check</v-icon>
-                        Route Settled &amp; Closed
-                      </v-chip>
-                    </div>
+                    </template>
+                    <v-chip
+                      v-else
+                      color="success"
+                      variant="tonal"
+                      class="font-weight-bold px-4"
+                    >
+                      <v-icon start size="16">mdi-lock-check</v-icon>
+                      Route Settled &amp; Closed
+                    </v-chip>
                   </div>
                 </div>
+              </div>
+            </div>
             </section>
+
+            <!-- Informational notice when only guest sales exist for this date -->
+            <div
+              v-if="regularSettlementDispatches.length === 0 && guestSettlementDispatches.length > 0"
+              class="pa-6 text-center text-grey bg-white border-t"
+            >
+              <v-icon size="32" color="grey-lighten-1" class="mb-1">mdi-truck-outline</v-icon>
+              <div class="font-weight-medium text-caption">No vehicle delivery routes recorded for this date. (Only counter retail guest sales were recorded)</div>
+            </div>
           </div>
         </v-card-text>
 
-        <!-- Dialog Footer with Financial Flow Summary & Save & Close Day Button -->
-        <v-card-actions class="px-6 py-3 bg-white border-t d-flex align-center justify-space-between flex-wrap gap-3 flex-shrink-0">
-          <!-- Left: Financial Flow summary -->
-          <div class="d-flex align-center gap-3 text-caption flex-wrap">
-            <span class="text-grey-darken-1">Dispatched: <strong class="text-info">{{ formatNumber(activeSettlementSummary.milkDispatchedKg) }} Kg</strong></span>
-            <span class="text-grey-lighten-1">•</span>
-            <span class="text-grey-darken-1">Sales: <strong class="text-dark">{{ formatCurrency(activeSettlementSummary.totalDispatchAmount) }}</strong></span>
-            <span class="text-grey-lighten-1">•</span>
-            <span class="text-grey-darken-1">Collections: <strong class="text-success">{{ formatCurrency(activeSettlementSummary.totalCollection) }}</strong></span>
-            <span class="text-grey-lighten-1">•</span>
-            <span class="text-grey-darken-1">Expenses: <strong class="text-error">{{ formatCurrency(activeSettlementSummary.totalExpenses) }}</strong></span>
-            <span class="text-grey-lighten-1">•</span>
-            <span class="text-grey-darken-2 font-weight-medium">
-              Net Remaining Cash Flow: <strong class="text-primary text-body-2 font-weight-black">{{ formatCurrency(activeSettlementSummary.netCashFlow) }}</strong>
-            </span>
+        <!-- Dialog Footer with Action Buttons -->
+        <v-card-actions class="px-6 py-3 bg-white border-t d-flex align-center justify-space-between flex-wrap gap-2 flex-shrink-0">
+          <div class="d-flex align-center gap-2 text-caption text-slate-500 font-weight-medium">
+            <v-icon size="16" color="primary">mdi-shield-check-outline</v-icon>
+            <span>Live Settlement Ledger • Review returned milk cans &amp; cash collections before closing day</span>
           </div>
 
-          <!-- Right: Action Buttons -->
           <div class="d-flex align-center gap-2">
             <v-btn
               variant="outlined"
               color="grey-darken-2"
-              class="px-4 text-capitalize font-weight-medium"
+              class="dialog-footer-btn px-5 text-capitalize font-weight-bold rounded-lg bg-white"
               @click="routeSettlementsDialog = false"
             >
               Close Window
@@ -1624,7 +1959,7 @@
               v-if="!inspection?.isClosed"
               color="primary"
               variant="flat"
-              class="px-5 font-weight-bold text-capitalize"
+              class="dialog-footer-btn px-5 font-weight-bold text-capitalize rounded-lg shadow-sm"
               prepend-icon="mdi-lock-check"
               :disabled="!inspection?.canClose"
               :title="!inspection?.canClose ? (summary.arrivalsCount === 0 ? 'Day not open — record milk arrival first' : 'Mark back all dispatches before closing') : `Save all records and close ${formatDate(selectedDate)}`"
@@ -1634,11 +1969,11 @@
             </v-btn>
             <v-chip
               v-else
-              color="success"
+              color="warning"
               variant="flat"
-              class="font-weight-bold px-3"
+              class="dialog-footer-chip font-weight-black px-4 rounded-lg"
             >
-              <v-icon start size="16">mdi-lock-check</v-icon>
+              <v-icon start size="16" style="color: #0f172a !important;">mdi-lock-check</v-icon>
               Day Closed ({{ formatDate(selectedDate) }})
             </v-chip>
           </div>
@@ -1648,11 +1983,20 @@
 
 
 
+    <!-- Edit Guest Sale Dialog -->
+    <EditGuestSaleDialog
+      v-model="editGuestSaleDialog"
+      :sale="activeGuestSaleToEdit"
+      @saved="onGuestSaleUpdated"
+    />
+
     <!-- Delete Dispatch Confirmation Dialog (Admin) -->
     <ConfirmDialog
       v-model="deleteDispatchDialog"
       title="Delete Dispatch Record"
-      :message="`Are you sure you want to delete dispatch for ${dispatchToDelete?.areaName} (${dispatchToDelete?.vehicleNumber})? Shop arrears balance will be rolled back.`"
+      :message="dispatchToDelete?.dispatchType === 'guest' || dispatchToDelete?.isGuest
+        ? `Are you sure you want to delete guest sale #${dispatchToDelete?.token || ''} (${dispatchToDelete?.customerName || 'Guest Customer'})?`
+        : `Are you sure you want to delete dispatch for ${dispatchToDelete?.areaName} (${dispatchToDelete?.vehicleNumber})? Shop arrears balance will be rolled back.`"
       confirm-text="Delete Dispatch"
       confirm-color="error"
       :loading="deletingDispatch"
@@ -1681,6 +2025,7 @@ import AppPagination from '@/components/common/AppPagination.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import BulkActionsBar from '@/components/common/BulkActionsBar.vue';
 import DayClosingMobileView from './DayClosingMobileView.vue';
+import EditGuestSaleDialog from '@/components/dispatch/EditGuestSaleDialog.vue';
 
 const router = useRouter();
 const display = useDisplay();
@@ -1688,6 +2033,19 @@ const businessDayStore = useBusinessDayStore();
 const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
 const settingsStore = useSettingsStore();
+
+const editGuestSaleDialog = ref(false);
+const activeGuestSaleToEdit = ref(null);
+
+function openEditGuestSale(d) {
+  activeGuestSaleToEdit.value = d;
+  editGuestSaleDialog.value = true;
+}
+
+async function onGuestSaleUpdated() {
+  snackbar.success('Guest customer sale updated!');
+  await Promise.all([loadInspection(), businessDayStore.refreshBusinessDay(), loadSettlementPeriodData()]);
+}
 
 const loading = ref(false);
 const closingDay = ref(false);
@@ -1762,6 +2120,209 @@ const settlementDispatches = computed(() => {
   }
   return periodDispatches.value;
 });
+
+function isGuestDispatch(d) {
+  if (!d) return false;
+  return (
+    d.dispatchType === 'guest' ||
+    d.isGuest === true ||
+    (d.areaName && d.areaName.toLowerCase().includes('guest'))
+  );
+}
+
+const regularSettlementDispatches = computed(() => {
+  return settlementDispatches.value.filter((d) => !isGuestDispatch(d));
+});
+
+const guestSettlementDispatches = computed(() => {
+  return settlementDispatches.value.filter((d) => isGuestDispatch(d));
+});
+
+// Route Stepper Navigation for Regular Routes in Route Settlements Dialog
+const activeRouteIndex = ref(0);
+const settlementRouteViewMode = ref('stepper'); // 'stepper' or 'all'
+const settlementActiveTab = ref('routes'); // 'routes', 'guest', or 'all'
+const routeShopSearch = ref('');
+
+function getFilteredRouteItems(dispatch) {
+  if (!dispatch || !dispatch.items) return [];
+  if (!routeShopSearch.value || !routeShopSearch.value.trim()) {
+    return dispatch.items;
+  }
+  const q = routeShopSearch.value.toLowerCase().trim();
+  return dispatch.items.filter((it) => {
+    return (
+      (it.shopName && it.shopName.toLowerCase().includes(q)) ||
+      (it.shopCode && it.shopCode.toLowerCase().includes(q)) ||
+      (it.ownerName && it.ownerName.toLowerCase().includes(q))
+    );
+  });
+}
+
+function collectAllFullPayable(dispatch) {
+  if (inspection.value?.isClosed) return;
+  if (!dispatch || !dispatch.items) return;
+  dispatch.items.forEach((it) => {
+    it.todayCollection = Math.max(0, Number(it.totalPayable) || 0);
+    recalcInlineDispatchRow(dispatch, it);
+  });
+  snackbar.success(`Collected full payable for ${dispatch.areaName || 'Route'}`);
+}
+
+function resetAllRouteCollections(dispatch) {
+  if (inspection.value?.isClosed) return;
+  if (!dispatch || !dispatch.items) return;
+  dispatch.items.forEach((it) => {
+    it.todayCollection = 0;
+    recalcInlineDispatchRow(dispatch, it);
+  });
+  snackbar.info(`Reset collections to 0 for ${dispatch.areaName || 'Route'}`);
+}
+
+const activeRegularRoute = computed(() => {
+  if (!regularSettlementDispatches.value || regularSettlementDispatches.value.length === 0) return null;
+  const idx = Math.min(Math.max(0, activeRouteIndex.value), regularSettlementDispatches.value.length - 1);
+  return regularSettlementDispatches.value[idx] || null;
+});
+
+const displayedRegularDispatches = computed(() => {
+  if (!regularSettlementDispatches.value || regularSettlementDispatches.value.length === 0) return [];
+  if (settlementRouteViewMode.value === 'all' || regularSettlementDispatches.value.length <= 1) {
+    return regularSettlementDispatches.value.filter(Boolean);
+  }
+  return activeRegularRoute.value ? [activeRegularRoute.value] : [];
+});
+
+const settlementDialogBody = ref(null);
+
+function scrollToSettlementTop() {
+  nextTick(() => {
+    if (settlementDialogBody.value?.$el) {
+      settlementDialogBody.value.$el.scrollTop = 0;
+    } else if (settlementDialogBody.value) {
+      settlementDialogBody.value.scrollTop = 0;
+    }
+  });
+}
+
+function nextRegularRoute() {
+  if (activeRouteIndex.value < regularSettlementDispatches.value.length - 1) {
+    activeRouteIndex.value++;
+    routeShopSearch.value = '';
+    scrollToSettlementTop();
+  }
+}
+
+function prevRegularRoute() {
+  if (activeRouteIndex.value > 0) {
+    activeRouteIndex.value--;
+    routeShopSearch.value = '';
+    scrollToSettlementTop();
+  }
+}
+
+function setActiveRouteIndex(idx) {
+  if (idx >= 0 && idx < regularSettlementDispatches.value.length) {
+    activeRouteIndex.value = idx;
+    routeShopSearch.value = '';
+    scrollToSettlementTop();
+  }
+}
+
+watch(regularSettlementDispatches, (newList) => {
+  if (!newList || newList.length === 0) {
+    activeRouteIndex.value = 0;
+  } else if (activeRouteIndex.value >= newList.length) {
+    activeRouteIndex.value = Math.max(0, newList.length - 1);
+  }
+});
+
+const guestSettlementTotals = computed(() => {
+  let milkDispatchedKg = 0;
+  let returnMilkKg = 0;
+  let totalAmount = 0;
+  let totalPreviousArrears = 0;
+  let totalCollection = 0;
+  let totalNewArrears = 0;
+
+  for (const d of guestSettlementDispatches.value) {
+    const it = (d.items && d.items[0]) || d;
+    const sent = Math.max(0, Number(it.kgs !== undefined ? it.kgs : d.totalMilk) || 0);
+    const ret = Math.max(0, Number(it.returnKgs !== undefined ? it.returnKgs : d.totalReturnMilk) || 0);
+    const net = Math.max(0, Number(it.todayMilk !== undefined ? it.todayMilk : d.totalMilk) || 0);
+    const amt = Math.max(0, Number(it.todayAmount !== undefined ? it.todayAmount : d.totalAmount) || 0);
+    const prev = Math.max(0, Number(it.previousArrears !== undefined ? it.previousArrears : d.totalPreviousArrears) || 0);
+    const coll = Math.max(0, Number(it.todayCollection !== undefined ? it.todayCollection : d.totalCollection) || 0);
+    const arr = Math.max(0, Number(it.newArrears !== undefined ? it.newArrears : d.totalNewArrears) || 0);
+
+    milkDispatchedKg += sent;
+    returnMilkKg += ret;
+    totalAmount += amt;
+    totalPreviousArrears += prev;
+    totalCollection += coll;
+    totalNewArrears += arr;
+  }
+
+  const totalPayable = totalAmount + totalPreviousArrears;
+  const recoveredPct = totalPayable > 0 ? ((totalCollection / totalPayable) * 100).toFixed(1) : '100';
+
+  return {
+    milkDispatchedKg: Number(milkDispatchedKg.toFixed(2)),
+    returnMilkKg: Number(returnMilkKg.toFixed(2)),
+    totalMilk: Number((milkDispatchedKg - returnMilkKg).toFixed(2)),
+    totalAmount: Number(totalAmount.toFixed(2)),
+    totalPreviousArrears: Number(totalPreviousArrears.toFixed(2)),
+    totalPayable: Number(totalPayable.toFixed(2)),
+    totalCollection: Number(totalCollection.toFixed(2)),
+    totalNewArrears: Number(totalNewArrears.toFixed(2)),
+    recoveredPct: `${recoveredPct}% of Total Due Recovered`,
+  };
+});
+
+const hasDirtyGuestDispatches = computed(() => {
+  return guestSettlementDispatches.value.some((d) => dirtyDispatchIds.value.has(d.id));
+});
+
+const savingGuestDispatches = ref(false);
+
+function resetGuestDispatchesChanges() {
+  for (const d of guestSettlementDispatches.value) {
+    if (dirtyDispatchIds.value.has(d.id)) {
+      resetDispatchChanges(d);
+    }
+  }
+}
+
+async function saveAllGuestDispatches() {
+  savingGuestDispatches.value = true;
+  try {
+    for (const d of guestSettlementDispatches.value) {
+      if (dirtyDispatchIds.value.has(d.id)) {
+        await dispatchService.updateDispatch(d.id, {
+          header: {
+            date: d.date,
+            dispatchType: 'guest',
+            token: d.token,
+            customerName: d.customerName,
+            customerPhone: d.customerPhone,
+            paymentMethod: d.paymentMethod,
+            returnNotes: (d.returnNotes || '').trim(),
+          },
+          items: d.items || [],
+          status: 'Returned',
+        });
+        originalDispatchItems.set(d.id, JSON.parse(JSON.stringify(d.items || [])));
+        unmarkDispatchDirty(d.id);
+      }
+    }
+    snackbar.success('Guest customer sales collections & settlements saved!');
+    await Promise.all([loadInspection(), businessDayStore.refreshBusinessDay(), loadSettlementPeriodData()]);
+  } catch (err) {
+    snackbar.error(err.message || 'Failed to save guest sales settlements');
+  } finally {
+    savingGuestDispatches.value = false;
+  }
+}
 
 const activeSettlementSummary = computed(() => {
   const dispatches = settlementDispatches.value;
@@ -2039,15 +2600,32 @@ function toggleExpandDispatch(id) {
   }
 }
 
-async function openRouteSettlementsDialog() {
+async function openRouteSettlementsDialog(targetDate = null) {
+  const d = (typeof targetDate === 'string' && targetDate) ? targetDate : selectedDate.value;
+  selectedDate.value = d;
   settlementDateFilter.value = {
     mode: 'single',
-    from: selectedDate.value,
-    to: selectedDate.value,
-    date: selectedDate.value,
+    from: d,
+    to: d,
+    date: d,
     month: '',
   };
+  settlementRouteViewMode.value = 'stepper';
   await loadSettlementPeriodData();
+
+  if (regularSettlementDispatches.value.length > 0) {
+    settlementActiveTab.value = 'routes';
+  } else if (guestSettlementDispatches.value.length > 0) {
+    settlementActiveTab.value = 'guest';
+  } else {
+    settlementActiveTab.value = 'routes';
+  }
+  routeShopSearch.value = '';
+
+  // Find first unreturned (Dispatched) route if any and focus it
+  const pendingIdx = regularSettlementDispatches.value.findIndex((r) => r.status === 'Dispatched');
+  activeRouteIndex.value = pendingIdx >= 0 ? pendingIdx : 0;
+
   routeSettlementsDialog.value = true;
 }
 
@@ -2105,6 +2683,24 @@ function prepareDispatchForInlineEdit(d) {
   if (!d) return;
   d.returnNotes = d.returnNotes || '';
   if (!d.items) d.items = [];
+  if (isGuestDispatch(d) && d.items.length === 0) {
+    d.items = [{
+      shopId: `guest-${d.token || d.id}`,
+      shopCode: 'GUEST',
+      shopName: d.customerName || 'Guest Customer',
+      ownerName: d.customerPhone || 'Counter Retail Sale',
+      price: Number(d.rate) || 250,
+      cans: 0,
+      kgs: Number(d.totalMilk) || 0,
+      returnKgs: Number(d.totalReturnMilk) || 0,
+      todayMilk: Number(d.totalMilk) || 0,
+      todayAmount: Number(d.totalAmount) || 0,
+      previousArrears: Number(d.totalPreviousArrears) || 0,
+      todayCollection: Number(d.totalCollection) || 0,
+      totalPayable: Number(d.totalAmount) || 0,
+      newArrears: Number(d.totalNewArrears) || 0,
+    }];
+  }
   d.items.forEach((it) => {
     it.price = Number(it.price) || 0;
     it.cans = Number(it.cans) || 0;
@@ -2124,6 +2720,7 @@ function prepareDispatchForInlineEdit(d) {
 }
 
 function onInlineItemChange(dispatch, row, field, val) {
+  if (inspection.value?.isClosed) return;
   if (val !== undefined) {
     row[field] = Math.max(0, Number(val) || 0);
   }
@@ -2131,6 +2728,7 @@ function onInlineItemChange(dispatch, row, field, val) {
 }
 
 function collectFullPayableInline(dispatch, row) {
+  if (inspection.value?.isClosed) return;
   row.todayCollection = Math.max(0, Number(row.totalPayable) || 0);
   recalcInlineDispatchRow(dispatch, row);
 }
@@ -2196,6 +2794,10 @@ function resetDispatchChanges(d) {
 
 async function saveInlineDispatchSettlement(d) {
   if (!d) return;
+  if (inspection.value?.isClosed) {
+    snackbar.error('Day is closed. Reopen day first to modify route settlements.');
+    return;
+  }
   savingDispatchId.value = d.id;
   try {
     await dispatchService.updateDispatch(d.id, {
@@ -2453,11 +3055,48 @@ function getLedgerStatusLabel(row) {
   return 'OPEN';
 }
 
-function goToPendingDispatchesForDate(dateStr) {
-  router.push({
-    path: '/milk-dispatch',
-    query: { tab: 'history', date: dateStr },
-  });
+function getAllocationTagClass(type) {
+  if (type === 'bank') return 'erp-tag-blue';
+  if (type === 'cash') return 'erp-tag-green';
+  if (type === 'split') return 'erp-tag-purple';
+  return 'erp-tag-grey';
+}
+
+function getAllocationLabel(type) {
+  if (type === 'bank') return 'BANK DEPOSIT';
+  if (type === 'cash') return 'CASH IN HAND';
+  if (type === 'split') return 'CUSTOM SPLIT';
+  return '-';
+}
+
+function getLedgerRowAllocationTagClass(row) {
+  if (!row.isClosed) {
+    if (row.summary.pendingDispatchCount > 0) return 'erp-tag-orange';
+    if (row.canClose) return 'erp-tag-blue';
+    return 'erp-tag-grey';
+  }
+  const type = row.closing?.allocation?.type;
+  if (type === 'bank') return 'erp-tag-blue';
+  if (type === 'cash') return 'erp-tag-green';
+  if (type === 'split') return 'erp-tag-purple';
+  return 'erp-tag-grey';
+}
+
+function getLedgerRowAllocationLabel(row) {
+  if (!row.isClosed) {
+    if (row.summary.pendingDispatchCount > 0) return 'PENDING';
+    if (row.canClose) return 'READY';
+    return '-';
+  }
+  const type = row.closing?.allocation?.type;
+  if (type === 'bank') return 'BANK DEPOSIT';
+  if (type === 'cash') return 'CASH IN HAND';
+  if (type === 'split') return 'CUSTOM SPLIT';
+  return 'CLOSED';
+}
+
+async function goToPendingDispatchesForDate(dateStr) {
+  await openRouteSettlementsDialog(dateStr);
 }
 
 async function promptCloseRow(dateStr) {
@@ -2502,11 +3141,8 @@ function selectPendingCloseDate() {
   loadInspection();
 }
 
-function goToPendingDispatches() {
-  router.push({
-    path: '/milk-dispatch',
-    query: { tab: 'history', date: selectedDate.value },
-  });
+async function goToPendingDispatches() {
+  await openRouteSettlementsDialog(selectedDate.value);
 }
 
 function openCloseDayAllocationDialog() {
@@ -3116,6 +3752,47 @@ onMounted(async () => {
   font-weight: 700 !important;
 }
 
+.editable-input :deep(.v-field--disabled) {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.9 !important;
+}
+
+.editable-input :deep(.v-field--disabled input) {
+  color: #475569 !important;
+  cursor: not-allowed !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+.editable-input.collection-input :deep(.v-field--disabled) {
+  border-color: #cbd5e1 !important;
+  background-color: #f1f5f9 !important;
+}
+
+.editable-input.collection-input :deep(.v-field--disabled input) {
+  color: #059669 !important;
+  -webkit-text-fill-color: #059669 !important;
+}
+
+.editable-input.return-input :deep(.v-field--disabled input) {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+}
+
+.return-notes-field :deep(.v-field--disabled) {
+  background-color: #f8fafc !important;
+  cursor: not-allowed !important;
+  opacity: 0.9 !important;
+}
+
+.return-notes-field :deep(.v-field--disabled input) {
+  cursor: not-allowed !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
 .editable-input :deep(input[type="number"]::-webkit-inner-spin-button),
 .editable-input :deep(input[type="number"]::-webkit-outer-spin-button) {
   -webkit-appearance: none;
@@ -3148,8 +3825,13 @@ onMounted(async () => {
 }
 
 .closing-modal-header {
-  background-color: #063f78 !important;
+  background: #063F78 !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(6, 63, 120, 0.35) !important;
+  position: relative;
+  padding: 14px 24px !important;
+  min-height: 66px !important;
+  box-sizing: border-box !important;
 }
 
 .route-settlement-section {
@@ -3158,7 +3840,7 @@ onMounted(async () => {
 }
 
 .route-section-separator {
-  background: linear-gradient(90deg, #e2e8f0 0%, #f1f5f9 100%) !important;
+  background: #e2e8f0 !important;
   border-top: 2px solid #94a3b8 !important;
   border-bottom: 1px solid #cbd5e1 !important;
 }
@@ -3187,8 +3869,8 @@ onMounted(async () => {
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
   border-left: 4px solid #0d47a1;
-  padding: 12px 24px;
-  min-height: 56px;
+  padding: 14px 24px;
+  min-height: 58px;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
@@ -3396,25 +4078,29 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 
-/* Connected Financial Ribbon */
+/* Executive Connected Financial Ribbon */
 .metrics-ribbon {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  width: 100%;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
 }
 
 .ribbon-segment {
-  flex: 1 1 0;
   min-width: 0;
-  padding: 12px 16px;
+  padding: 13px 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   border-right: 1px solid #f1f5f9;
-  transition: background-color 0.15s ease;
+  border-top: 3px solid transparent;
+  background-color: #ffffff;
+  transition: all 0.18s ease;
+  position: relative;
 }
 
 .ribbon-segment:last-child {
@@ -3422,97 +4108,148 @@ onMounted(async () => {
 }
 
 .ribbon-segment:hover:not(.segment-hero-collection):not(.segment-outcome-arrears) {
-  background-color: #fafbfc;
+  background-color: #f8fafc;
 }
 
+/* Category Accent Top Borders */
+.ribbon-segment.segment-milk {
+  border-top-color: #38bdf8;
+}
+.ribbon-segment.segment-sales {
+  border-top-color: #063F78;
+}
+.ribbon-segment.segment-prev {
+  border-top-color: #94a3b8;
+}
+.ribbon-segment.segment-payable {
+  border-top-color: #6366f1;
+}
+
+/* Segment Header Label & Micro-Badge */
 .segment-label {
-  font-size: 0.68rem;
+  font-size: 0.69rem;
   font-weight: 700;
   color: #64748b;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 7px;
+  margin-bottom: 5px;
 }
 
-.segment-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+.segment-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.dot-info { background-color: #0284c7; }
-.dot-primary { background-color: #0d47a1; }
-.dot-neutral { background-color: #94a3b8; }
-.dot-indigo { background-color: #4f46e5; }
-.dot-emerald { background-color: #10b981; }
-.dot-rose { background-color: #e11d48; }
+.badge-sky { background: #e0f2fe; color: #0284c7; }
+.badge-primary { background: #e0f2fe; color: #063F78; }
+.badge-neutral { background: #f1f5f9; color: #64748b; }
+.badge-indigo { background: #e0e7ff; color: #4338ca; }
+.badge-emerald { background: #dcfce7; color: #059669; }
+.badge-rose { background: #ffe4e6; color: #e11d48; }
 
 .segment-value {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   line-height: 1.25;
   font-feature-settings: 'tnum';
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  letter-spacing: -0.01em;
 }
 
 .segment-unit {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 2px;
 }
 
 .segment-sub {
   font-size: 0.72rem;
-  line-height: 1.2;
-  margin-top: 4px;
+  line-height: 1.3;
+  margin-top: 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+}
+
+/* Micro Status Pill Badges */
+.sub-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.pill-emerald {
+  background: #dcfce7;
+  color: #047857;
+  border: 1px solid #bbf7d0;
+}
+
+.pill-rose {
+  background: #ffe4e6;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.pill-amber {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
 /* Hero Collection Segment */
 .segment-hero-collection {
-  background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%) !important;
-  border-left: 1px solid #bbf7d0 !important;
-  border-right: 1px solid #bbf7d0 !important;
+  border-top-color: #10b981 !important;
+  background: linear-gradient(180deg, rgba(236, 253, 245, 0.85) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
 }
 
 /* Outcome Arrears Segment */
 .segment-outcome-arrears {
-  background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%) !important;
-  border-left: 1px solid #fecdd3 !important;
+  border-top-color: #f43f5e !important;
+  background: linear-gradient(180deg, rgba(255, 241, 242, 0.85) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
 }
 
 .segment-outcome-cleared {
-  background: #f8fafc !important;
+  border-top-color: #10b981 !important;
+  background: linear-gradient(180deg, rgba(240, 253, 244, 0.5) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
 }
 
 @media (max-width: 1250px) {
   .metrics-ribbon {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
   .ribbon-segment {
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9 !important;
   }
   .ribbon-segment:nth-child(3n) {
-    border-right: none;
+    border-right: none !important;
   }
 }
 
 @media (max-width: 680px) {
   .metrics-ribbon {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
   .ribbon-segment:nth-child(3n) {
-    border-right: 1px solid #f1f5f9;
+    border-right: 1px solid #f1f5f9 !important;
   }
   .ribbon-segment:nth-child(2n) {
-    border-right: none;
+    border-right: none !important;
   }
 }
 
@@ -3622,33 +4359,586 @@ onMounted(async () => {
   color: #b91c1c;
 }
 
-.route-count-capsule {
-  height: 36px;
-  box-sizing: border-box;
+.route-select-pill {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.route-select-pill:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.route-select-pill.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
+}
+
+.route-select-pill.pill-dispatched {
+  border-color: #f97316;
+  color: #c2410c;
+  background: #fff7ed;
+}
+
+.route-select-pill.pill-dispatched.active {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+  box-shadow: 0 1px 3px rgba(234, 88, 12, 0.35);
+}
+
+.guest-route-dark-divider {
+  width: 100%;
+  height: 14px;
+  background: #0f172a !important;
+  border-top: 2px solid #334155 !important;
+  border-bottom: 2px solid #063F78 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 5px rgba(15, 23, 42, 0.25) !important;
+  position: relative;
+  z-index: 2;
+  margin: 0 !important;
+}
+
+/* Executive Luxury Modal Header */
+.closing-modal-header::before {
+  display: none !important;
+}
+
+.header-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  backdrop-filter: blur(8px);
+}
+
+.header-main-title {
+  font-size: 1.25rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.015em !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #e0f2fe;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.header-subtitle {
+  font-size: 0.78rem !important;
+  color: #bae6fd !important;
+  font-weight: 500 !important;
+  margin-top: 3px;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Stunning Yellow / Golden "Day Closed" Badge (Pure Solid Color) */
+.header-badge-closed-yellow {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 0 14px;
-  font-size: 0.82rem;
-  color: #334155;
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  background: #facc15 !important;
+  color: #713f12 !important;
+  font-size: 0.82rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em;
+  height: 38px !important;
+  box-sizing: border-box !important;
+  padding: 0 14px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #eab308 !important;
+  box-shadow: 0 2px 6px rgba(250, 204, 21, 0.3) !important;
+  user-select: none;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-.refresh-filter-btn {
-  height: 36px !important;
-  min-height: 36px !important;
-  box-sizing: border-box;
+.header-badge-closed-yellow .v-icon {
+  color: #713f12 !important;
+}
+
+/* Route Pending Amber Badge (Pure Solid Color) */
+.header-badge-pending-amber {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #f97316 !important;
+  color: #ffffff !important;
+  font-size: 0.82rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em;
+  height: 38px !important;
+  box-sizing: border-box !important;
+  padding: 0 14px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #ea580c !important;
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3) !important;
+  user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.header-badge-pending-amber .v-icon {
+  color: #ffffff !important;
+}
+
+/* Route Settled Emerald Badge (Pure Solid Color) */
+.header-badge-settled-emerald {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #10b981 !important;
+  color: #ffffff !important;
+  font-size: 0.82rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em;
+  height: 38px !important;
+  box-sizing: border-box !important;
+  padding: 0 14px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #059669 !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3) !important;
+  user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.header-badge-settled-emerald .v-icon {
+  color: #ffffff !important;
+}
+
+/* Minimalist Clean X Button */
+.header-close-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  opacity: 0.85;
   display: inline-flex !important;
   align-items: center !important;
-  font-size: 0.82rem !important;
-  font-weight: 700 !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  width: 38px !important;
+  height: 38px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  transition: all 0.15s ease !important;
   flex-shrink: 0;
+}
+
+.header-close-btn:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  opacity: 1 !important;
+  transform: scale(1.08) !important;
+  color: #ffffff !important;
+}
+
+/* Header Search Bar (Full Width, No Truncation, Pure White Text & Icons) */
+.header-search-box {
+  width: 280px !important;
+  min-width: 260px !important;
+  flex-shrink: 0 !important;
+}
+
+.header-search-input :deep(.v-field) {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  border-radius: 9999px !important;
+  color: #ffffff !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 12px !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.header-search-input:hover :deep(.v-field) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.header-search-input:focus-within :deep(.v-field) {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+}
+
+.header-search-input :deep(.v-field__input) {
+  height: 38px !important;
+  min-height: 38px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  color: #ffffff !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+}
+
+.header-search-input :deep(input) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.header-search-input :deep(input::placeholder),
+.header-search-input :deep(input::-webkit-input-placeholder),
+.header-search-input :deep(input::-moz-placeholder),
+.header-search-input :deep(input:-ms-input-placeholder) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  font-size: 0.82rem !important;
+}
+
+.header-search-input :deep(.v-field__prepend-inner) {
+  padding-top: 0 !important;
+  align-items: center !important;
+}
+
+.header-search-input :deep(.v-field__prepend-inner .v-icon) {
+  color: #ffffff !important;
+  font-size: 18px !important;
+  opacity: 1 !important;
+}
+
+.header-search-input :deep(.v-field__clearable) {
+  padding-top: 0 !important;
+  align-items: center !important;
+}
+
+.header-search-input :deep(.v-field__clearable .v-icon) {
+  color: #ffffff !important;
+  font-size: 16px !important;
+  opacity: 0.85 !important;
+}
+
+.header-search-input :deep(.v-field__clearable .v-icon:hover) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Category Segmented Strip */
+.settlement-category-strip {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.category-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.category-tab-pill:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.category-tab-pill.tab-pill-active {
+  background: #063F78 !important;
+  border-color: #063F78 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(6, 63, 120, 0.25) !important;
+}
+
+.category-tab-pill.tab-pill-active .v-icon {
+  color: #ffffff !important;
+}
+
+.category-tab-pill.tab-pill-muted {
+  background: #ffffff;
+  border-style: dashed;
+}
+
+.tab-pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  color: #1e293b;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.category-tab-pill.tab-pill-active .tab-pill-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.tab-pill-status {
+  font-size: 0.68rem;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  font-weight: 800;
+}
+
+.pill-status-pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.category-tab-pill.tab-pill-active .pill-status-pending {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+.pill-status-settled {
+  background: #dcfce7;
+  color: #047857;
+}
+
+.category-tab-pill.tab-pill-active .pill-status-settled {
+  background: #10b981;
+  color: #ffffff;
+}
+
+/* Route Stepper Strip */
+.route-stepper-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
+.route-nav-btn {
+  height: 38px !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.01em;
+}
+
+.route-nav-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.route-nav-card:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+.route-nav-card.is-active {
+  background: #063F78 !important;
+  border-color: #063F78 !important;
+  box-shadow: 0 3px 10px rgba(6, 63, 120, 0.25) !important;
+}
+
+.route-nav-card.is-active .nav-card-num {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.route-nav-card.is-active .nav-card-title {
+  color: #ffffff !important;
+}
+
+.route-nav-card.is-active .nav-card-sub,
+.route-nav-card.is-active .nav-card-sub span {
+  color: #e0f2fe !important;
+}
+
+.nav-card-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-card-title {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.nav-card-sub {
+  font-size: 0.69rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 1px;
+}
+
+.nav-card-dot {
+  color: #94a3b8;
+}
+
+.search-shop-field :deep(.v-field) {
+  background: #ffffff !important;
+  border-radius: 8px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+}
+
+.search-shop-field :deep(.v-field__input) {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+  font-size: 0.8rem !important;
+}
+
+/* Quick Paid Full Chip */
+.quick-paid-full-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #10b981;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.quick-paid-full-chip:hover {
+  background: #10b981;
+  color: #ffffff;
+  transform: scale(1.04);
+}
+
+.quick-paid-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+/* Dialog Footer Action Buttons (Close Window & Day Closed) */
+.dialog-footer-btn {
+  height: 42px !important;
+  min-height: 42px !important;
+  font-size: 0.86rem !important;
+  letter-spacing: 0.01em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.dialog-footer-chip {
+  height: 42px !important;
+  min-height: 42px !important;
+  background-color: #facc15 !important;
+  color: #0f172a !important;
+  font-size: 0.86rem !important;
+  font-weight: 800 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 8px !important;
+}
+
+.dialog-footer-chip .v-icon {
+  color: #0f172a !important;
+}
+
+/* Reopen Day (Admin) Button */
+.reopen-day-admin-btn,
+:deep(.reopen-day-admin-btn) {
+  background-color: #fffbeb !important;
+  color: #000000 !important;
+  border: 1.5px solid #eab308 !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.reopen-day-admin-btn :deep(.v-btn__content),
+:deep(.reopen-day-admin-btn .v-btn__content) {
+  color: #000000 !important;
+}
+
+.reopen-day-admin-btn :deep(.v-icon),
+:deep(.reopen-day-admin-btn .v-icon) {
+  color: #eab308 !important;
+}
+
+.reopen-day-admin-btn:hover:not(:disabled),
+:deep(.reopen-day-admin-btn:hover:not(:disabled)) {
+  background-color: #fef9c3 !important;
+  border-color: #ca8a04 !important;
+  color: #000000 !important;
+  box-shadow: 0 2px 6px rgba(234, 179, 8, 0.25) !important;
 }
 </style>
 

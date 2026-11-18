@@ -243,12 +243,10 @@
       <div v-else>
         <!-- Stepper Navigation Header (when multiple routes exist) -->
         <div v-if="filteredDispatches.length > 1" class="route-navigation-card bg-white border rounded-xl pa-3 shadow-xs mb-3">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <div class="d-flex align-center gap-1-5">
-              <v-chip size="x-small" color="primary" variant="flat" class="font-weight-black">
-                R{{ currentRouteIndex + 1 }}
-              </v-chip>
-              <span class="text-caption font-weight-black text-slate-900 text-uppercase">
+          <div class="d-flex align-center justify-space-between mb-2-5">
+            <div class="d-flex align-center gap-2">
+              <span class="route-badge-capsule">R{{ currentRouteIndex + 1 }}</span>
+              <span class="text-caption font-weight-black text-slate-900 text-uppercase tracking-wider">
                 Route {{ currentRouteIndex + 1 }} of {{ filteredDispatches.length }}
               </span>
             </div>
@@ -256,42 +254,39 @@
             <!-- Toggle View Mode: Single Focused Route vs All Routes -->
             <button
               type="button"
-              class="text-caption text-primary font-weight-bold"
+              class="stepper-mode-toggle-btn"
               @click="viewMode = viewMode === 'stepper' ? 'list' : 'stepper'"
             >
-              {{ viewMode === 'stepper' ? 'Show All (' + filteredDispatches.length + ')' : 'Single Route View' }}
+              <v-icon size="13">{{ viewMode === 'stepper' ? 'mdi-view-headline' : 'mdi-card-outline' }}</v-icon>
+              <span>{{ viewMode === 'stepper' ? 'Show All (' + filteredDispatches.length + ')' : 'Single View' }}</span>
             </button>
           </div>
 
           <!-- Stepper Buttons (Previous & Next Route) -->
-          <div class="d-flex align-center gap-2">
+          <div class="d-flex align-center gap-2 mb-2">
             <v-btn
-              size="small"
-              variant="outlined"
-              color="primary"
+              variant="flat"
               :disabled="currentRouteIndex === 0"
-              class="flex-grow-1 font-weight-bold text-caption text-capitalize rounded-lg"
+              class="stepper-nav-btn stepper-btn-prev flex-grow-1"
               @click="prevRoute"
             >
               <v-icon start size="18">mdi-chevron-left</v-icon>
-              Previous Route
+              <span>Previous Route</span>
             </v-btn>
 
             <v-btn
-              size="small"
               variant="flat"
-              color="primary"
               :disabled="currentRouteIndex >= filteredDispatches.length - 1"
-              class="flex-grow-1 font-weight-bold text-caption text-capitalize rounded-lg"
+              class="stepper-nav-btn stepper-btn-next flex-grow-1"
               @click="nextRoute"
             >
-              Next Route
+              <span>Next Route</span>
               <v-icon end size="18">mdi-chevron-right</v-icon>
             </v-btn>
           </div>
 
           <!-- Route Quick Selection Chips -->
-          <div class="d-flex align-center gap-1-5 mt-2-5 overflow-x-auto no-scrollbar pt-1">
+          <div class="route-pills-strip d-flex align-center gap-2 overflow-x-auto no-scrollbar">
             <button
               v-for="(r, idx) in filteredDispatches"
               :key="r.id"
@@ -497,36 +492,8 @@
       </div>
 
       <!-- TAB B: GUEST / WALK-IN SALES -->
+      <!-- TAB B: GUEST / WALK-IN SALES (Read-Only Records) -->
       <div v-else-if="currentTab === 'guest'">
-        <!-- Action Card for New Guest Sale -->
-        <div class="pa-4 bg-white rounded-xl border shadow-xs mb-3">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <div class="d-flex align-center gap-2">
-              <v-icon color="primary" size="22">mdi-account-cash</v-icon>
-              <div>
-                <div class="font-weight-black text-body-2 text-slate-900">Direct Customer Sale</div>
-                <div class="text-caption text-grey" style="font-size: 0.70rem !important;">
-                  Walk-in retail milk &bull; Dual 80mm POS slip (Gate + Customer)
-                </div>
-              </div>
-            </div>
-            <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
-              Rate: Rs. {{ masterMilkPrice }}
-            </v-chip>
-          </div>
-          <v-btn
-            block
-            color="primary"
-            variant="flat"
-            size="large"
-            class="font-weight-black text-body-2 rounded-lg text-capitalize py-3 shadow-sm"
-            prepend-icon="mdi-plus-circle"
-            @click="openNewGuestSaleDialog"
-          >
-            + New Guest Sale (2 Kg, 5 Kg...)
-          </v-btn>
-        </div>
-
         <!-- Guest Sales Summary (2-Card Grid) -->
         <div class="mobile-kpi-grid mb-3">
           <!-- Milk Sold -->
@@ -572,29 +539,19 @@
           </span>
         </div>
 
-        <!-- Empty State -->
+        <!-- Empty State (Read-Only) -->
         <div
           v-if="guestSales.length === 0"
           class="pa-6 bg-white rounded-xl border text-center text-grey-darken-1 shadow-xs mb-3"
         >
           <v-icon size="40" color="grey-lighten-1" class="mb-2">mdi-account-cash-outline</v-icon>
-          <div class="font-weight-bold text-body-2 text-slate-800">No Guest Sales Yet</div>
-          <div class="text-caption text-grey mb-3">
-            Tap the button above to record walk-in retail customer milk purchases and print dual 80mm receipts.
+          <div class="font-weight-bold text-body-2 text-slate-800">No Guest Sales Recorded</div>
+          <div class="text-caption text-grey">
+            No walk-in retail customer milk purchases recorded for {{ formatDate(selectedDate) }}.
           </div>
-          <v-btn
-            size="small"
-            color="primary"
-            variant="flat"
-            class="text-capitalize font-weight-bold rounded-lg px-4"
-            prepend-icon="mdi-plus"
-            @click="openNewGuestSaleDialog"
-          >
-            Add First Guest Sale
-          </v-btn>
         </div>
 
-        <!-- Guest Sales Cards -->
+        <!-- Guest Sales Cards (Read-Only) -->
         <div v-else class="d-flex flex-column gap-3">
           <div
             v-for="s in guestSales"
@@ -652,28 +609,17 @@
                 </div>
               </div>
 
-              <!-- Action Bar -->
-              <div class="d-flex align-center justify-space-between pt-2 border-t gap-2">
-                <v-btn
-                  size="small"
-                  variant="tonal"
-                  color="error"
-                  class="text-capitalize text-caption"
-                  prepend-icon="mdi-delete-outline"
-                  @click="deleteGuestSale(s)"
-                >
-                  Void
-                </v-btn>
-
+              <!-- Action Bar (Read-Only: Print/View Slip) -->
+              <div class="d-flex align-center justify-end pt-2 border-t gap-2">
                 <v-btn
                   size="small"
                   variant="flat"
                   color="primary"
-                  class="font-weight-black text-capitalize px-4"
+                  class="font-weight-black text-capitalize px-3 rounded-lg"
                   prepend-icon="mdi-printer"
                   @click="viewReceipt(s, true)"
                 >
-                  Print 2x 80mm Slips
+                  Print Slip
                 </v-btn>
               </div>
             </div>
@@ -682,13 +628,7 @@
       </div>
     </div>
 
-    <!-- Modals for Guest Sales -->
-    <GuestSaleDialog
-      v-model="guestSaleModal"
-      :default-date="selectedDate"
-      @saved="onGuestSaleSaved"
-    />
-
+    <!-- Modals for Guest Sales (Read-Only Receipt Viewer) -->
     <GuestSaleReceiptDialog
       v-model="receiptModal"
       :sale="activeReceiptSale"
@@ -724,16 +664,11 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { dispatchService } from '@/services/dispatchService';
 import { useBusinessDayStore } from '@/stores/businessDay';
-import { useSettingsStore } from '@/stores/settings';
 import { formatCurrency, formatNumber, formatDate, getOffsetDateString } from '@/utils/formatters';
 import AppDatePicker from '@/components/common/AppDatePicker.vue';
-import GuestSaleDialog from '@/components/dispatch/GuestSaleDialog.vue';
 import GuestSaleReceiptDialog from '@/components/dispatch/GuestSaleReceiptDialog.vue';
 
 const businessDayStore = useBusinessDayStore();
-const settingsStore = useSettingsStore();
-
-const masterMilkPrice = computed(() => Number(settingsStore.settings.defaultMilkPrice) || 195);
 
 const loading = ref(false);
 const datePickerModal = ref(false);
@@ -749,8 +684,7 @@ const loadingItems = ref(false);
 // Mode Toggle: 'routes' or 'guest'
 const currentTab = ref('routes');
 
-// Guest sale dialogs & state
-const guestSaleModal = ref(false);
+// Guest receipt inspection & slip dialog state (Read-Only)
 const receiptModal = ref(false);
 const activeReceiptSale = ref(null);
 const autoPrintReceipt = ref(false);
@@ -781,32 +715,10 @@ const guestTotals = computed(() => {
   };
 });
 
-function openNewGuestSaleDialog() {
-  guestSaleModal.value = true;
-}
-
-async function onGuestSaleSaved({ sale, triggerPrint }) {
-  await loadDispatches();
-  activeReceiptSale.value = sale;
-  autoPrintReceipt.value = triggerPrint;
-  receiptModal.value = true;
-}
-
 function viewReceipt(sale, autoPrint = false) {
   activeReceiptSale.value = sale;
   autoPrintReceipt.value = autoPrint;
   receiptModal.value = true;
-}
-
-async function deleteGuestSale(sale) {
-  if (!confirm(`Void guest sale #${sale.token || ''} (${sale.totalMilk} Kg - Rs. ${sale.totalAmount})?`)) return;
-  try {
-    await dispatchService.deleteDispatch(sale.id, sale.date);
-    await loadDispatches();
-  } catch (err) {
-    console.error('Failed to delete sale:', err);
-    alert('Failed to void sale: ' + err.message);
-  }
 }
 
 function formatTime(d) {
@@ -929,7 +841,8 @@ async function loadDispatches() {
   expandedRouteId.value = null;
   currentRouteIndex.value = 0;
   try {
-    dateDispatches.value = await dispatchService.getDispatches(selectedDate.value);
+    const dispatches = await dispatchService.getDispatches(selectedDate.value);
+    dateDispatches.value = dispatches;
     if (filteredDispatches.value.length > 0) {
       const first = filteredDispatches.value[0];
       expandedRouteId.value = first.id;
@@ -1044,29 +957,147 @@ onMounted(async () => {
   border-radius: 12px !important;
 }
 
-.route-navigation-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 12px !important;
+.mobile-guest-sale-btn {
+  background: #063F78 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
 }
 
-.route-select-pill {
+.mobile-guest-sale-btn:disabled,
+.mobile-guest-sale-btn.v-btn--disabled {
+  background: #cbd5e1 !important;
+  color: #64748b !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* Route Stepper Navigation & Shop Breakdown Native Cards */
+.route-navigation-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.route-badge-capsule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #063F78;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stepper-mode-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 4px 10px;
-  border-radius: 9999px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
-  font-size: 0.7rem;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #063F78;
+  font-size: 0.72rem;
   font-weight: 700;
-  white-space: nowrap;
+  border: 1px solid #cbd5e1;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
+.stepper-mode-toggle-btn:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.stepper-nav-btn {
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.stepper-btn-prev {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #063F78 !important;
+}
+
+.stepper-btn-prev:hover:not(:disabled) {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+.stepper-btn-prev:disabled {
+  opacity: 0.45 !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.stepper-btn-next {
+  background: #063F78 !important;
+  border: 1.5px solid #063F78 !important;
+  color: #ffffff !important;
+}
+
+.stepper-btn-next:hover:not(:disabled) {
+  background: #084c8d !important;
+  border-color: #084c8d !important;
+}
+
+.stepper-btn-next:disabled {
+  opacity: 0.45 !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.route-pills-strip {
+  border-top: 1px solid #f1f5f9 !important;
+  padding-top: 8px !important;
+  margin-top: 2px !important;
+}
+
+.route-select-pill {
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.route-select-pill:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #063F78 !important;
+}
+
 .route-select-pill.active {
-  background: #0284c7;
-  color: #ffffff;
-  border-color: #0284c7;
+  background: #063F78 !important;
+  color: #ffffff !important;
+  border-color: #063F78 !important;
+  box-shadow: 0 2px 5px rgba(6, 63, 120, 0.22) !important;
 }
 
 .shop-card-native {

@@ -46,16 +46,6 @@
         <div class="bg-white border rounded-xl shadow-xs overflow-hidden">
           <div class="pa-3-5 border-b d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-2">
-              <v-icon size="18" color="primary">mdi-domain</v-icon>
-              <span class="text-caption font-weight-bold text-grey-darken-2">Farm / Business Name</span>
-            </div>
-            <span class="text-subtitle-2 font-weight-black text-slate-900">
-              {{ settings.companyName || 'Dairy Business' }}
-            </span>
-          </div>
-
-          <div class="pa-3-5 border-b d-flex align-center justify-space-between">
-            <div class="d-flex align-center gap-2">
               <v-icon size="18" color="info">mdi-scale</v-icon>
               <span class="text-caption font-weight-bold text-grey-darken-2">Milk Liter-to-Kg Factor</span>
             </div>
@@ -110,104 +100,24 @@
           </div>
         </div>
       </div>
-
-      <!-- 3. User Accounts (Read-Only Native Cards, No Tables) -->
-      <div>
-        <div class="d-flex align-center justify-space-between mb-2 px-1">
-          <span class="text-subtitle-2 font-weight-black text-slate-900 text-uppercase">
-            Registered Users ({{ filteredUsers.length }})
-          </span>
-          <span class="text-caption text-grey font-weight-medium">Web-managed</span>
-        </div>
-
-        <v-text-field
-          v-model="userSearch"
-          prepend-inner-icon="mdi-magnify"
-          placeholder="Search user by name or email..."
-          variant="outlined"
-          density="compact"
-          hide-details
-          class="bg-white rounded-lg mb-3"
-          clearable
-        />
-
-        <div class="d-flex flex-column gap-2">
-          <div
-            v-for="u in filteredUsers"
-            :key="u.id || u.uid"
-            class="pa-3 bg-white border rounded-xl shadow-xs d-flex align-center justify-space-between"
-          >
-            <div class="d-flex align-center gap-3">
-              <div
-                class="d-flex align-center justify-center rounded-circle"
-                :style="{
-                  width: '36px',
-                  height: '36px',
-                  backgroundColor: u.role === 'admin' ? '#fef3c7' : '#e0f2fe',
-                }"
-              >
-                <v-icon
-                  size="18"
-                  :color="u.role === 'admin' ? 'amber-darken-4' : 'primary'"
-                >
-                  {{ u.role === 'admin' ? 'mdi-shield-crown' : 'mdi-account-hard-hat' }}
-                </v-icon>
-              </div>
-
-              <div>
-                <div class="font-weight-black text-body-2 text-slate-800 line-height-tight">
-                  {{ u.name || 'User' }}
-                </div>
-                <div class="text-caption text-grey-darken-1 font-weight-medium" style="font-size: 0.72rem !important;">
-                  {{ u.email }}
-                </div>
-              </div>
-            </div>
-
-            <v-chip
-              size="x-small"
-              :color="u.role === 'admin' ? 'primary' : 'blue-grey'"
-              variant="flat"
-              class="font-weight-black text-uppercase"
-            >
-              {{ u.role }}
-            </v-chip>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
-import { authService } from '@/services/authService';
 
 const settingsStore = useSettingsStore();
 
 const loading = ref(false);
-const usersList = ref([]);
 const settings = ref({});
-const userSearch = ref('');
-
-const filteredUsers = computed(() => {
-  if (!userSearch.value || !userSearch.value.trim()) return usersList.value;
-  const q = userSearch.value.toLowerCase().trim();
-  return usersList.value.filter(u =>
-    (u.name || '').toLowerCase().includes(q) ||
-    (u.email || '').toLowerCase().includes(q) ||
-    (u.role || '').toLowerCase().includes(q)
-  );
-});
 
 async function loadData() {
   loading.value = true;
   try {
     await settingsStore.loadSettings();
     settings.value = { ...settingsStore };
-    const users = await authService.getUsers();
-    usersList.value = users || [];
   } catch (err) {
     console.error('Failed to load settings data in mobile view:', err);
   } finally {

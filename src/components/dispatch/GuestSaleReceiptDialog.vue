@@ -1,69 +1,35 @@
 <template>
   <v-dialog
     :model-value="modelValue"
-    max-width="520"
+    max-width="480"
     width="95vw"
     persistent
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <v-card class="rounded-xl overflow-hidden shadow-xl" elevation="0">
-      <!-- Dialog Header (no-print) -->
-      <div class="pa-4 bg-slate-900 text-white d-flex align-center justify-space-between no-print">
-        <div class="d-flex align-center gap-2">
-          <v-icon color="amber" size="22">mdi-receipt-text-check</v-icon>
+    <v-card class="receipt-dialog-card rounded-2xl overflow-hidden" elevation="6">
+      <!-- Sophisticated Header (no-print) -->
+      <div class="dialog-header px-5 py-4 text-white d-flex align-center justify-space-between no-print">
+        <div class="d-flex align-center gap-3">
+          <div class="header-icon-box d-flex align-center justify-center">
+            <v-icon color="white" size="20">mdi-receipt-text-check-outline</v-icon>
+          </div>
           <div>
-            <div class="font-weight-black text-subtitle-2 line-height-tight">80mm POS Thermal Receipt</div>
-            <div class="text-caption text-slate-300" style="font-size: 0.72rem !important;">
-              Dual Copies: Gate Receipt + Customer Copy
+            <h2 class="text-subtitle-1 font-weight-bold line-height-tight mb-0 text-white">
+              80mm Thermal Receipt
+            </h2>
+            <div class="text-caption text-blue-lighten-4 mt-0-5" style="font-size: 0.75rem !important;">
+              Dual Copies &bull; Gate Receipt &amp; Customer Slip
             </div>
           </div>
         </div>
-        <v-btn icon size="small" variant="text" color="white" @click="close">
+        <v-btn icon size="small" variant="text" color="white" class="close-btn" @click="close">
           <v-icon size="18">mdi-close</v-icon>
         </v-btn>
       </div>
 
-      <!-- Action Toolbar (no-print) -->
-      <div class="pa-3 bg-slate-100 border-b d-flex align-center justify-space-between flex-wrap gap-2 no-print">
-        <div class="d-flex align-center gap-1">
-          <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
-            80mm Standard Roll
-          </v-chip>
-          <v-chip size="x-small" color="success" variant="flat" class="font-weight-bold">
-            2 Slips Ready
-          </v-chip>
-        </div>
-
-        <div class="d-flex align-center gap-2">
-          <v-btn
-            size="small"
-            variant="flat"
-            color="primary"
-            class="font-weight-black text-capitalize px-4"
-            prepend-icon="mdi-printer"
-            @click="printAll"
-          >
-            Print Both (2x)
-          </v-btn>
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn size="small" variant="outlined" color="primary" icon="mdi-dots-vertical" v-bind="props" />
-            </template>
-            <v-list density="compact" class="py-1">
-              <v-list-item prepend-icon="mdi-shield-check" @click="printSingle('gate')">
-                <v-list-item-title class="text-caption font-weight-bold">Gate Receipt Only</v-list-item-title>
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-account" @click="printSingle('customer')">
-                <v-list-item-title class="text-caption font-weight-bold">Customer Copy Only</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>
-      </div>
-
       <!-- Printable Area Wrapper -->
-      <v-card-text class="pa-4 bg-slate-50 receipt-scroll-area">
-        <div id="receipt-printable-target" class="receipt-printable-container">
+      <v-card-text class="pa-5 bg-slate-100 receipt-scroll-area">
+        <div id="receipt-printable-target" class="receipt-printable-container py-2">
           <!-- SLIP 1: GATE RECEIPT -->
           <div
             v-if="printTarget === 'all' || printTarget === 'gate'"
@@ -71,13 +37,12 @@
           >
             <!-- Copy Identifier Banner -->
             <div class="slip-type-header">
-              *** GATE RECEIPT / گیٹ رسید ***
+              GATE RECEIPT
             </div>
 
             <!-- Top Business Info -->
-            <div class="slip-header-row">
+            <div class="slip-header-row justify-center">
               <span class="slip-since">Since: 1960</span>
-              <span class="slip-license">License# 8822</span>
             </div>
 
             <div class="slip-title-urdu">خالد ملک</div>
@@ -86,61 +51,58 @@
 
             <div class="slip-divider-dashed"></div>
 
-            <!-- QR Code & Token Row -->
-            <div class="slip-meta-row">
-              <div class="slip-qr-box">
-                <img v-if="qrDataUrl" :src="qrDataUrl" alt="QR" class="slip-qr-img" />
+            <!-- Token, Date, Time in dedicated rows -->
+            <div class="slip-meta-rows">
+              <div class="slip-meta-row">
+                <span class="slip-meta-lbl">Token:</span>
+                <span class="slip-meta-val font-weight-bold font-mono">#{{ saleData.token || '440b23ce' }}</span>
               </div>
-              <div class="slip-meta-text">
-                <div class="slip-token">{{ saleData.token || '440b23ce' }}</div>
-                <div class="slip-date">{{ formatSlipDate(saleData.date) }}</div>
-                <div class="slip-time">{{ saleData.time || '02:16 PM' }}</div>
+              <div class="slip-meta-row">
+                <span class="slip-meta-lbl">Date:</span>
+                <span class="slip-meta-val">{{ formatSlipDate(saleData.date) }}</span>
+              </div>
+              <div class="slip-meta-row">
+                <span class="slip-meta-lbl">Time:</span>
+                <span class="slip-meta-val">{{ saleData.time || '02:16 PM' }}</span>
               </div>
             </div>
 
             <div class="slip-divider-dashed"></div>
 
-            <!-- Sequence / Arrears & Rate Row -->
-            <div class="slip-sub-row">
-              <span class="slip-seq">{{ saleData.seqNo || '270,589,883' }}</span>
+            <!-- Customer & Rate Row -->
+            <div class="slip-customer-row">
+              <span class="slip-customer-name">{{ saleData.customerName || 'Guest Customer' }}</span>
               <span class="slip-rate font-weight-bold">{{ saleData.rate || 195 }} / Rate</span>
             </div>
 
-            <div class="slip-customer-name">
-              {{ saleData.customerName || 'Guest Customer [ 13 ]' }}
-            </div>
-
-            <div class="slip-divider-solid"></div>
-
-            <!-- Line Items Table (Matches Image) -->
-            <div class="slip-table-rows">
-              <div class="slip-row">
-                <span class="slip-val">{{ saleData.quantityKg || 0 }}</span>
-                <span class="slip-lbl-urdu">کلو</span>
-              </div>
-              <div class="slip-row">
-                <span class="slip-val">{{ formatNumber(saleData.totalAmount) }}</span>
-                <span class="slip-lbl-urdu">رقم</span>
-              </div>
-              <div class="slip-row">
-                <span class="slip-val">{{ formatNumber(saleData.paidAmount) }}</span>
-                <span class="slip-lbl-urdu">ادا کیا</span>
-              </div>
-              <div class="slip-row">
-                <span class="slip-val">{{ formatNumber(saleData.balance || 0) }}</span>
-                <span class="slip-lbl-urdu">بقیہ</span>
-              </div>
-              <div class="slip-box-row">
-                <span class="slip-val">{{ saleData.totalBalance || '270,589,883' }}</span>
-                <span class="slip-lbl-urdu">کل بقیہ</span>
-              </div>
-            </div>
+            <!-- Line Items Table -->
+            <table class="slip-table">
+              <tbody>
+                <tr class="slip-tr">
+                  <td class="slip-td-val">{{ saleData.quantityKg || 0 }}</td>
+                  <td class="slip-td-lbl">کلو</td>
+                </tr>
+                <tr v-if="saleData.returnKgs > 0" class="slip-tr">
+                  <td class="slip-td-val text-orange-darken-4">-{{ saleData.returnKgs }}</td>
+                  <td class="slip-td-lbl">واپسی دودھ</td>
+                </tr>
+                <tr class="slip-tr">
+                  <td class="slip-td-val">{{ formatNumber(saleData.totalAmount) }}</td>
+                  <td class="slip-td-lbl">رقم</td>
+                </tr>
+                <tr class="slip-tr">
+                  <td class="slip-td-val">{{ formatNumber(saleData.paidAmount) }}</td>
+                  <td class="slip-td-lbl">وصول / ادا کیا</td>
+                </tr>
+                <tr class="slip-tr slip-tr-balance">
+                  <td class="slip-td-val">{{ formatNumber(saleData.bakaya) }}</td>
+                  <td class="slip-td-lbl">بقیہ</td>
+                </tr>
+              </tbody>
+            </table>
 
             <div class="slip-footer-text">
               برائے مہربانی دودھ موقع پر چیک کریں۔ شکریہ!
-            </div>
-            <div class="slip-security-mark">
-              Gate Clearance Pass &bull; Verified
             </div>
           </div>
 
@@ -160,13 +122,12 @@
           >
             <!-- Copy Identifier Banner -->
             <div class="slip-type-header">
-              *** CUSTOMER COPY / کسٹمر رسید ***
+              CUSTOMER COPY
             </div>
 
             <!-- Top Business Info -->
-            <div class="slip-header-row">
+            <div class="slip-header-row justify-center">
               <span class="slip-since">Since: 1960</span>
-              <span class="slip-license">License# 8822</span>
             </div>
 
             <div class="slip-title-urdu">خالد ملک</div>
@@ -175,80 +136,115 @@
 
             <div class="slip-divider-dashed"></div>
 
-            <!-- QR Code & Token Row -->
-            <div class="slip-meta-row">
-              <div class="slip-qr-box">
-                <img v-if="qrDataUrl" :src="qrDataUrl" alt="QR" class="slip-qr-img" />
+            <!-- Token, Date, Time in dedicated rows -->
+            <div class="slip-meta-rows">
+              <div class="slip-meta-row">
+                <span class="slip-meta-lbl">Token:</span>
+                <span class="slip-meta-val font-weight-bold font-mono">#{{ saleData.token || '440b23ce' }}</span>
               </div>
-              <div class="slip-meta-text">
-                <div class="slip-token">{{ saleData.token || '440b23ce' }}</div>
-                <div class="slip-date">{{ formatSlipDate(saleData.date) }}</div>
-                <div class="slip-time">{{ saleData.time || '02:16 PM' }}</div>
+              <div class="slip-meta-row">
+                <span class="slip-meta-lbl">Date:</span>
+                <span class="slip-meta-val">{{ formatSlipDate(saleData.date) }}</span>
+              </div>
+              <div class="slip-meta-row">
+                <span class="slip-meta-lbl">Time:</span>
+                <span class="slip-meta-val">{{ saleData.time || '02:16 PM' }}</span>
               </div>
             </div>
 
             <div class="slip-divider-dashed"></div>
 
-            <!-- Sequence / Arrears & Rate Row -->
-            <div class="slip-sub-row">
-              <span class="slip-seq">{{ saleData.seqNo || '270,589,883' }}</span>
+            <!-- Customer & Rate Row -->
+            <div class="slip-customer-row">
+              <span class="slip-customer-name">{{ saleData.customerName || 'Guest Customer' }}</span>
               <span class="slip-rate font-weight-bold">{{ saleData.rate || 195 }} / Rate</span>
             </div>
 
-            <div class="slip-customer-name">
-              {{ saleData.customerName || 'Guest Customer [ 13 ]' }}
-            </div>
-
-            <div class="slip-divider-solid"></div>
-
-            <!-- Line Items Table (Matches Image) -->
-            <div class="slip-table-rows">
-              <div class="slip-row">
-                <span class="slip-val">{{ saleData.quantityKg || 0 }}</span>
-                <span class="slip-lbl-urdu">کلو</span>
-              </div>
-              <div class="slip-row">
-                <span class="slip-val">{{ formatNumber(saleData.totalAmount) }}</span>
-                <span class="slip-lbl-urdu">رقم</span>
-              </div>
-              <div class="slip-row">
-                <span class="slip-val">{{ formatNumber(saleData.paidAmount) }}</span>
-                <span class="slip-lbl-urdu">ادا کیا</span>
-              </div>
-              <div class="slip-row">
-                <span class="slip-val">{{ formatNumber(saleData.balance || 0) }}</span>
-                <span class="slip-lbl-urdu">بقیہ</span>
-              </div>
-              <div class="slip-box-row">
-                <span class="slip-val">{{ saleData.totalBalance || '270,589,883' }}</span>
-                <span class="slip-lbl-urdu">کل بقیہ</span>
-              </div>
-            </div>
+            <!-- Line Items Table -->
+            <table class="slip-table">
+              <tbody>
+                <tr class="slip-tr">
+                  <td class="slip-td-val">{{ saleData.quantityKg || 0 }}</td>
+                  <td class="slip-td-lbl">کلو</td>
+                </tr>
+                <tr v-if="saleData.returnKgs > 0" class="slip-tr">
+                  <td class="slip-td-val text-orange-darken-4">-{{ saleData.returnKgs }}</td>
+                  <td class="slip-td-lbl">واپسی دودھ</td>
+                </tr>
+                <tr class="slip-tr">
+                  <td class="slip-td-val">{{ formatNumber(saleData.totalAmount) }}</td>
+                  <td class="slip-td-lbl">رقم</td>
+                </tr>
+                <tr class="slip-tr">
+                  <td class="slip-td-val">{{ formatNumber(saleData.paidAmount) }}</td>
+                  <td class="slip-td-lbl">وصول / ادا کیا</td>
+                </tr>
+                <tr class="slip-tr slip-tr-balance">
+                  <td class="slip-td-val">{{ formatNumber(saleData.bakaya) }}</td>
+                  <td class="slip-td-lbl">بقیہ</td>
+                </tr>
+              </tbody>
+            </table>
 
             <div class="slip-footer-text">
               برائے مہربانی دودھ موقع پر چیک کریں۔ شکریہ!
-            </div>
-            <div class="slip-security-mark">
-              Customer Copy &bull; Payment Received
             </div>
           </div>
         </div>
       </v-card-text>
 
-      <!-- Footer Buttons (no-print) -->
-      <v-card-actions class="pa-4 bg-white border-t d-flex align-center justify-end gap-2 no-print">
-        <v-btn variant="text" class="text-capitalize" @click="close">
-          Close
-        </v-btn>
-        <v-btn
-          color="primary"
-          variant="flat"
-          class="font-weight-black text-capitalize px-6"
-          prepend-icon="mdi-printer"
-          @click="printAll"
-        >
-          Print 2x 80mm Slips
-        </v-btn>
+      <!-- Clean Modal Actions Footer (no-print) -->
+      <v-card-actions class="dialog-actions px-5 py-3-5 bg-slate-50 border-t d-flex align-center justify-space-between no-print">
+        <!-- Target Selection Menu -->
+        <v-menu location="top start">
+          <template #activator="{ props: menuProps }">
+            <v-btn
+              v-bind="menuProps"
+              variant="outlined"
+              color="slate-600"
+              size="small"
+              class="text-capitalize font-weight-medium rounded-lg"
+              append-icon="mdi-chevron-down"
+            >
+              {{ printTargetLabel }}
+            </v-btn>
+          </template>
+          <v-list density="compact" class="py-1 rounded-lg">
+            <v-list-item @click="setTarget('all')">
+              <template #prepend><v-icon size="16" color="primary">mdi-content-copy</v-icon></template>
+              <v-list-item-title class="text-caption font-weight-bold">Both Slips (Gate + Customer)</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="setTarget('gate')">
+              <template #prepend><v-icon size="16" color="slate-600">mdi-shield-check-outline</v-icon></template>
+              <v-list-item-title class="text-caption font-weight-bold">Gate Receipt Only</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="setTarget('customer')">
+              <template #prepend><v-icon size="16" color="slate-600">mdi-account-outline</v-icon></template>
+              <v-list-item-title class="text-caption font-weight-bold">Customer Copy Only</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+        <!-- Right Side: Close & Primary Print -->
+        <div class="d-flex align-center gap-2">
+          <v-btn
+            variant="text"
+            color="slate-600"
+            class="text-capitalize font-weight-medium px-3"
+            @click="close"
+          >
+            Close
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            class="print-action-btn text-capitalize font-weight-bold px-5 rounded-lg"
+            prepend-icon="mdi-printer"
+            @click="executePrint"
+          >
+            {{ printTarget === 'all' ? 'Print Both Slips' : 'Print Slip' }}
+          </v-btn>
+        </div>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -256,7 +252,6 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue';
-import QRCode from 'qrcode';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -266,29 +261,50 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'printed']);
 
-const qrDataUrl = ref('');
 const printTarget = ref('all'); // 'all' | 'gate' | 'customer'
+
+const printTargetLabel = computed(() => {
+  if (printTarget.value === 'gate') return 'Gate Slip Only';
+  if (printTarget.value === 'customer') return 'Customer Slip Only';
+  return 'Both Slips (2x)';
+});
+
+function setTarget(target) {
+  printTarget.value = target;
+}
 
 const saleData = computed(() => {
   const s = props.sale || {};
   const qty = Number(s.quantityKg ?? s.totalMilk) || 0;
+  const returnKgs = Number(s.returnKgs ?? s.totalReturnMilk) || 0;
   const rate = Number(s.rate ?? s.price) || 195;
   const total = Number(s.totalAmount ?? (qty * rate)) || 0;
   const paid = Number(s.paidAmount ?? s.totalCollection ?? total) || 0;
+  const paymentReturn = Number(s.paymentReturn) || 0;
   const balance = Math.max(0, Number(s.balance ?? s.totalNewArrears ?? (total - paid)) || 0);
+
+  let bakaya = 0;
+  if (paymentReturn > 0) {
+    bakaya = paymentReturn;
+  } else if (paid > total) {
+    bakaya = paid - total;
+  } else if (balance > 0) {
+    bakaya = balance;
+  }
 
   return {
     token: s.token || (s.id ? s.id.substring(0, 8) : '440b23ce'),
-    seqNo: s.seqNo || '270,589,883',
     date: s.date || new Date().toISOString().split('T')[0],
     time: s.time || (s.createdAt ? formatTime(s.createdAt) : formatTime(new Date())),
-    customerName: s.customerName || (s.items && s.items[0]?.shopName) || 'Guest Customer [ 13 ]',
+    customerName: s.customerName || (s.items && s.items[0]?.shopName) || 'Guest Customer',
     quantityKg: qty,
+    returnKgs,
     rate,
     totalAmount: total,
     paidAmount: paid,
+    paymentReturn,
     balance,
-    totalBalance: s.totalBalance || s.totalPreviousArrears || '270,589,883',
+    bakaya,
   };
 });
 
@@ -317,52 +333,25 @@ function formatNumber(val) {
   return n.toLocaleString('en-US');
 }
 
-// Generate QR Code
-watch(
-  () => props.sale,
-  async (newVal) => {
-    if (newVal) {
-      try {
-        const qrContent = `KM:${saleData.value.token}:${saleData.value.date}:${saleData.value.quantityKg}KG:RS${saleData.value.totalAmount}`;
-        qrDataUrl.value = await QRCode.toDataURL(qrContent, {
-          width: 120,
-          margin: 1,
-          color: { dark: '#000000', light: '#ffffff' },
-        });
-      } catch (err) {
-        console.error('Failed to generate QR Code:', err);
-      }
-    }
-  },
-  { immediate: true, deep: true }
-);
-
 watch(
   () => props.modelValue,
   (val) => {
-    if (val && props.autoPrint) {
-      nextTick(() => {
-        setTimeout(() => {
-          printAll();
-        }, 300);
-      });
+    if (val) {
+      printTarget.value = 'all';
+      if (props.autoPrint) {
+        nextTick(() => {
+          setTimeout(() => {
+            executePrint();
+          }, 300);
+        });
+      }
     }
   }
 );
 
-function printAll() {
-  printTarget.value = 'all';
+function executePrint() {
   nextTick(() => {
     window.print();
-    emit('printed');
-  });
-}
-
-function printSingle(target) {
-  printTarget.value = target;
-  nextTick(() => {
-    window.print();
-    printTarget.value = 'all';
     emit('printed');
   });
 }
@@ -373,9 +362,35 @@ function close() {
 </script>
 
 <style scoped>
+.receipt-dialog-card {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.dialog-header {
+  background: #063F78; /* App Brand Navy */
+}
+
+.header-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.close-btn {
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.close-btn:hover {
+  opacity: 1;
+}
+
 .receipt-scroll-area {
-  max-height: 75vh;
+  max-height: 72vh;
   overflow-y: auto;
+  background: #f1f5f9;
 }
 
 /* 80mm POS Slip Screen Styling */
@@ -385,185 +400,203 @@ function close() {
   margin: 0 auto;
   background: #ffffff;
   color: #000000;
-  padding: 12px 14px;
+  padding: 22px 20px 24px 20px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 13px;
-  line-height: 1.35;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  line-height: 1.4;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e8f0;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .slip-type-header {
   text-align: center;
   font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  padding: 2px 0 6px 0;
-  border-bottom: 1px dashed #94a3b8;
-  margin-bottom: 6px;
-  color: #1e293b;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  padding: 2px 0 10px 0;
+  border-bottom: 1px dashed #000000;
+  margin-bottom: 12px;
+  color: #000000;
+  text-transform: uppercase;
 }
 
 .slip-header-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: #1e293b;
+  margin: 2px 0 4px 0;
+}
+
+.slip-since {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #334155;
+  text-align: center;
+  letter-spacing: 0.4px;
 }
 
 .slip-title-urdu {
   text-align: center;
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 900;
   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Urdu Typesetting", "Arabic Typesetting", serif;
-  margin: 2px 0;
-  line-height: 1.4;
+  margin: 8px 0 4px 0;
+  line-height: 1.35;
   letter-spacing: 0.5px;
 }
 
 .slip-address,
 .slip-phone {
   text-align: center;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #0f172a;
+  line-height: 1.5;
+  margin: 2px 0;
 }
 
 .slip-divider-dashed {
   border-bottom: 1px dashed #000000;
-  margin: 8px 0;
+  margin: 12px 0;
 }
 
-.slip-divider-solid {
-  border-bottom: 1.5px solid #000000;
-  margin: 8px 0;
+/* Token, Date, Time dedicated rows */
+.slip-meta-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 4px 0;
 }
 
-/* QR Code and Meta */
 .slip-meta-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.slip-qr-box {
-  width: 68px;
-  height: 68px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.slip-qr-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.slip-meta-text {
-  flex-grow: 1;
-  text-align: right;
-}
-
-.slip-token {
-  font-size: 13px;
-  font-weight: 800;
-  font-family: monospace;
-  letter-spacing: 0.5px;
-}
-
-.slip-date {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.slip-time {
-  font-size: 11px;
-  font-weight: 600;
-}
-
-/* Rate & Customer Row */
-.slip-sub-row {
-  display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.slip-meta-lbl {
   font-size: 12px;
   font-weight: 700;
+  color: #334155;
+  letter-spacing: 0.3px;
+}
+
+.slip-meta-val {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #000000;
+  text-align: right;
+  letter-spacing: 0.4px;
+}
+
+/* Customer & Rate Row */
+.slip-customer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  margin-bottom: 4px;
 }
 
 .slip-customer-name {
-  text-align: center;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 800;
-  margin-top: 2px;
+  color: #000000;
 }
 
-/* Table Rows */
-.slip-table-rows {
-  margin: 6px 0;
-}
-
-.slip-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 3px 4px;
-  font-size: 14px;
-}
-
-.slip-val {
+.slip-rate {
+  font-size: 13.5px;
   font-weight: 800;
-  font-size: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #000000;
 }
 
-.slip-lbl-urdu {
+/* Line Items Table */
+.slip-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 16px 0;
+  border: 1.5px solid #000000;
+  background: #ffffff;
+}
+
+.slip-tr {
+  border-bottom: 1px solid #000000;
+}
+
+.slip-td-val {
+  width: 50%;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 800;
   font-size: 16px;
-  font-weight: 900;
-  font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Urdu Typesetting", serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.3;
+  border-right: 1px solid #000000;
+  vertical-align: middle;
+}
+
+.slip-td-lbl {
+  width: 50%;
+  padding: 8px 10px;
   text-align: right;
   direction: rtl;
+  font-weight: 900;
+  font-size: 18px;
+  font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Urdu Typesetting", serif;
+  line-height: 1.4;
+  vertical-align: middle;
 }
 
-.slip-box-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1.5px solid #000000;
-  padding: 4px 6px;
-  margin-top: 6px;
-  font-size: 14px;
+.slip-tr-balance {
+  border-top: 1.5px solid #000000;
+  border-bottom: none;
+}
+
+.slip-tr-balance .slip-td-val {
+  font-size: 16.5px;
+  font-weight: 900;
+}
+
+.slip-tr-balance .slip-td-lbl {
+  font-size: 18.5px;
+  font-weight: 900;
 }
 
 .slip-footer-text {
   text-align: center;
-  font-size: 11px;
-  font-weight: 700;
-  margin-top: 10px;
+  font-size: 13.5px;
+  font-weight: 800;
+  margin-top: 18px;
+  margin-bottom: 4px;
+  line-height: 1.5;
   font-family: "Noto Nastaliq Urdu", "Urdu Typesetting", serif;
   direction: rtl;
-}
-
-.slip-security-mark {
-  text-align: center;
-  font-size: 9px;
-  color: #64748b;
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .receipt-cut-line {
   text-align: center;
   font-size: 10px;
   color: #64748b;
-  margin: 16px 0;
-  letter-spacing: 1px;
+  margin: 24px 0;
+  letter-spacing: 1.2px;
+}
+
+.dialog-actions {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.print-action-btn {
+  background: #063F78 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(6, 63, 120, 0.25);
+}
+
+.print-action-btn:hover {
+  background: #053361 !important;
 }
 
 /* 80mm ESC/POS Thermal Printing Mode */
@@ -608,8 +641,24 @@ function close() {
     max-width: 100% !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 0 0 10mm 0 !important;
+    padding: 2mm 1mm 10mm 1mm !important;
     page-break-inside: avoid;
+  }
+
+  .slip-table {
+    border: 1.5px solid #000000 !important;
+  }
+
+  .slip-tr {
+    border-bottom: 1px solid #000000 !important;
+  }
+
+  .slip-td-val {
+    border-right: 1px solid #000000 !important;
+  }
+
+  .slip-tr-balance {
+    border-top: 1.5px solid #000000 !important;
   }
 
   .print-page-break {

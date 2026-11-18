@@ -130,7 +130,7 @@
         <v-card class="modern-card pa-3 mb-3" elevation="0">
           <div class="d-flex align-center justify-space-between flex-wrap gap-3">
             <div class="d-flex align-center flex-wrap gap-3">
-              <div style="min-width: 220px; width: 230px;">
+              <div style="min-width: 240px; width: 250px;">
                 <AppDatePicker
                   v-model="selectedDate"
                   label="Inspect Day"
@@ -180,7 +180,7 @@
                 v-if="!inspection?.isClosed"
                 color="primary"
                 variant="flat"
-                class="text-capitalize font-weight-bold px-5"
+                class="preserved-close-day-btn text-capitalize font-weight-bold px-5"
                 prepend-icon="mdi-lock-check"
                 :disabled="!inspection?.canClose"
                 :title="!inspection?.canClose ? (summary.arrivalsCount === 0 ? 'Day not open — record milk arrival first' : 'Mark back all dispatches before closing') : `Close Day (${formatDate(selectedDate)})`"
@@ -193,45 +193,13 @@
                 v-else-if="authStore.isAdmin"
                 color="warning"
                 variant="tonal"
-                class="text-capitalize font-weight-bold px-4"
+                class="reopen-day-admin-btn text-capitalize font-weight-bold px-4"
                 prepend-icon="mdi-lock-open-variant"
                 :loading="reopening"
                 @click="confirmReopen(selectedDate)"
               >
                 Reopen Day (Admin)
               </v-btn>
-            </div>
-          </div>
-
-          <!-- Pending Dispatches Blocker Chips -->
-          <div v-if="inspection && inspection.pendingDispatches.length > 0" class="mt-3 pt-2 border-t">
-            <div class="d-flex align-center justify-space-between mb-2">
-              <span class="text-caption font-weight-bold text-orange-darken-4 text-uppercase">
-                Pending DISPATCHED Routes Blocking {{ formatDate(selectedDate) }} Closing
-              </span>
-              <v-btn
-                size="x-small"
-                color="warning"
-                variant="flat"
-                class="text-capitalize font-weight-bold"
-                prepend-icon="mdi-truck-check"
-                @click="goToHistoryMarkBack(selectedDate)"
-              >
-                Go to Dispatches History &amp; Mark Back
-              </v-btn>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-              <div
-                v-for="d in inspection.pendingDispatches"
-                :key="d.id"
-                class="pending-dispatch-pill"
-              >
-                <span class="erp-tag erp-tag-orange">DISPATCHED</span>
-                <span class="font-weight-bold text-primary">{{ d.areaName }}</span>
-                <span class="text-caption text-grey-darken-2">
-                  {{ d.vehicleNumber }} • {{ d.driverName }} • {{ d.calanderName || '-' }}
-                </span>
-              </div>
             </div>
           </div>
         </v-card>
@@ -689,6 +657,34 @@ watch(
 :deep(.v-table tbody tr td:not(:has(> .erp-tag))) {
   padding-left: 10px !important;
   padding-right: 10px !important;
+}
+
+/* Reopen Day (Admin) Button */
+.reopen-day-admin-btn,
+:deep(.reopen-day-admin-btn) {
+  background-color: #fffbeb !important;
+  color: #000000 !important;
+  border: 1.5px solid #eab308 !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.reopen-day-admin-btn :deep(.v-btn__content),
+:deep(.reopen-day-admin-btn .v-btn__content) {
+  color: #000000 !important;
+}
+
+.reopen-day-admin-btn :deep(.v-icon),
+:deep(.reopen-day-admin-btn .v-icon) {
+  color: #eab308 !important;
+}
+
+.reopen-day-admin-btn:hover:not(:disabled),
+:deep(.reopen-day-admin-btn:hover:not(:disabled)) {
+  background-color: #fef9c3 !important;
+  border-color: #ca8a04 !important;
+  color: #000000 !important;
+  box-shadow: 0 2px 6px rgba(234, 179, 8, 0.25) !important;
 }
 </style>
 

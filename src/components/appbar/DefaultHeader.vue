@@ -31,6 +31,21 @@
 
     <v-spacer></v-spacer>
 
+    <!-- Mobile View Power Button (d-flex d-md-none) -->
+    <div v-if="isLoggedIn" class="mobile-power-wrapper d-flex d-md-none align-center me-2">
+      <v-btn
+        icon
+        size="small"
+        variant="text"
+        class="mobile-power-btn"
+        title="Sign Out"
+        aria-label="Sign Out"
+        @click="showLogoutDialog = true"
+      >
+        <v-icon size="20">mdi-power</v-icon>
+      </v-btn>
+    </div>
+
     <div class="header-right-actions d-none d-md-flex align-center">
       <!-- Unified User Profile Pill & Dropdown (Desktop only) -->
       <v-menu v-if="isLoggedIn" location="bottom end" :offset="8">
@@ -73,10 +88,44 @@
       </v-menu>
     </div>
   </v-app-bar>
+
+  <!-- Mobile Sign Out Confirmation Dialog -->
+  <v-dialog v-model="showLogoutDialog" max-width="320">
+    <v-card class="rounded-xl pa-4 text-center bg-white">
+      <div class="d-flex justify-center mb-3">
+        <v-avatar color="red-lighten-5" size="52">
+          <v-icon size="28" color="error">mdi-power</v-icon>
+        </v-avatar>
+      </div>
+      <div class="text-subtitle-1 font-weight-bold text-slate-800 mb-1">Sign Out?</div>
+      <div class="text-caption text-grey-darken-1 mb-4">
+        Are you sure you want to end your session and sign out?
+      </div>
+      <div class="d-flex gap-2">
+        <v-btn
+          variant="outlined"
+          color="grey-darken-1"
+          class="flex-grow-1 text-capitalize rounded-lg font-weight-bold"
+          @click="showLogoutDialog = false"
+        >
+          Cancel
+        </v-btn>
+        <v-btn
+          variant="flat"
+          color="error"
+          class="flex-grow-1 text-capitalize rounded-lg font-weight-bold"
+          prepend-icon="mdi-power"
+          @click="confirmLogout"
+        >
+          Sign Out
+        </v-btn>
+      </div>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useAuthStore } from '@/stores/auth';
@@ -93,9 +142,16 @@ const router = useRouter();
 const display = useDisplay();
 const authStore = useAuthStore();
 
+const showLogoutDialog = ref(false);
+
 const currentPageTitle = computed(() => {
   return route.meta?.title || route.name || '';
 });
+
+function confirmLogout() {
+  showLogoutDialog.value = false;
+  handleSignOff();
+}
 
 function handleSignOff() {
   authStore.logout();

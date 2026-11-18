@@ -200,7 +200,7 @@
           <div class="d-flex align-center gap-1-5">
             <v-icon color="primary" size="18">mdi-truck-outline</v-icon>
             <h2 class="text-subtitle-2 font-weight-black text-slate-900 text-uppercase mb-0">
-              Dispatched Routes ({{ dateDispatches.length }})
+              Deliveries &amp; Settlements ({{ dateDispatches.length }})
             </h2>
           </div>
           <span class="text-caption font-weight-bold text-grey-darken-2">
@@ -208,86 +208,188 @@
           </span>
         </div>
 
-        <!-- Empty State -->
+        <!-- Mode Switcher Tabs: Delivery Routes vs Guest Sales (when guest sales exist) -->
+        <div v-if="guestDispatches.length > 0" class="dispatch-mode-toggle d-flex align-center p-1 bg-slate-200 rounded-xl mb-3">
+          <button
+            type="button"
+            class="mode-toggle-btn flex-grow-1"
+            :class="{ active: dispatchActiveTab === 'routes' }"
+            @click="dispatchActiveTab = 'routes'"
+          >
+            <v-icon start size="16">mdi-truck-fast</v-icon>
+            Routes ({{ regularDispatches.length }})
+          </button>
+          <button
+            type="button"
+            class="mode-toggle-btn flex-grow-1"
+            :class="{ active: dispatchActiveTab === 'guest' }"
+            @click="dispatchActiveTab = 'guest'"
+          >
+            <v-icon start size="16">mdi-storefront</v-icon>
+            Guest Sales ({{ guestDispatches.length }})
+          </button>
+        </div>
+
+        <!-- Empty State (No records at all) -->
         <div
           v-if="dateDispatches.length === 0"
           class="pa-5 bg-white rounded-xl border text-center text-grey-darken-1 shadow-xs"
         >
           <v-icon size="36" color="grey-lighten-1" class="mb-2">mdi-clipboard-text-off-outline</v-icon>
-          <div class="font-weight-bold text-body-2 text-slate-800">No Routes Dispatched</div>
-          <div class="text-caption text-grey">No milk deliveries recorded on {{ formatDate(selectedDate) }}.</div>
+          <div class="font-weight-bold text-body-2 text-slate-800">No Routes or Sales Recorded</div>
+          <div class="text-caption text-grey">No milk deliveries or guest sales recorded on {{ formatDate(selectedDate) }}.</div>
         </div>
 
-        <!-- Route Deliveries (with Route Stepper & Prev/Next Navigation) -->
+        <!-- Deliveries & Settlements Content -->
         <div v-else>
-          <!-- Stepper Navigation Header (when multiple routes exist) -->
-          <div v-if="dateDispatches.length > 1" class="route-navigation-card bg-white border rounded-xl pa-3 shadow-xs mb-3">
-            <div class="d-flex align-center justify-space-between mb-2">
-              <div class="d-flex align-center gap-1-5">
-                <v-chip size="x-small" color="primary" variant="flat" class="font-weight-black">
-                  R{{ closingRouteIndex + 1 }}
-                </v-chip>
-                <span class="text-caption font-weight-black text-slate-900 text-uppercase">
-                  Route {{ closingRouteIndex + 1 }} of {{ dateDispatches.length }}
-                </span>
+          <!-- TAB 1: DELIVERY ROUTES CONTROLLER -->
+          <template v-if="dispatchActiveTab === 'routes'">
+            <!-- Empty state for routes -->
+            <div
+              v-if="regularDispatches.length === 0"
+              class="pa-5 bg-white rounded-xl border text-center text-grey-darken-1 shadow-xs mb-3"
+            >
+              <v-icon size="36" color="grey-lighten-1" class="mb-2">mdi-truck-outline</v-icon>
+              <div class="font-weight-bold text-body-2 text-slate-800">No Delivery Routes</div>
+              <div class="text-caption text-grey">No delivery routes recorded on {{ formatDate(selectedDate) }}.</div>
+            </div>
+
+            <!-- Route Stepper Header (when multiple routes exist) -->
+            <div v-else-if="regularDispatches.length > 1" class="route-navigation-card bg-white border rounded-xl pa-3 shadow-xs mb-3">
+              <div class="d-flex align-center justify-space-between mb-2-5">
+                <div class="d-flex align-center gap-2">
+                  <span class="route-badge-capsule">R{{ closingRouteIndex + 1 }}</span>
+                  <span class="text-caption font-weight-black text-slate-900 text-uppercase tracking-wider">
+                    Route {{ closingRouteIndex + 1 }} of {{ regularDispatches.length }}
+                  </span>
+                </div>
+
+                <!-- Toggle View Mode: Single Focused Route vs All Routes -->
+                <button
+                  type="button"
+                  class="stepper-mode-toggle-btn"
+                  @click="closingRouteViewMode = closingRouteViewMode === 'stepper' ? 'list' : 'stepper'"
+                >
+                  <v-icon size="13">{{ closingRouteViewMode === 'stepper' ? 'mdi-view-headline' : 'mdi-card-outline' }}</v-icon>
+                  <span>{{ closingRouteViewMode === 'stepper' ? 'Show All (' + regularDispatches.length + ')' : 'Single View' }}</span>
+                </button>
               </div>
 
-              <!-- Toggle View Mode: Single Focused Route vs All Routes -->
-              <button
-                type="button"
-                class="text-caption text-primary font-weight-bold"
-                @click="closingRouteViewMode = closingRouteViewMode === 'stepper' ? 'list' : 'stepper'"
-              >
-                {{ closingRouteViewMode === 'stepper' ? 'Show All (' + dateDispatches.length + ')' : 'Single Route View' }}
-              </button>
+              <!-- Stepper Buttons (Previous & Next Route) -->
+              <div class="d-flex align-center gap-2 mb-2">
+                <v-btn
+                  variant="flat"
+                  :disabled="closingRouteIndex === 0"
+                  class="stepper-nav-btn stepper-btn-prev flex-grow-1"
+                  @click="prevClosingRoute"
+                >
+                  <v-icon start size="18">mdi-chevron-left</v-icon>
+                  <span>Previous Route</span>
+                </v-btn>
+
+                <v-btn
+                  variant="flat"
+                  :disabled="closingRouteIndex >= regularDispatches.length - 1"
+                  class="stepper-nav-btn stepper-btn-next flex-grow-1"
+                  @click="nextClosingRoute"
+                >
+                  <span>Next Route</span>
+                  <v-icon end size="18">mdi-chevron-right</v-icon>
+                </v-btn>
+              </div>
+
+              <!-- Route Quick Selection Chips -->
+              <div class="route-pills-strip d-flex align-center gap-2 overflow-x-auto no-scrollbar">
+                <button
+                  v-for="(r, idx) in regularDispatches"
+                  :key="r.id"
+                  type="button"
+                  class="route-select-pill text-caption font-weight-bold"
+                  :class="{ active: idx === closingRouteIndex }"
+                  @click="setClosingRouteIndex(idx)"
+                >
+                  R{{ idx + 1 }}: {{ r.areaName || 'Route' }}
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <!-- TAB 2: GUEST / COUNTER SALES CONTROLLER -->
+          <template v-else-if="dispatchActiveTab === 'guest'">
+            <!-- Empty state for guest sales -->
+            <div
+              v-if="guestDispatches.length === 0"
+              class="pa-5 bg-white rounded-xl border text-center text-grey-darken-1 shadow-xs mb-3"
+            >
+              <v-icon size="36" color="grey-lighten-1" class="mb-2">mdi-account-cash-outline</v-icon>
+              <div class="font-weight-bold text-body-2 text-slate-800">No Guest Sales</div>
+              <div class="text-caption text-grey">No walk-in guest sales recorded on {{ formatDate(selectedDate) }}.</div>
             </div>
 
-            <!-- Stepper Buttons (Previous & Next Route) -->
-            <div class="d-flex align-center gap-2">
-              <v-btn
-                size="small"
-                variant="outlined"
-                color="primary"
-                :disabled="closingRouteIndex === 0"
-                class="flex-grow-1 font-weight-bold text-caption text-capitalize rounded-lg"
-                @click="prevClosingRoute"
-              >
-                <v-icon start size="18">mdi-chevron-left</v-icon>
-                Previous Route
-              </v-btn>
+            <!-- Guest Sales Stepper Header (when multiple guest sales exist) -->
+            <div v-else-if="guestDispatches.length > 1" class="route-navigation-card bg-white border rounded-xl pa-3 shadow-xs mb-3">
+              <div class="d-flex align-center justify-space-between mb-2-5">
+                <div class="d-flex align-center gap-2">
+                  <span class="guest-badge-capsule">G{{ guestSaleIndex + 1 }}</span>
+                  <span class="text-caption font-weight-black text-slate-900 text-uppercase tracking-wider">
+                    Guest Sale {{ guestSaleIndex + 1 }} of {{ guestDispatches.length }}
+                  </span>
+                </div>
 
-              <v-btn
-                size="small"
-                variant="flat"
-                color="primary"
-                :disabled="closingRouteIndex >= dateDispatches.length - 1"
-                class="flex-grow-1 font-weight-bold text-caption text-capitalize rounded-lg"
-                @click="nextClosingRoute"
-              >
-                Next Route
-                <v-icon end size="18">mdi-chevron-right</v-icon>
-              </v-btn>
+                <!-- Toggle View Mode: Single Focused Sale vs All Sales -->
+                <button
+                  type="button"
+                  class="stepper-mode-toggle-btn"
+                  @click="guestSaleViewMode = guestSaleViewMode === 'stepper' ? 'list' : 'stepper'"
+                >
+                  <v-icon size="13">{{ guestSaleViewMode === 'stepper' ? 'mdi-view-headline' : 'mdi-card-outline' }}</v-icon>
+                  <span>{{ guestSaleViewMode === 'stepper' ? 'Show All (' + guestDispatches.length + ')' : 'Single View' }}</span>
+                </button>
+              </div>
+
+              <!-- Stepper Buttons (Previous & Next Sale) -->
+              <div class="d-flex align-center gap-2 mb-2">
+                <v-btn
+                  variant="flat"
+                  :disabled="guestSaleIndex === 0"
+                  class="stepper-nav-btn stepper-btn-prev flex-grow-1"
+                  @click="prevGuestSale"
+                >
+                  <v-icon start size="18">mdi-chevron-left</v-icon>
+                  <span>Previous Sale</span>
+                </v-btn>
+
+                <v-btn
+                  variant="flat"
+                  :disabled="guestSaleIndex >= guestDispatches.length - 1"
+                  class="stepper-nav-btn stepper-btn-guest-next flex-grow-1"
+                  @click="nextGuestSale"
+                >
+                  <span>Next Sale</span>
+                  <v-icon end size="18">mdi-chevron-right</v-icon>
+                </v-btn>
+              </div>
+
+              <!-- Guest Quick Selection Chips -->
+              <div class="route-pills-strip d-flex align-center gap-2 overflow-x-auto no-scrollbar">
+                <button
+                  v-for="(g, idx) in guestDispatches"
+                  :key="g.id"
+                  type="button"
+                  class="route-select-pill text-caption font-weight-bold"
+                  :class="{ 'active-guest': idx === guestSaleIndex }"
+                  @click="setGuestSaleIndex(idx)"
+                >
+                  🛒 Guest #{{ g.token || (idx + 1) }}
+                </button>
+              </div>
             </div>
+          </template>
 
-            <!-- Route Quick Selection Chips -->
-            <div class="d-flex align-center gap-1-5 mt-2-5 overflow-x-auto no-scrollbar pt-1">
-              <button
-                v-for="(r, idx) in dateDispatches"
-                :key="r.id"
-                type="button"
-                class="route-select-pill text-caption font-weight-bold"
-                :class="{ active: idx === closingRouteIndex }"
-                @click="setClosingRouteIndex(idx)"
-              >
-                {{ r.dispatchType === 'guest' ? `🛒 Guest #${r.token || (idx + 1)}` : `R${idx + 1}: ${r.areaName || 'Route'}` }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Route Cards List -->
+          <!-- Route or Guest Cards List -->
           <div class="d-flex flex-column gap-3">
             <div
-              v-for="(d, loopIdx) in (closingRouteViewMode === 'stepper' && dateDispatches.length > 1 ? (activeClosingRoute ? [activeClosingRoute] : []) : dateDispatches)"
+              v-for="(d, loopIdx) in displayedDispatches"
               :key="d.id"
               class="mobile-route-card bg-white border rounded-xl shadow-xs overflow-hidden"
             >
@@ -296,7 +398,7 @@
                 <div>
                   <div class="d-flex align-center">
                     <v-chip size="x-small" :color="d.dispatchType === 'guest' ? 'secondary' : 'primary'" variant="flat" class="font-weight-bold me-2">
-                      {{ d.dispatchType === 'guest' ? '🛒 GUEST' : `R${(closingRouteViewMode === 'stepper' && dateDispatches.length > 1 ? closingRouteIndex : loopIdx) + 1}` }}
+                      {{ d.dispatchType === 'guest' ? (d.token ? `🛒 GUEST #${d.token}` : '🛒 GUEST') : `R${(closingRouteViewMode === 'stepper' && regularDispatches.length > 1 ? closingRouteIndex : loopIdx) + 1}` }}
                     </v-chip>
                     <span class="font-weight-black text-body-1 text-slate-900">
                       {{ d.dispatchType === 'guest' ? (d.customerName || 'Guest Customer') : d.areaName }}
@@ -938,18 +1040,66 @@ const defaultSummary = {
 const summary = computed(() => inspection.value?.summary || defaultSummary);
 const dateDispatches = computed(() => inspection.value?.dispatches || []);
 
+function isGuestDispatch(d) {
+  if (!d) return false;
+  return (
+    d.dispatchType === 'guest' ||
+    d.isGuest === true ||
+    (d.areaName && d.areaName.toLowerCase().includes('guest'))
+  );
+}
+
+const regularDispatches = computed(() => {
+  return dateDispatches.value.filter((d) => !isGuestDispatch(d));
+});
+
+const guestDispatches = computed(() => {
+  return dateDispatches.value.filter((d) => isGuestDispatch(d));
+});
+
+const dispatchActiveTab = ref('routes'); // 'routes' or 'guest'
+const guestSaleIndex = ref(0);
+const guestSaleViewMode = ref('stepper'); // 'stepper' or 'list'
+
 const activeClosingRoute = computed(() => {
-  if (!dateDispatches.value || dateDispatches.value.length === 0) return null;
-  const idx = Math.min(Math.max(0, closingRouteIndex.value), dateDispatches.value.length - 1);
-  return dateDispatches.value[idx];
+  if (!regularDispatches.value || regularDispatches.value.length === 0) return null;
+  const idx = Math.min(Math.max(0, closingRouteIndex.value), regularDispatches.value.length - 1);
+  return regularDispatches.value[idx];
+});
+
+const activeGuestSale = computed(() => {
+  if (!guestDispatches.value || guestDispatches.value.length === 0) return null;
+  const idx = Math.min(Math.max(0, guestSaleIndex.value), guestDispatches.value.length - 1);
+  return guestDispatches.value[idx];
 });
 
 watch([dateDispatches, selectedDate], () => {
-  if (closingRouteIndex.value >= dateDispatches.value.length) {
-    closingRouteIndex.value = Math.max(0, dateDispatches.value.length - 1);
+  if (regularDispatches.value.length === 0 && guestDispatches.value.length > 0) {
+    dispatchActiveTab.value = 'guest';
+  } else {
+    dispatchActiveTab.value = 'routes';
   }
+
+  if (closingRouteIndex.value >= regularDispatches.value.length) {
+    closingRouteIndex.value = Math.max(0, regularDispatches.value.length - 1);
+  }
+  if (guestSaleIndex.value >= guestDispatches.value.length) {
+    guestSaleIndex.value = Math.max(0, guestDispatches.value.length - 1);
+  }
+
   if (activeClosingRoute.value) {
     expandedRouteIds.value.add(activeClosingRoute.value.id);
+  }
+  if (activeGuestSale.value) {
+    expandedRouteIds.value.add(activeGuestSale.value.id);
+  }
+});
+
+watch(dispatchActiveTab, (tab) => {
+  if (tab === 'routes' && activeClosingRoute.value) {
+    expandedRouteIds.value.add(activeClosingRoute.value.id);
+  } else if (tab === 'guest' && activeGuestSale.value) {
+    expandedRouteIds.value.add(activeGuestSale.value.id);
   }
 });
 
@@ -963,7 +1113,7 @@ function prevClosingRoute() {
 }
 
 function nextClosingRoute() {
-  if (closingRouteIndex.value < dateDispatches.value.length - 1) {
+  if (closingRouteIndex.value < regularDispatches.value.length - 1) {
     closingRouteIndex.value++;
     if (activeClosingRoute.value) {
       expandedRouteIds.value.add(activeClosingRoute.value.id);
@@ -975,6 +1125,31 @@ function setClosingRouteIndex(idx) {
   closingRouteIndex.value = idx;
   if (activeClosingRoute.value) {
     expandedRouteIds.value.add(activeClosingRoute.value.id);
+  }
+}
+
+function prevGuestSale() {
+  if (guestSaleIndex.value > 0) {
+    guestSaleIndex.value--;
+    if (activeGuestSale.value) {
+      expandedRouteIds.value.add(activeGuestSale.value.id);
+    }
+  }
+}
+
+function nextGuestSale() {
+  if (guestSaleIndex.value < guestDispatches.value.length - 1) {
+    guestSaleIndex.value++;
+    if (activeGuestSale.value) {
+      expandedRouteIds.value.add(activeGuestSale.value.id);
+    }
+  }
+}
+
+function setGuestSaleIndex(idx) {
+  guestSaleIndex.value = idx;
+  if (activeGuestSale.value) {
+    expandedRouteIds.value.add(activeGuestSale.value.id);
   }
 }
 
@@ -1291,6 +1466,35 @@ onMounted(async () => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.dispatch-mode-toggle {
+  background: #e2e8f0;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid #cbd5e1;
+}
+
+.mode-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #475569;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-toggle-btn.active {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
 .mobile-ledger-card {
   position: relative;
   transition: all 0.2s ease;
@@ -1471,27 +1675,169 @@ onMounted(async () => {
 /* Route Stepper Navigation & Shop Breakdown Native Cards */
 .route-navigation-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
   border-radius: 12px !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
-.route-select-pill {
+.route-badge-capsule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #063F78;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.guest-badge-capsule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stepper-mode-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 4px 10px;
-  border-radius: 9999px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
-  font-size: 0.7rem;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #063F78;
+  font-size: 0.72rem;
   font-weight: 700;
-  white-space: nowrap;
+  border: 1px solid #cbd5e1;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
+.stepper-mode-toggle-btn:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.stepper-nav-btn {
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.stepper-btn-prev {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #063F78 !important;
+}
+
+.stepper-btn-prev:hover:not(:disabled) {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+.stepper-btn-prev:disabled {
+  opacity: 0.45 !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.stepper-btn-next {
+  background: #063F78 !important;
+  border: 1.5px solid #063F78 !important;
+  color: #ffffff !important;
+}
+
+.stepper-btn-next:hover:not(:disabled) {
+  background: #084c8d !important;
+  border-color: #084c8d !important;
+}
+
+.stepper-btn-next:disabled {
+  opacity: 0.45 !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.stepper-btn-guest-next {
+  background: #7c3aed !important;
+  border: 1.5px solid #7c3aed !important;
+  color: #ffffff !important;
+}
+
+.stepper-btn-guest-next:hover:not(:disabled) {
+  background: #6d28d9 !important;
+  border-color: #6d28d9 !important;
+}
+
+.stepper-btn-guest-next:disabled {
+  opacity: 0.45 !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.route-pills-strip {
+  border-top: 1px solid #f1f5f9 !important;
+  padding-top: 8px !important;
+  margin-top: 2px !important;
+}
+
+.route-select-pill {
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.route-select-pill:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #063F78 !important;
+}
+
 .route-select-pill.active {
-  background: #0284c7;
-  color: #ffffff;
-  border-color: #0284c7;
+  background: #063F78 !important;
+  color: #ffffff !important;
+  border-color: #063F78 !important;
+  box-shadow: 0 2px 5px rgba(6, 63, 120, 0.22) !important;
+}
+
+.route-select-pill.active-guest {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 2px 5px rgba(124, 58, 237, 0.22) !important;
 }
 
 .shop-card-native {

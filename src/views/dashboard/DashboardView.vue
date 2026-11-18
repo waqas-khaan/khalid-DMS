@@ -2,44 +2,102 @@
   <!-- Mobile Native View (Auto-switched on mobile devices / viewports) -->
   <DashboardMobileView v-if="display.smAndDown.value" />
 
-  <!-- Desktop View (Preserved 100% intact, no changes) -->
-  <div v-else class="page-container">
-    <!-- Header -->
-    <div class="page-header">
-      <div>
-        <h1 class="page-header-title">Dairy Operations Dashboard</h1>
-        <p class="page-header-subtitle">Real-time daily metrics, milk movement, finances, and monthly statistics</p>
-      </div>
+  <!-- Desktop View (Modern & Sophisticated Executive Redesign) -->
+  <div v-else class="page-container dashboard-desktop-page">
+    <!-- 1. Executive Top Header & Filter Toolbar -->
+    <div class="desktop-header-wrapper mb-4">
+      <div class="d-flex align-center justify-space-between flex-wrap gap-3">
+        <!-- Title & Live Status -->
+        <div>
+          <div class="d-flex align-center gap-2-5">
+            <h1 class="page-header-title mb-0">Dairy Operations Dashboard</h1>
+            <span class="live-status-pill d-flex align-center gap-1-5">
+              <span class="live-dot"></span>
+              Live Operations
+            </span>
+          </div>
+          <p class="page-header-subtitle mb-0 mt-1">
+            Real-time daily metrics, milk movement, finances, and monthly statistics
+          </p>
+        </div>
 
-      <div class="dashboard-filter-group d-flex align-center flex-wrap">
-        <div class="dashboard-filter-item">
-          <AppDatePicker
-            v-model="selectedDate"
-            label="Filter Date"
-            hide-details
-            @change="loadDailyStats"
-          />
+        <!-- Integrated Filter Controls -->
+        <div class="desktop-filter-toolbar d-flex align-center gap-2 flex-wrap">
+          <!-- Quick Day Buttons -->
+          <div class="quick-nav-pill-group">
+            <button
+              type="button"
+              class="quick-pill-btn"
+              :class="{ active: selectedDate === businessDayStore.activeBusinessDate }"
+              @click="setDateToday"
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              class="quick-pill-btn"
+              :class="{ active: selectedDate === getOffsetDateString(businessDayStore.activeBusinessDate, -1) }"
+              @click="setDateYesterday"
+            >
+              Yesterday
+            </button>
+          </div>
+
+          <!-- Date Picker -->
+          <div class="filter-picker-wrap date-wrap">
+            <AppDatePicker
+              v-model="selectedDate"
+              label="Filter Date"
+              density="compact"
+              variant="outlined"
+              hide-details
+              @change="loadDailyStats"
+            />
+          </div>
+
+          <!-- Month Picker -->
+          <div class="filter-picker-wrap month-wrap">
+            <AppMonthPicker
+              v-model="selectedMonth"
+              label="Filter Month"
+              density="compact"
+              variant="outlined"
+              hide-details
+              @change="loadMonthlyStats"
+            />
+          </div>
+
+          <!-- Refresh Button -->
+          <v-btn
+            color="primary"
+            variant="flat"
+            class="desktop-refresh-btn font-weight-bold text-capitalize rounded-lg px-4"
+            height="40"
+            prepend-icon="mdi-refresh"
+            :loading="loading"
+            @click="refreshAll"
+          >
+            Refresh
+          </v-btn>
         </div>
-        <div class="dashboard-filter-item">
-          <AppMonthPicker
-            v-model="selectedMonth"
-            label="Filter Month"
-            hide-details
-            @change="loadMonthlyStats"
-          />
-        </div>
-        <v-btn
-          color="primary"
-          variant="flat"
-          prepend-icon="mdi-refresh"
-          class="dashboard-refresh-btn text-capitalize font-weight-bold px-5"
-          height="40"
-          :loading="loading"
-          @click="refreshAll"
-        >
-          Refresh
-        </v-btn>
       </div>
+    </div>
+
+    <!-- Working Day Lock Alert Banner (if locked on previous day) -->
+    <div
+      v-if="businessDayStore.isLockedOnPreviousDay"
+      class="desktop-lock-alert mb-4 pa-3 px-4 rounded-xl border d-flex align-center justify-space-between bg-amber-50"
+    >
+      <div class="d-flex align-center gap-2-5">
+        <v-icon color="amber-darken-3" size="20">mdi-lock-alert-outline</v-icon>
+        <div>
+          <strong class="text-amber-900 text-body-2">Business Day Closing Required:</strong>
+          <span class="text-amber-800 text-body-2 ms-1">{{ businessDayStore.lockReason }}</span>
+        </div>
+      </div>
+      <v-chip size="small" color="amber-darken-3" variant="flat" class="font-weight-bold">
+        Previous Day Pending
+      </v-chip>
     </div>
 
     <!-- Loading Indicator -->
@@ -51,244 +109,377 @@
       class="mb-4 rounded"
     />
 
-
-    <!-- SECTION 1: DAILY CARDS -->
-    <div class="mb-2">
-      <div class="d-flex align-center justify-space-between mb-3 flex-wrap gap-2">
-        <h2 class="text-subtitle-1 font-weight-bold text-grey-darken-3 d-flex align-center">
-          <v-icon color="primary" class="me-2" size="20">mdi-calendar-today</v-icon>
-          Daily Overview ({{ formatDate(selectedDate) }})
-        </h2>
-        <v-chip
-          size="small"
-          color="#1565C0"
-          variant="flat"
-          prepend-icon="mdi-calendar-check-outline"
-          class="font-weight-bold text-white px-3"
-        >
-          Daily Aggregation
-        </v-chip>
+    <!-- SECTION 1: DAILY OVERVIEW -->
+    <div class="mb-4">
+      <div class="section-title-strip d-flex align-center justify-space-between mb-3">
+        <div class="d-flex align-center gap-2">
+          <div class="section-icon-dot bg-primary"></div>
+          <h2 class="text-subtitle-1 font-weight-bold text-slate-800 mb-0">
+            Daily Overview
+          </h2>
+          <span class="date-badge text-caption font-weight-bold">
+            {{ formatDate(selectedDate) }}
+          </span>
+        </div>
+        <div class="d-flex align-center gap-2">
+          <span class="text-caption text-slate-500 font-weight-medium">
+            Active Day: {{ formatDate(businessDayStore.activeBusinessDate) }}
+          </span>
+        </div>
       </div>
 
+      <!-- 6 Daily Metrics Cards -->
       <div class="dashboard-metrics-grid">
-        <!-- Today Collection (Income) -->
-        <StatCard
-          label="Today Income"
-          :value="formatCurrency(dailyStats.totalIncome)"
-          color="success"
-          subtitle="Cash collected from shops today"
-        />
+        <!-- 1. Today Income -->
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Today Income</span>
+            <div class="kpi-icon-wrap icon-emerald">
+              <v-icon size="18">mdi-cash-plus</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-emerald-600">
+            {{ formatCurrency(dailyStats.totalIncome) }}
+          </div>
+          <div class="kpi-footer-sub">
+            Cash collected from shops today
+          </div>
+        </div>
 
-        <!-- Available Cash -->
-        <StatCard
-          label="Available Cash"
-          :value="formatCurrency(dailyStats.availableCashToday)"
-          :color="dailyStats.availableCashToday >= 0 ? 'teal' : 'error'"
-          subtitle="Remaining cash on hand"
-        />
+        <!-- 2. Available Cash -->
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Available Cash</span>
+            <div
+              class="kpi-icon-wrap"
+              :class="dailyStats.availableCashToday >= 0 ? 'icon-teal' : 'icon-rose'"
+            >
+              <v-icon size="18">
+                {{ dailyStats.availableCashToday >= 0 ? 'mdi-cash-register' : 'mdi-alert-circle-outline' }}
+              </v-icon>
+            </div>
+          </div>
+          <div
+            class="kpi-main-val"
+            :class="dailyStats.availableCashToday >= 0 ? 'text-teal-700' : 'text-rose-600'"
+          >
+            {{ formatCurrency(dailyStats.availableCashToday) }}
+          </div>
+          <div class="kpi-footer-sub">
+            Remaining cash in counter
+          </div>
+        </div>
 
-        <!-- Total Arrears -->
-        <StatCard
-          label="Total Shop Arrears"
-          :value="formatCurrency(dailyStats.totalArrears)"
-          color="warning"
-          subtitle="Outstanding balance across all shops"
-        />
+        <!-- 3. Shop Arrears -->
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Total Shop Arrears</span>
+            <div class="kpi-icon-wrap icon-amber">
+              <v-icon size="18">mdi-account-cash-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-amber-700">
+            {{ formatCurrency(dailyStats.totalArrears) }}
+          </div>
+          <div class="kpi-footer-sub">
+            Outstanding balance across all shops
+          </div>
+        </div>
 
-        <!-- Milk Received Today -->
-        <StatCard
-          label="Milk Received Today"
-          :value="`${formatNumber(dailyStats.milkReceivedToday)} Kg`"
-          color="info"
-          :subtitle="`${formatNumber(dailyStats.milkReceivedTodayLiters)} Liters received`"
-        />
+        <!-- 4. Milk Received Today -->
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Milk Received</span>
+            <div class="kpi-icon-wrap icon-sky">
+              <v-icon size="18">mdi-water-check-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-sky-700">
+            {{ formatNumber(dailyStats.milkReceivedToday) }} <span class="text-caption font-weight-bold text-slate-500">Kg</span>
+          </div>
+          <div class="kpi-footer-sub">
+            {{ formatNumber(dailyStats.milkReceivedTodayLiters) }} Liters received
+          </div>
+        </div>
 
-        <!-- Milk Dispatched Today -->
-        <StatCard
-          label="Milk Dispatched Today"
-          :value="`${formatNumber(dailyStats.milkDispatchedToday)} Kg`"
-          color="primary"
-          :subtitle="`Valued at ${formatCurrency(dailyStats.todayDispatchAmount)}`"
-        />
+        <!-- 5. Milk Dispatched Today -->
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Milk Dispatched</span>
+            <div class="kpi-icon-wrap icon-blue">
+              <v-icon size="18">mdi-truck-delivery-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-blue-700">
+            {{ formatNumber(dailyStats.milkDispatchedToday) }} <span class="text-caption font-weight-bold text-slate-500">Kg</span>
+          </div>
+          <div class="kpi-footer-sub">
+            Valued at {{ formatCurrency(dailyStats.todayDispatchAmount) }}
+          </div>
+        </div>
 
-        <!-- Total Expense Today -->
-        <StatCard
-          label="Total Expense Today"
-          :value="formatCurrency(dailyStats.totalExpenseToday)"
-          color="error"
-          subtitle="Expenses recorded for today"
-        />
+        <!-- 6. Total Expense Today -->
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Total Expenses</span>
+            <div class="kpi-icon-wrap icon-rose">
+              <v-icon size="18">mdi-receipt-text-minus-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-rose-600">
+            {{ formatCurrency(dailyStats.totalExpenseToday) }}
+          </div>
+          <div class="kpi-footer-sub">
+            Recorded daily operations cost
+          </div>
+        </div>
       </div>
 
-      <!-- Category Expense Cards for Today -->
-      <div class="text-caption text-grey-darken-1 font-weight-bold mt-2 mb-2">Today's Expenses by Category:</div>
-      <v-row dense>
-        <v-col cols="6" sm="6" md="4">
-          <v-card class="modern-card stat-card-themed stat-card--primary pa-3 h-100" elevation="0">
-            <div>
-              <div class="text-caption text-grey font-weight-bold uppercase" style="font-size: 0.68rem !important;">Food Expense</div>
-              <div class="text-subtitle-1 font-weight-bold text-dark mt-1">{{ formatCurrency(dailyStats.foodExpense) }}</div>
-              <div class="text-caption text-grey text-truncate" style="font-size: 0.68rem !important;">Staff meals & tea</div>
-            </div>
-          </v-card>
-        </v-col>
+      <!-- Integrated Expense Breakdown Widget -->
+      <div class="expense-breakdown-card pa-4 rounded-xl border bg-white mb-2">
+        <div class="d-flex align-center justify-space-between mb-3">
+          <div class="d-flex align-center gap-2">
+            <v-icon size="18" color="slate-700">mdi-format-list-bulleted-type</v-icon>
+            <span class="text-caption font-weight-black text-slate-800 text-uppercase tracking-wider">
+              Today's Expenses by Category
+            </span>
+          </div>
+          <span class="text-caption font-weight-bold text-rose-600">
+            Total Today: {{ formatCurrency(dailyStats.totalExpenseToday) }}
+          </span>
+        </div>
 
-        <v-col cols="6" sm="6" md="4">
-          <v-card class="modern-card stat-card-themed stat-card--teal pa-3 h-100" elevation="0">
-            <div>
-              <div class="text-caption text-grey font-weight-bold uppercase" style="font-size: 0.68rem !important;">Home Expense</div>
-              <div class="text-subtitle-1 font-weight-bold text-dark mt-1">{{ formatCurrency(dailyStats.homeExpense) }}</div>
-              <div class="text-caption text-grey text-truncate" style="font-size: 0.68rem !important;">Farm maintenance</div>
-            </div>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" sm="12" md="4">
-          <v-card class="modern-card stat-card-themed stat-card--orange pa-3 h-100" elevation="0">
-            <div>
-              <div class="text-caption text-grey font-weight-bold uppercase" style="font-size: 0.68rem !important;">Transport Total</div>
-              <div class="text-subtitle-1 font-weight-bold text-dark mt-1">{{ formatCurrency(dailyStats.transportExpense) }}</div>
-              <div class="text-caption text-grey" style="font-size: 0.68rem !important;">
-                Diesel: <strong>{{ formatCurrency(dailyStats.dieselExpense) }}</strong> | Maint: <strong>{{ formatCurrency(dailyStats.maintenanceExpense) }}</strong>
+        <div class="expense-mini-grid">
+          <!-- Food Expense -->
+          <div class="expense-mini-tile">
+            <div class="d-flex align-center gap-2-5">
+              <div class="mini-icon-circle icon-orange">
+                <v-icon size="16">mdi-food-fork-drink</v-icon>
+              </div>
+              <div>
+                <div class="mini-label">Food &amp; Meals</div>
+                <div class="mini-sub">Staff meals &amp; tea</div>
               </div>
             </div>
-          </v-card>
-        </v-col>
-      </v-row>
+            <div class="mini-value text-slate-900">
+              {{ formatCurrency(dailyStats.foodExpense) }}
+            </div>
+          </div>
+
+          <!-- Home Expense -->
+          <div class="expense-mini-tile">
+            <div class="d-flex align-center gap-2-5">
+              <div class="mini-icon-circle icon-teal">
+                <v-icon size="16">mdi-home-outline</v-icon>
+              </div>
+              <div>
+                <div class="mini-label">Home &amp; Farm</div>
+                <div class="mini-sub">Farm maintenance</div>
+              </div>
+            </div>
+            <div class="mini-value text-slate-900">
+              {{ formatCurrency(dailyStats.homeExpense) }}
+            </div>
+          </div>
+
+          <!-- Transport Total -->
+          <div class="expense-mini-tile">
+            <div class="d-flex align-center gap-2-5">
+              <div class="mini-icon-circle icon-blue">
+                <v-icon size="16">mdi-truck-outline</v-icon>
+              </div>
+              <div>
+                <div class="mini-label">Transport &amp; Fuel</div>
+                <div class="mini-sub">
+                  Diesel: <strong class="text-slate-700">{{ formatCurrency(dailyStats.dieselExpense) }}</strong> &bull;
+                  Maint: <strong class="text-slate-700">{{ formatCurrency(dailyStats.maintenanceExpense) }}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="mini-value text-slate-900">
+              {{ formatCurrency(dailyStats.transportExpense) }}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- SECTION 2: CHARTS -->
-    <v-row class="my-3">
-      <!-- Milk Movement Chart -->
+    <v-row class="mb-4" dense>
+      <!-- Milk Trend Analysis -->
       <v-col cols="12" md="6">
-        <v-card class="modern-card pa-4 h-100" elevation="0">
-          <div class="d-flex align-center justify-space-between mb-4">
+        <div class="chart-container-card pa-4 rounded-xl border bg-white h-100">
+          <div class="d-flex align-center justify-space-between mb-3">
             <div>
-              <h3 class="text-subtitle-1 font-weight-bold text-grey-darken-3">Milk Trend Analysis</h3>
-              <div class="text-caption text-grey">Arrivals vs Dispatches (Kg)</div>
+              <div class="d-flex align-center gap-2">
+                <v-icon size="18" color="primary">mdi-chart-bar</v-icon>
+                <h3 class="text-subtitle-1 font-weight-bold text-slate-800 mb-0">Milk Volume Comparison</h3>
+              </div>
+              <div class="text-caption text-slate-500 mt-0-5">Today arrivals &amp; dispatches volume (Kg)</div>
             </div>
-            <v-chip
-              color="#0277BD"
-              size="small"
-              variant="flat"
-              prepend-icon="mdi-water-outline"
-              class="font-weight-bold text-white px-3"
-            >
-              Milk Flow
-            </v-chip>
+            <span class="chart-tag-pill tag-blue">
+              Milk Volume (Kg)
+            </span>
           </div>
 
-          <div style="height: 220px; position: relative;">
+          <div style="height: 240px; position: relative;">
             <canvas ref="milkChartRef"></canvas>
           </div>
-        </v-card>
+        </div>
       </v-col>
 
       <!-- Income vs Expense Chart -->
       <v-col cols="12" md="6">
-        <v-card class="modern-card pa-4 h-100" elevation="0">
-          <div class="d-flex align-center justify-space-between mb-4">
+        <div class="chart-container-card pa-4 rounded-xl border bg-white h-100">
+          <div class="d-flex align-center justify-space-between mb-3">
             <div>
-              <h3 class="text-subtitle-1 font-weight-bold text-grey-darken-3">Income vs Expense</h3>
-              <div class="text-caption text-grey">Financial performance for {{ selectedMonth }}</div>
+              <div class="d-flex align-center gap-2">
+                <v-icon size="18" color="success">mdi-chart-donut</v-icon>
+                <h3 class="text-subtitle-1 font-weight-bold text-slate-800 mb-0">Financial Performance</h3>
+              </div>
+              <div class="text-caption text-slate-500 mt-0-5">Income collections vs. expenses for {{ selectedMonth }}</div>
             </div>
-            <v-chip
-              color="#2E7D32"
-              size="small"
-              variant="flat"
-              prepend-icon="mdi-finance"
-              class="font-weight-bold text-white px-3"
-            >
-              Financial
-            </v-chip>
+            <span class="chart-tag-pill tag-green">
+              Financial Breakdown
+            </span>
           </div>
 
-          <div style="height: 220px; position: relative;">
+          <div style="height: 240px; position: relative;">
             <canvas ref="financialChartRef"></canvas>
           </div>
-        </v-card>
+        </div>
       </v-col>
     </v-row>
 
-    <!-- SECTION 3: MONTHLY CARDS -->
-    <div class="mt-4">
-      <div class="d-flex align-center justify-space-between mb-3">
-        <h2 class="text-subtitle-1 font-weight-bold text-grey-darken-3 d-flex align-center">
-          <v-icon color="primary" class="me-2" size="20">mdi-calendar-month</v-icon>
-          Monthly Summary ({{ selectedMonth }})
-        </h2>
-        <v-chip
-          size="small"
-          color="#6A1B9A"
-          variant="flat"
-          prepend-icon="mdi-calendar-month-outline"
-          class="font-weight-bold text-white px-3"
-        >
-          Monthly Aggregation
-        </v-chip>
+    <!-- SECTION 3: MONTHLY SUMMARY -->
+    <div class="mt-2">
+      <div class="section-title-strip d-flex align-center justify-space-between mb-3">
+        <div class="d-flex align-center gap-2">
+          <div class="section-icon-dot bg-indigo-600"></div>
+          <h2 class="text-subtitle-1 font-weight-bold text-slate-800 mb-0">
+            Monthly Performance Summary
+          </h2>
+          <span class="month-badge text-caption font-weight-bold">
+            {{ selectedMonth }}
+          </span>
+        </div>
+        <div class="quick-month-nav d-flex align-center gap-1">
+          <button
+            type="button"
+            class="month-pill-btn"
+            :class="{ active: selectedMonth === getCurrentMonthString() }"
+            @click="setThisMonth"
+          >
+            This Month
+          </button>
+          <button
+            type="button"
+            class="month-pill-btn"
+            @click="setLastMonth"
+          >
+            Last Month
+          </button>
+        </div>
       </div>
 
-      <v-row dense>
+      <!-- 6 Monthly KPI Cards -->
+      <div class="dashboard-metrics-grid">
         <!-- Monthly Income -->
-        <v-col cols="6" sm="6" md="4" lg="2">
-          <StatCard
-            label="Monthly Income"
-            :value="formatCurrency(monthlyStats.monthlyIncome)"
-            color="success"
-            subtitle="Collections this month"
-          />
-        </v-col>
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Monthly Income</span>
+            <div class="kpi-icon-wrap icon-emerald">
+              <v-icon size="18">mdi-cash-register</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-emerald-600">
+            {{ formatCurrency(monthlyStats.monthlyIncome) }}
+          </div>
+          <div class="kpi-footer-sub">
+            Collections this month
+          </div>
+        </div>
 
         <!-- Monthly Milk Received -->
-        <v-col cols="6" sm="6" md="4" lg="2">
-          <StatCard
-            label="Milk Received"
-            :value="`${formatNumber(monthlyStats.monthlyReceivedKg)} Kg`"
-            color="info"
-            :subtitle="`${formatNumber(monthlyStats.monthlyReceivedLiters)} L`"
-          />
-        </v-col>
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Milk Received</span>
+            <div class="kpi-icon-wrap icon-sky">
+              <v-icon size="18">mdi-water-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-sky-700">
+            {{ formatNumber(monthlyStats.monthlyReceivedKg) }} <span class="text-caption font-weight-bold text-slate-500">Kg</span>
+          </div>
+          <div class="kpi-footer-sub">
+            {{ formatNumber(monthlyStats.monthlyReceivedLiters) }} Liters total
+          </div>
+        </div>
 
         <!-- Monthly Milk Dispatched -->
-        <v-col cols="6" sm="6" md="4" lg="2">
-          <StatCard
-            label="Milk Dispatched"
-            :value="`${formatNumber(monthlyStats.monthlyDispatched)} Kg`"
-            color="primary"
-            subtitle="Total distributed"
-          />
-        </v-col>
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Milk Dispatched</span>
+            <div class="kpi-icon-wrap icon-blue">
+              <v-icon size="18">mdi-truck-fast-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-blue-700">
+            {{ formatNumber(monthlyStats.monthlyDispatched) }} <span class="text-caption font-weight-bold text-slate-500">Kg</span>
+          </div>
+          <div class="kpi-footer-sub">
+            Total distributed this month
+          </div>
+        </div>
 
         <!-- Monthly Total Expense -->
-        <v-col cols="6" sm="6" md="4" lg="2">
-          <StatCard
-            label="Total Expenses"
-            :value="formatCurrency(monthlyStats.totalMonthlyExpense)"
-            color="error"
-            subtitle="Operating expenses"
-          />
-        </v-col>
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Total Expenses</span>
+            <div class="kpi-icon-wrap icon-rose">
+              <v-icon size="18">mdi-receipt-text-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-rose-600">
+            {{ formatCurrency(monthlyStats.totalMonthlyExpense) }}
+          </div>
+          <div class="kpi-footer-sub">
+            Operating costs recorded
+          </div>
+        </div>
 
         <!-- Salaries Paid -->
-        <v-col cols="6" sm="6" md="4" lg="2">
-          <StatCard
-            label="Salaries Paid"
-            :value="formatCurrency(monthlyStats.salariesPaid)"
-            color="teal"
-            subtitle="Staff payroll cleared"
-          />
-        </v-col>
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Salaries Paid</span>
+            <div class="kpi-icon-wrap icon-teal">
+              <v-icon size="18">mdi-account-group-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-teal-700">
+            {{ formatCurrency(monthlyStats.salariesPaid) }}
+          </div>
+          <div class="kpi-footer-sub">
+            Staff payroll cleared
+          </div>
+        </div>
 
-        <!-- Advances -->
-        <v-col cols="6" sm="6" md="4" lg="2">
-          <StatCard
-            label="Advances Given"
-            :value="formatCurrency(monthlyStats.advancesGiven)"
-            color="warning"
-            subtitle="Staff loan advances"
-          />
-        </v-col>
-      </v-row>
+        <!-- Advances Given -->
+        <div class="desktop-kpi-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="kpi-tag">Staff Advances</span>
+            <div class="kpi-icon-wrap icon-amber">
+              <v-icon size="18">mdi-hand-coin-outline</v-icon>
+            </div>
+          </div>
+          <div class="kpi-main-val text-amber-700">
+            {{ formatCurrency(monthlyStats.advancesGiven) }}
+          </div>
+          <div class="kpi-footer-sub">
+            Staff loan advances issued
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -300,7 +491,6 @@ import { statsService } from '@/services/statsService';
 import { useBusinessDayStore } from '@/stores/businessDay';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { formatCurrency, formatNumber, formatDate, getCurrentMonthString, getOffsetDateString } from '@/utils/formatters';
-import StatCard from '@/components/common/StatCard.vue';
 import AppDatePicker from '@/components/common/AppDatePicker.vue';
 import AppMonthPicker from '@/components/common/AppMonthPicker.vue';
 import DashboardMobileView from './DashboardMobileView.vue';
@@ -429,18 +619,19 @@ async function renderCharts() {
       milkChartInstance = new ChartClass(ctx, {
         type: 'bar',
         data: {
-          labels: ['Today Received', 'Today Dispatched', 'Monthly Avg Recv', 'Monthly Avg Disp'],
+          labels: ['Today Received', 'Today Dispatched'],
           datasets: [
             {
               label: 'Milk (Kg)',
               data: [
                 dailyStats.value.milkReceivedToday || 0,
                 dailyStats.value.milkDispatchedToday || 0,
-                Math.round((monthlyStats.value.monthlyReceivedKg || 0) / 30),
-                Math.round((monthlyStats.value.monthlyDispatched || 0) / 30),
               ],
-              backgroundColor: ['#2196F3', '#063F78', '#90CAF9', '#1565C0'],
-              borderRadius: 6,
+              backgroundColor: ['#0284C7', '#063F78'],
+              borderRadius: 8,
+              borderSkipped: false,
+              barPercentage: 0.5,
+              maxBarThickness: 64,
             },
           ],
         },
@@ -449,9 +640,27 @@ async function renderCharts() {
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0F172A',
+              titleColor: '#F8FAFC',
+              bodyColor: '#F8FAFC',
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: {
+                label: (ctx) => ` ${ctx.parsed.y.toLocaleString()} Kg`,
+              },
+            },
           },
           scales: {
-            y: { beginAtZero: true },
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748B', font: { weight: '600', size: 11 } },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: '#F1F5F9' },
+              ticks: { color: '#64748B', font: { size: 11 } },
+            },
           },
         },
       });
@@ -473,15 +682,38 @@ async function renderCharts() {
                 monthlyStats.value.salariesPaid || 0,
                 monthlyStats.value.advancesGiven || 0,
               ],
-              backgroundColor: ['#4CAF50', '#FF5252', '#009688', '#FF9800'],
+              backgroundColor: ['#10B981', '#F43F5E', '#0D9488', '#F59E0B'],
+              borderWidth: 2,
+              borderColor: '#FFFFFF',
+              hoverOffset: 6,
             },
           ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          cutout: '70%',
           plugins: {
-            legend: { position: 'bottom' },
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                boxHeight: 12,
+                usePointStyle: true,
+                pointStyle: 'circle',
+                padding: 16,
+                color: '#334155',
+                font: { size: 11.5, weight: '600' },
+              },
+            },
+            tooltip: {
+              backgroundColor: '#0F172A',
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: {
+                label: (ctx) => ` ${ctx.label}: Rs. ${Number(ctx.raw).toLocaleString()}`,
+              },
+            },
           },
         },
       });
@@ -514,15 +746,144 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.dashboard-filter-group {
-  gap: 12px;
+.dashboard-desktop-page {
+  padding-bottom: 32px;
 }
 
-.dashboard-filter-item {
-  min-width: 240px;
-  width: 260px;
+/* Header & Filter Deck */
+.desktop-header-wrapper {
+  background: transparent;
 }
 
+.live-status-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 20px;
+  padding: 3px 10px;
+  letter-spacing: 0.3px;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.quick-nav-pill-group {
+  display: flex;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.quick-pill-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-pill-btn:hover {
+  color: #0f172a;
+}
+
+.quick-pill-btn.active {
+  background: #ffffff;
+  color: #063F78;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.filter-picker-wrap.date-wrap {
+  min-width: 215px;
+  width: 220px;
+}
+
+.filter-picker-wrap.month-wrap {
+  min-width: 195px;
+  width: 200px;
+}
+
+.desktop-refresh-btn {
+  background: #063F78 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(6, 63, 120, 0.2);
+}
+
+.desktop-refresh-btn:hover {
+  background: #053361 !important;
+}
+
+/* Operational Lock Alert */
+.desktop-lock-alert {
+  border-color: #fde68a;
+}
+
+/* Section Title Strips */
+.section-icon-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.date-badge,
+.month-badge {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+.quick-month-nav {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.month-pill-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.month-pill-btn:hover {
+  color: #0f172a;
+}
+
+.month-pill-btn.active {
+  background: #ffffff;
+  color: #063F78;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Metrics Grid (6 Columns) */
 .dashboard-metrics-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -530,7 +891,7 @@ onMounted(async () => {
   margin-bottom: 20px;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1440px) {
   .dashboard-metrics-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -542,27 +903,179 @@ onMounted(async () => {
   }
 }
 
-@media (max-width: 600px) {
-  .dashboard-filter-group {
-    width: 100% !important;
-    gap: 8px !important;
-  }
+/* Desktop KPI Card */
+.desktop-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 118px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.06);
+}
 
-  .dashboard-filter-item {
-    width: 100% !important;
-    min-width: 0 !important;
-    flex: 1 1 100% !important;
-  }
+.desktop-kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 36px -4px rgba(15, 23, 42, 0.18), 0 8px 16px -2px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
+}
 
-  .dashboard-refresh-btn {
-    width: 100% !important;
-  }
+/* Accent Borders on Top of Cards */
+.desktop-kpi-card:has(.icon-emerald) { border-top: 3px solid #10b981; }
+.desktop-kpi-card:has(.icon-teal)    { border-top: 3px solid #0d9488; }
+.desktop-kpi-card:has(.icon-amber)   { border-top: 3px solid #f59e0b; }
+.desktop-kpi-card:has(.icon-sky)     { border-top: 3px solid #0284c7; }
+.desktop-kpi-card:has(.icon-blue)    { border-top: 3px solid #063F78; }
+.desktop-kpi-card:has(.icon-rose)    { border-top: 3px solid #ef4444; }
+.desktop-kpi-card:has(.icon-purple)  { border-top: 3px solid #8b5cf6; }
+.desktop-kpi-card:has(.icon-orange)  { border-top: 3px solid #f97316; }
 
-  .dashboard-metrics-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 10px !important;
-    margin-bottom: 16px !important;
+.kpi-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.kpi-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-emerald { background: #ecfdf5; color: #059669; }
+.icon-teal    { background: #f0fdfa; color: #0d9488; }
+.icon-amber   { background: #fffbeb; color: #d97706; }
+.icon-sky     { background: #f0f9ff; color: #0284c7; }
+.icon-blue    { background: #eff6ff; color: #063F78; }
+.icon-rose    { background: #fff1f2; color: #e11d48; }
+.icon-purple  { background: #f5f3ff; color: #7c3aed; }
+.icon-orange  { background: #fff7ed; color: #ea580c; }
+
+.kpi-main-val {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin: 4px 0;
+}
+
+.kpi-footer-sub {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Expense Breakdown Card */
+.expense-breakdown-card {
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
+}
+
+.expense-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 960px) {
+  .expense-mini-grid {
+    grid-template-columns: 1fr;
   }
 }
-</style>
 
+.expense-mini-tile {
+  background: #f8fafc;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.06);
+  transition: all 0.2s ease;
+}
+
+.expense-mini-tile:hover {
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+  transform: translateY(-2px);
+  border-color: #000000;
+}
+
+.mini-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mini-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.mini-sub {
+  font-size: 0.68rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.mini-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Charts Card */
+.chart-container-card {
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
+  transition: all 0.2s ease;
+}
+
+.chart-container-card:hover {
+  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.14);
+}
+
+.chart-tag-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+.tag-blue {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.tag-green {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+</style>

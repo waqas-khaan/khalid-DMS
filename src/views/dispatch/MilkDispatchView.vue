@@ -291,57 +291,19 @@
           </div>
         </div>
 
-        <!-- Bottom Action Bar (Status Chips + Cancel & Generate) -->
-        <div class="delivery-footer mt-3 pt-3 border-t d-flex align-center justify-space-between flex-wrap gap-3 flex-shrink-0">
-          <!-- Selection Status Chips -->
-          <div class="d-flex align-center flex-wrap gap-2">
-            <v-chip size="small" :color="wizardHeader.vehicleId ? 'red-darken-2' : 'grey'" variant="tonal" class="font-weight-medium">
-              <v-icon start size="16">mdi-truck</v-icon>
-              Vehicle: {{ wizardHeader.vehicleNumber || 'None' }}
-            </v-chip>
-            <v-chip size="small" :color="wizardHeader.driverId ? 'green-darken-2' : 'grey'" variant="tonal" class="font-weight-medium">
-              <v-icon start size="16">mdi-account-tie</v-icon>
-              Driver: {{ wizardHeader.driverName || 'None' }}
-            </v-chip>
-            <v-chip size="small" :color="wizardHeader.calanderId ? 'purple-darken-2' : 'grey'" variant="tonal" class="font-weight-medium">
-              <v-icon start size="16">mdi-account</v-icon>
-              Calander: {{ wizardHeader.calanderName || 'None' }}
-            </v-chip>
-            <v-chip size="small" :color="wizardHeader.areaId ? 'cyan-darken-3' : 'grey'" variant="tonal" class="font-weight-medium">
-              <v-icon start size="16">mdi-map-marker</v-icon>
-              Group: {{ wizardHeader.areaName || 'None' }}
-            </v-chip>
-            <v-chip size="small" :color="wizardHeader.date ? 'blue-darken-2' : 'grey'" variant="tonal" class="font-weight-medium">
-              <v-icon start size="16">mdi-calendar</v-icon>
-              Date: {{ formatDate(wizardHeader.date) }}
-            </v-chip>
-            <v-chip
-              v-if="activeDispatchesOnSelectedDate.length > 0"
-              size="small"
-              color="warning"
-              variant="flat"
-              class="font-weight-bold cursor-pointer"
-              title="View active dispatches to mark them back"
-              @click="goToHistoryForSelectedDate"
-            >
-              <v-icon start size="15">mdi-truck-fast</v-icon>
-              {{ activeDispatchesOnSelectedDate.length }} Out — Mark Back
-            </v-chip>
-          </div>
-
-          <!-- Buttons -->
-          <div class="d-flex align-center gap-3 ms-auto">
-            <v-btn
-              color="primary"
-              variant="flat"
-              class="text-capitalize px-8 font-weight-bold"
-              size="large"
-              :disabled="!canProceedToStep2 || isDispatchEntryLocked"
-              @click="goToStep2"
-            >
-              {{ isDispatchEntryLocked ? 'Locked Until Previous Day Closed' : 'Generate' }}
-            </v-btn>
-          </div>
+        <!-- Bottom Action Bar (Generate) -->
+        <div class="delivery-footer mt-3 pt-3 border-t d-flex align-center justify-end flex-wrap gap-3 flex-shrink-0">
+          <v-btn
+            color="primary"
+            variant="flat"
+            class="text-capitalize px-8 font-weight-bold rounded-lg"
+            size="large"
+            :disabled="!canProceedToStep2 || isDispatchEntryLocked || !hasMilkArrivalForDispatchDate"
+            :title="!hasMilkArrivalForDispatchDate ? `No milk arrival recorded for ${formatDate(wizardHeader.date)}` : (isDispatchEntryLocked ? 'Locked Until Previous Day Closed' : 'Generate')"
+            @click="goToStep2"
+          >
+            {{ isDispatchEntryLocked ? 'Locked Until Previous Day Closed' : (!hasMilkArrivalForDispatchDate ? 'No Milk Recorded for Date' : 'Generate') }}
+          </v-btn>
         </div>
       </v-card>
 
@@ -383,10 +345,9 @@
 
             <div class="banner-action ms-auto">
               <v-btn
-                color="white"
-                variant="outlined"
+                variant="flat"
                 size="small"
-                class="text-capitalize rounded-lg font-weight-bold"
+                class="banner-change-route-btn text-capitalize rounded-lg font-weight-bold"
                 prepend-icon="mdi-arrow-left"
                 @click="currentStep = 1"
               >
@@ -714,7 +675,7 @@
         </div>
 
         <div class="d-flex align-center gap-2">
-          <div style="min-width: 220px; width: 240px;">
+          <div style="min-width: 240px; width: 250px;">
             <AppDatePicker
               v-model="desktopGuestDate"
               label="Filter Date"
@@ -723,15 +684,28 @@
             />
           </div>
           <v-btn
-            color="primary"
             variant="flat"
-            class="font-weight-black text-capitalize px-4"
+            class="guest-sale-action-btn font-weight-bold text-capitalize px-5 rounded-lg"
+            height="40"
             prepend-icon="mdi-plus"
+            :disabled="isDispatchEntryLocked || !hasMilkArrivalForGuestDate"
+            :title="!hasMilkArrivalForGuestDate ? `No milk arrival recorded for ${formatDate(desktopGuestDate)}` : (isDispatchEntryLocked ? 'Locked Until Previous Day Closed' : 'New Guest Sale')"
             @click="openDesktopNewGuestSale"
           >
-            + New Guest Sale
+            New Guest Sale
           </v-btn>
         </div>
+      </div>
+
+      <!-- Warning Banner when no milk arrival recorded for guest date -->
+      <div
+        v-if="!hasMilkArrivalForGuestDate"
+        class="pa-3 px-4 rounded-xl border bg-amber-50 d-flex align-center gap-2 mb-3 text-body-2 text-amber-900"
+      >
+        <v-icon color="amber-darken-3" size="20">mdi-alert-circle-outline</v-icon>
+        <span>
+          <strong>No Milk Arrival Recorded:</strong> Milk has not been recorded/arrived for {{ formatDate(desktopGuestDate) }}. Please record milk arrival first to enable guest sales.
+        </span>
       </div>
 
       <!-- KPI Summary Cards (Border themed) -->
@@ -758,104 +732,123 @@
       </div>
 
       <!-- Guest Sales Table Card -->
-      <v-card class="modern-card pa-4 table-card-full" elevation="0">
+      <v-card class="modern-card table-card-full" elevation="0">
         <div v-if="loadingGuestSales" class="py-6 text-center text-caption text-grey">
           <v-progress-circular indeterminate size="24" width="2" color="primary" class="me-2" />
           Loading guest customer sales...
         </div>
-        <div v-else-if="guestSalesList.length === 0" class="py-8 text-center text-grey-darken-1">
-          <v-icon size="48" color="grey-lighten-2" class="mb-2">mdi-receipt-text-outline</v-icon>
-          <div class="font-weight-bold text-subtitle-2 text-slate-800">No Guest Sales for {{ formatDate(desktopGuestDate) }}</div>
-          <div class="text-caption text-grey mb-3">
-            Click "+ New Guest Sale" to record retail walk-in customer purchases and print dual 80mm POS receipts.
-          </div>
-          <v-btn
-            color="primary"
-            variant="flat"
-            size="small"
-            class="text-capitalize font-weight-bold px-4"
-            prepend-icon="mdi-plus"
-            @click="openDesktopNewGuestSale"
-          >
-            Record First Sale
-          </v-btn>
-        </div>
-        <v-table v-else density="compact" class="modern-table">
-          <thead>
-            <tr>
-              <th>TOKEN / ID</th>
-              <th>TIME</th>
-              <th>CUSTOMER NAME</th>
-              <th class="text-end">QTY (KG)</th>
-              <th class="text-end">RATE</th>
-              <th class="text-end">TOTAL AMOUNT</th>
-              <th class="text-end">PAID AMOUNT</th>
-              <th>METHOD</th>
-              <th class="text-center">STATUS</th>
-              <th class="text-end">ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="sale in guestSalesList" :key="sale.id">
-              <td>
-                <span class="font-mono font-weight-bold text-primary">#{{ sale.token || (sale.id ? sale.id.substring(0, 8) : '440b23ce') }}</span>
-              </td>
-              <td class="text-caption text-grey-darken-2 font-weight-medium">
-                {{ sale.time || (sale.createdAt ? formatTime(sale.createdAt) : '-') }}
-              </td>
-              <td>
-                <div class="font-weight-bold text-slate-800">{{ sale.customerName || 'Guest Customer' }}</div>
-                <div v-if="sale.returnNotes && sale.returnNotes !== 'Direct counter guest customer sale'" class="text-caption text-grey">
-                  {{ sale.returnNotes }}
-                </div>
-              </td>
-              <td class="text-end font-weight-black text-slate-900">
-                {{ formatNumber(sale.totalMilk) }} Kg
-              </td>
-              <td class="text-end font-weight-medium text-slate-700">
-                Rs. {{ sale.rate || 195 }}
-              </td>
-              <td class="text-end font-weight-bold text-slate-900">
-                {{ formatCurrency(sale.totalAmount) }}
-              </td>
-              <td class="text-end font-weight-black text-success">
-                {{ formatCurrency(sale.totalCollection) }}
-              </td>
-              <td>
-                <v-chip size="x-small" :color="sale.paymentMethod === 'bank' ? 'info' : 'success'" variant="tonal" class="font-weight-bold">
-                  {{ sale.paymentMethod === 'bank' ? 'Bank' : 'Cash' }}
-                </v-chip>
-              </td>
-              <td class="text-center">
-                <v-chip size="x-small" color="success" variant="flat" class="font-weight-bold">
-                  PAID
-                </v-chip>
-              </td>
-              <td class="text-end">
-                <div class="d-flex align-center justify-end gap-1">
-                  <v-btn
-                    size="small"
-                    variant="flat"
-                    color="primary"
-                    class="font-weight-bold text-caption text-capitalize px-3"
-                    prepend-icon="mdi-printer"
-                    @click="printDesktopGuestReceipt(sale, true)"
+        <div v-else class="table-responsive flex-grow-1">
+          <v-table hover class="guest-sales-table w-100">
+            <thead>
+              <tr>
+                <th style="width: 140px;">Token / ID</th>
+                <th style="width: 110px;">Time</th>
+                <th>Customer Name</th>
+                <th class="text-end" style="width: 110px;">Qty (Kg)</th>
+                <th class="text-end" style="width: 110px;">Rate</th>
+                <th class="text-end" style="width: 140px;">Total Amount</th>
+                <th class="text-end" style="width: 140px;">Paid Amount</th>
+                <th style="width: 110px;">Method</th>
+                <th style="width: 110px;">Status</th>
+                <th class="text-end" style="width: 130px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Empty State inside standard table container -->
+              <tr v-if="guestSalesList.length === 0">
+                <td colspan="10" class="text-center pa-8">
+                  <div class="empty-state-box">
+                    <v-icon class="empty-state-icon">mdi-receipt-text-outline</v-icon>
+                    <div class="empty-state-title">No Guest Sales for {{ formatDate(desktopGuestDate) }}</div>
+                    <div class="empty-state-subtitle">
+                      Click "+ New Guest Sale" to record retail walk-in customer purchases and print dual 80mm POS receipts.
+                    </div>
+                    <v-btn
+                      color="primary"
+                      variant="flat"
+                      size="small"
+                      class="mt-2 text-capitalize font-weight-bold px-4"
+                      prepend-icon="mdi-plus"
+                      :disabled="isDispatchEntryLocked || !hasMilkArrivalForGuestDate"
+                      :title="!hasMilkArrivalForGuestDate ? `No milk arrival recorded for ${formatDate(desktopGuestDate)}` : 'Record First Sale'"
+                      @click="openDesktopNewGuestSale"
+                    >
+                      Record First Sale
+                    </v-btn>
+                  </div>
+                </td>
+              </tr>
+              <tr v-for="sale in guestSalesList" :key="sale.id" v-else>
+                <td>
+                  <span class="font-mono font-weight-bold text-primary">#{{ sale.token || (sale.id ? sale.id.substring(0, 8) : '440b23ce') }}</span>
+                </td>
+                <td class="text-caption text-grey-darken-2 font-weight-medium">
+                  {{ sale.time || (sale.createdAt ? formatTime(sale.createdAt) : '-') }}
+                </td>
+                <td>
+                  <div class="font-weight-bold text-dark">{{ sale.customerName || 'Guest Customer' }}</div>
+                  <div v-if="sale.returnNotes && sale.returnNotes !== 'Direct counter guest customer sale'" class="text-caption text-grey">
+                    {{ sale.returnNotes }}
+                  </div>
+                </td>
+                <td class="text-end font-weight-bold text-info" style="white-space: nowrap;">
+                  {{ formatNumber(sale.totalMilk) }} Kg
+                </td>
+                <td class="text-end font-weight-medium text-grey-darken-2" style="white-space: nowrap;">
+                  Rs. {{ sale.rate || 195 }}
+                </td>
+                <td class="text-end font-weight-bold text-dark" style="white-space: nowrap;">
+                  {{ formatCurrency(sale.totalAmount) }}
+                </td>
+                <td class="text-end font-weight-bold text-success" style="white-space: nowrap;">
+                  {{ formatCurrency(sale.totalCollection) }}
+                </td>
+                <td>
+                  <span
+                    class="erp-tag"
+                    :class="sale.paymentMethod === 'bank' ? 'erp-tag-blue' : 'erp-tag-teal'"
                   >
-                    Print 2x Slips
-                  </v-btn>
+                    {{ sale.paymentMethod === 'bank' ? 'BANK' : 'CASH' }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="erp-tag"
+                    :class="(Number(sale.balance) || 0) > 0 ? 'erp-tag-orange' : 'erp-tag-green'"
+                  >
+                    {{ (Number(sale.balance) || 0) > 0 ? 'PARTIAL' : 'PAID' }}
+                  </span>
+                </td>
+                <td class="text-end" style="white-space: nowrap;">
                   <v-btn
-                    icon="mdi-delete-outline"
-                    size="x-small"
+                    icon="mdi-pencil"
+                    size="small"
+                    variant="text"
+                    color="teal-darken-2"
+                    title="Edit Sale (Milk Return / Money Back)"
+                    @click="openEditDesktopGuestSale(sale)"
+                  />
+                  <v-btn
+                    icon="mdi-printer"
+                    size="small"
+                    variant="text"
+                    color="primary"
+                    title="Print 2x 80mm Slips"
+                    @click="printDesktopGuestReceipt(sale, true)"
+                  />
+                  <v-btn
+                    icon="mdi-delete"
+                    size="small"
                     variant="text"
                     color="error"
-                    title="Void sale"
+                    title="Void Sale"
                     @click="voidDesktopGuestSale(sale)"
                   />
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </div>
       </v-card>
     </div>
 
@@ -945,6 +938,7 @@
                 <th class="text-end">Milk (Kg)</th>
                 <th class="text-end">Today Amount</th>
                 <th class="text-end">New Arrears</th>
+                <th class="text-center" style="width: 80px;">Slip</th>
               </tr>
             </thead>
             <tbody>
@@ -988,9 +982,19 @@
                 </td>
                 <td class="text-end font-weight-medium">{{ formatCurrency(d.totalAmount) }}</td>
                 <td class="text-end font-weight-bold text-error">{{ formatCurrency(d.totalNewArrears) }}</td>
+                <td class="text-center" @click.stop>
+                  <v-btn
+                    icon="mdi-printer"
+                    size="small"
+                    variant="tonal"
+                    color="primary"
+                    title="Print 80mm Route Delivery Slips"
+                    @click.stop="openRouteReceiptForDispatch(d)"
+                  />
+                </td>
               </tr>
               <tr v-if="dispatchesHistory.length === 0">
-                <td colspan="10" class="text-center pa-8">
+                <td colspan="11" class="text-center pa-8">
                   <div class="empty-state-box">
                     <v-icon class="empty-state-icon">mdi-clipboard-text-off-outline</v-icon>
                     <div class="empty-state-title">No Dispatches Recorded</div>
@@ -1036,8 +1040,15 @@
             >
               Edit Dispatch
             </v-btn>
-            <v-btn variant="outlined" size="small" class="no-print text-capitalize" prepend-icon="mdi-printer" @click="printReceipt">
-              Print
+            <v-btn
+              variant="flat"
+              color="primary"
+              size="small"
+              class="no-print text-capitalize font-weight-bold"
+              prepend-icon="mdi-printer"
+              @click="printReceipt"
+            >
+              Print 80mm Slips
             </v-btn>
           </div>
         </div>
@@ -1389,6 +1400,20 @@
       :sale="desktopActiveReceiptSale"
       :auto-print="desktopAutoPrintReceipt"
     />
+
+    <EditGuestSaleDialog
+      v-model="desktopEditGuestModal"
+      :sale="desktopActiveEditSale"
+      @saved="onDesktopGuestSaleUpdated"
+      @print="onPrintUpdatedGuestReceipt"
+    />
+
+    <!-- Route Dispatch 80mm Segregated Slips Dialog -->
+    <RouteDispatchReceiptDialog
+      v-model="routeReceiptDialog"
+      :dispatch-data="activeRouteReceiptData"
+      :auto-print="autoPrintRouteReceipt"
+    />
   </div>
 </template>
 
@@ -1399,6 +1424,7 @@ import { useDisplay } from 'vuetify';
 import MilkDispatchMobileView from './MilkDispatchMobileView.vue';
 import { mastersService } from '@/services/mastersService';
 import { dispatchService } from '@/services/dispatchService';
+import { milkService } from '@/services/milkService';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { useSettingsStore } from '@/stores/settings';
 import { useBusinessDayStore } from '@/stores/businessDay';
@@ -1411,6 +1437,8 @@ import AppPagination from '@/components/common/AppPagination.vue';
 import BulkActionsBar from '@/components/common/BulkActionsBar.vue';
 import GuestSaleDialog from '@/components/dispatch/GuestSaleDialog.vue';
 import GuestSaleReceiptDialog from '@/components/dispatch/GuestSaleReceiptDialog.vue';
+import EditGuestSaleDialog from '@/components/dispatch/EditGuestSaleDialog.vue';
+import RouteDispatchReceiptDialog from '@/components/dispatch/RouteDispatchReceiptDialog.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -1449,9 +1477,16 @@ const desktopGuestDate = ref(businessDayStore.activeBusinessDate || new Date().t
 const guestSalesList = ref([]);
 const loadingGuestSales = ref(false);
 const desktopGuestSaleModal = ref(false);
+const desktopEditGuestModal = ref(false);
+const desktopActiveEditSale = ref(null);
 const desktopReceiptModal = ref(false);
 const desktopActiveReceiptSale = ref(null);
 const desktopAutoPrintReceipt = ref(false);
+
+// 80mm Route Dispatch Receipts State
+const routeReceiptDialog = ref(false);
+const activeRouteReceiptData = ref(null);
+const autoPrintRouteReceipt = ref(false);
 
 const desktopGuestTotals = computed(() => {
   let totalMilk = 0;
@@ -1481,7 +1516,45 @@ async function loadDesktopGuestSales() {
   }
 }
 
+// Milk Arrival Verification State (Required before dispatch generation or guest sales)
+const hasMilkArrivalForDispatchDate = ref(false);
+const hasMilkArrivalForGuestDate = ref(false);
+
+async function checkMilkArrivalForDispatchDate(date = wizardHeader.value.date) {
+  if (!date) {
+    hasMilkArrivalForDispatchDate.value = false;
+    return;
+  }
+  try {
+    const arrivals = await milkService.getMilkArrivals(date);
+    const totalKg = arrivals.reduce((sum, a) => sum + (Number(a.quantityKg) || Number(a.quantity) || 0), 0);
+    hasMilkArrivalForDispatchDate.value = arrivals.length > 0 && totalKg > 0;
+  } catch (err) {
+    console.error('Failed to check milk arrival for dispatch date:', err);
+    hasMilkArrivalForDispatchDate.value = false;
+  }
+}
+
+async function checkMilkArrivalForGuestDate(date = desktopGuestDate.value) {
+  if (!date) {
+    hasMilkArrivalForGuestDate.value = false;
+    return;
+  }
+  try {
+    const arrivals = await milkService.getMilkArrivals(date);
+    const totalKg = arrivals.reduce((sum, a) => sum + (Number(a.quantityKg) || Number(a.quantity) || 0), 0);
+    hasMilkArrivalForGuestDate.value = arrivals.length > 0 && totalKg > 0;
+  } catch (err) {
+    console.error('Failed to check milk arrival for guest date:', err);
+    hasMilkArrivalForGuestDate.value = false;
+  }
+}
+
 function openDesktopNewGuestSale() {
+  if (!hasMilkArrivalForGuestDate.value) {
+    snackbar.error(`No milk arrival recorded for ${formatDate(desktopGuestDate.value)}. Please record milk arrival first.`);
+    return;
+  }
   desktopGuestSaleModal.value = true;
 }
 
@@ -1491,6 +1564,27 @@ async function onDesktopGuestSaleSaved({ sale, triggerPrint }) {
   desktopAutoPrintReceipt.value = triggerPrint;
   desktopReceiptModal.value = true;
   snackbar.success('Guest sale recorded successfully');
+}
+
+function openEditDesktopGuestSale(sale) {
+  desktopActiveEditSale.value = sale;
+  desktopEditGuestModal.value = true;
+}
+
+async function onDesktopGuestSaleUpdated({ sale, triggerPrint }) {
+  await Promise.all([loadDesktopGuestSales(), loadAllDispatches()]);
+  if (triggerPrint) {
+    desktopActiveReceiptSale.value = sale;
+    desktopAutoPrintReceipt.value = true;
+    desktopReceiptModal.value = true;
+  }
+  snackbar.success('Guest sale updated successfully');
+}
+
+function onPrintUpdatedGuestReceipt(sale) {
+  desktopActiveReceiptSale.value = sale;
+  desktopAutoPrintReceipt.value = true;
+  desktopReceiptModal.value = true;
 }
 
 function printDesktopGuestReceipt(sale, autoPrint = true) {
@@ -1735,6 +1829,7 @@ const isDispatchEntryLocked = computed(() => {
 const canProceedToStep2 = computed(() => {
   return (
     !isDispatchEntryLocked.value &&
+    hasMilkArrivalForDispatchDate.value &&
     Boolean(wizardHeader.value.date) &&
     Boolean(wizardHeader.value.areaId) &&
     Boolean(wizardHeader.value.vehicleId) &&
@@ -1901,6 +1996,11 @@ async function goToStep2() {
     snackbar.error(businessDayStore.lockReason);
     return;
   }
+  if (!hasMilkArrivalForDispatchDate.value) {
+    snackbar.error(`No milk arrival recorded for ${formatDate(wizardHeader.value.date)}. Please record milk arrival first.`);
+    return;
+  }
+
   const dateCheck = businessDayStore.validateOperationDate(wizardHeader.value.date);
   if (!dateCheck.valid) {
     snackbar.error(dateCheck.message);
@@ -2057,6 +2157,11 @@ async function saveDispatch(markAsReturned = false) {
     snackbar.error(businessDayStore.lockReason);
     return;
   }
+  if (!isEditingDispatch.value && !hasMilkArrivalForDispatchDate.value) {
+    snackbar.error(`Cannot save dispatch. No milk arrival recorded for ${formatDate(wizardHeader.value.date)}.`);
+    return;
+  }
+
   const dateCheck = businessDayStore.validateOperationDate(wizardHeader.value.date);
   if (!dateCheck.valid) {
     snackbar.error(dateCheck.message);
@@ -2068,8 +2173,9 @@ async function saveDispatch(markAsReturned = false) {
 
   saving.value = true;
   try {
+    let savedDispatch = null;
     if (isEditingDispatch.value && editingDispatchId.value) {
-      await dispatchService.updateDispatch(editingDispatchId.value, {
+      savedDispatch = await dispatchService.updateDispatch(editingDispatchId.value, {
         header: wizardHeader.value,
         items: dispatchRows.value,
         status: markAsReturned ? 'Returned' : null,
@@ -2080,12 +2186,25 @@ async function saveDispatch(markAsReturned = false) {
           : 'Dispatch updated and shop arrears recalculated!'
       );
     } else {
-      await dispatchService.createDispatch({
+      savedDispatch = await dispatchService.createDispatch({
         header: wizardHeader.value,
         items: dispatchRows.value,
         status: 'Dispatched',
       });
       snackbar.success('Dispatch saved! Vehicle, Driver, Calander & Route locked for this date until marked back.');
+    }
+
+    // Automatically trigger 80mm segregated receipts print for this route dispatch
+    if (!markAsReturned) {
+      activeRouteReceiptData.value = {
+        ...wizardHeader.value,
+        ...savedDispatch,
+        items: (savedDispatch && savedDispatch.items && savedDispatch.items.length > 0)
+          ? savedDispatch.items
+          : JSON.parse(JSON.stringify(dispatchRows.value)),
+      };
+      autoPrintRouteReceipt.value = true;
+      routeReceiptDialog.value = true;
     }
 
     // Refresh masters, active dispatches, and business day closing state
@@ -2359,7 +2478,22 @@ async function viewDispatchSummary(d) {
 }
 
 function printReceipt() {
-  window.print();
+  if (selectedDispatch.value) {
+    activeRouteReceiptData.value = selectedDispatch.value;
+    autoPrintRouteReceipt.value = true;
+    routeReceiptDialog.value = true;
+  }
+}
+
+async function openRouteReceiptForDispatch(d, autoPrint = true) {
+  try {
+    const full = await dispatchService.getDispatchById(d.id);
+    activeRouteReceiptData.value = full || d;
+  } catch (err) {
+    activeRouteReceiptData.value = d;
+  }
+  autoPrintRouteReceipt.value = autoPrint;
+  routeReceiptDialog.value = true;
 }
 
 function confirmDeleteDispatch(d) {
@@ -2451,8 +2585,17 @@ watch(() => route.query, () => {
   applyRouteQueryState();
 });
 
-watch(() => wizardHeader.value.date, () => {
+watch(() => wizardHeader.value.date, (newDate) => {
   syncAvailableSelections();
+  if (newDate) {
+    checkMilkArrivalForDispatchDate(newDate);
+  }
+});
+
+watch(() => desktopGuestDate.value, (newDate) => {
+  if (newDate) {
+    checkMilkArrivalForGuestDate(newDate);
+  }
 });
 
 watch(
@@ -2461,6 +2604,7 @@ watch(
     if (!newDate) return;
     if (!isEditingDispatch.value && (!wizardHeader.value.date || wizardHeader.value.date === oldDate || wizardHeader.value.date > newDate)) {
       wizardHeader.value.date = newDate;
+      checkMilkArrivalForDispatchDate(newDate);
     }
     if (!route.query.date && (historyDateFilter.value === oldDate || (businessDayStore.isLockedOnPreviousDay && historyDateFilter.value > newDate))) {
       historyDateFilter.value = newDate;
@@ -2469,16 +2613,17 @@ watch(
     if (desktopGuestDate.value === oldDate || !desktopGuestDate.value) {
       desktopGuestDate.value = newDate;
       loadDesktopGuestSales();
+      checkMilkArrivalForGuestDate(newDate);
     }
   }
 );
 
 watch(() => activeTab.value, async (tab) => {
   if (tab === 'new' && currentStep.value === 1) {
-    await Promise.all([loadAllDispatches(), businessDayStore.refreshBusinessDay()]);
+    await Promise.all([loadAllDispatches(), businessDayStore.refreshBusinessDay(), checkMilkArrivalForDispatchDate()]);
     syncAvailableSelections();
   } else if (tab === 'guest') {
-    await loadDesktopGuestSales();
+    await Promise.all([loadDesktopGuestSales(), checkMilkArrivalForGuestDate()]);
   }
 });
 
@@ -2495,7 +2640,14 @@ onMounted(async () => {
   } else if (route.query.tab === 'guest') {
     activeTab.value = 'guest';
   }
-  await Promise.all([loadMasters(), loadAllDispatches(), loadHistory(), loadDesktopGuestSales()]);
+  await Promise.all([
+    loadMasters(),
+    loadAllDispatches(),
+    loadHistory(),
+    loadDesktopGuestSales(),
+    checkMilkArrivalForDispatchDate(),
+    checkMilkArrivalForGuestDate(),
+  ]);
   syncAvailableSelections();
   if (route.query.editId) {
     const target = dispatchesHistory.value.find((d) => d.id === route.query.editId);
@@ -2507,6 +2659,39 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.guest-sale-action-btn {
+  background: #063F78 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.015em;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(6, 63, 120, 0.22) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.guest-sale-action-btn:hover:not(:disabled) {
+  background: #053361 !important;
+  box-shadow: 0 4px 12px rgba(6, 63, 120, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+.guest-sale-action-btn:disabled,
+.guest-sale-action-btn.v-btn--disabled {
+  background: #cbd5e1 !important;
+  color: #64748b !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+  border: 1px solid #cbd5e1 !important;
+  cursor: not-allowed !important;
+}
+
+.guest-sales-table,
+.guest-sales-table :deep(table) {
+  width: 100% !important;
+  min-width: 100% !important;
+  table-layout: auto !important;
+}
+
 .dispatch-table th,
 .dispatch-table td {
   padding: 8px 10px !important;
@@ -2664,11 +2849,19 @@ onMounted(async () => {
 
 .delivery-item-card.item-disabled,
 .group-row.item-disabled {
-  opacity: 0.62;
-  background-color: #f1f5f9 !important;
+  background-color: #f8fafc !important;
   border-color: #cbd5e1 !important;
-  color: #64748b !important;
   cursor: not-allowed !important;
+}
+
+.delivery-item-card.item-disabled .item-text,
+.group-row.item-disabled .group-name {
+  color: #64748b !important;
+}
+
+.delivery-item-card.item-disabled .v-icon,
+.group-row.item-disabled .v-icon {
+  opacity: 0.6;
 }
 
 .delivery-item-card.item-disabled:hover,
@@ -2678,9 +2871,16 @@ onMounted(async () => {
 }
 
 .busy-badge {
-  padding: 2px 7px !important;
+  background-color: #ea580c !important;
+  color: #ffffff !important;
+  border-radius: 50px !important;
+  padding: 3px 10px !important;
   font-size: 0.65rem !important;
-  letter-spacing: 0.4px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  opacity: 1 !important;
+  box-shadow: 0 1px 3px rgba(234, 88, 12, 0.35) !important;
+  line-height: 1.2 !important;
 }
 
 .vehicle-card.item-selected {
@@ -2842,6 +3042,33 @@ onMounted(async () => {
   height: 32px;
   background-color: rgba(255, 255, 255, 0.25);
   flex-shrink: 0;
+}
+
+.banner-action {
+  flex-shrink: 0;
+}
+
+.banner-change-route-btn {
+  background-color: #ffffff !important;
+  color: #063F78 !important;
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.banner-change-route-btn .v-icon,
+.banner-change-route-btn :deep(.v-icon) {
+  color: #063F78 !important;
+}
+
+.banner-change-route-btn:hover {
+  background-color: #f1f5f9 !important;
+  color: #053361 !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22) !important;
+  transform: translateY(-1px);
 }
 
 /* Step 2 Grand Totals Metrics Grid */

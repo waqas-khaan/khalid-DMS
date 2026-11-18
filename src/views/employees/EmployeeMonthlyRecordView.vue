@@ -145,6 +145,7 @@
                   <th>Day</th>
                   <th class="text-center">Attendance Status</th>
                   <th>Notes</th>
+                  <th class="text-end" style="width: 80px;">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -165,15 +166,25 @@
                       </span>
                     </td>
                     <td class="text-caption text-grey-darken-1">{{ day.notes || '-' }}</td>
+                    <td class="text-end" style="white-space: nowrap;">
+                      <v-btn
+                        icon="mdi-pencil"
+                        size="x-small"
+                        variant="text"
+                        color="primary"
+                        title="Edit Attendance in Master"
+                        @click="openMonthlyRecordEditModal(day)"
+                      />
+                    </td>
                   </tr>
                   <tr v-if="filteredDailyAttendance.length === 0">
-                    <td colspan="4" class="text-center py-6 text-grey">
+                    <td colspan="5" class="text-center py-6 text-grey">
                       No {{ attendanceFilter.toLowerCase() }} days recorded for {{ formatMonthTitle(selectedMonth) }}.
                     </td>
                   </tr>
                 </template>
                 <tr v-else>
-                  <td colspan="4" class="text-center pa-8">
+                  <td colspan="5" class="text-center pa-8">
                     <div class="empty-state-box">
                       <v-icon class="empty-state-icon">mdi-account-off-outline</v-icon>
                       <div class="empty-state-title">No Employees Registered</div>
@@ -356,6 +367,100 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Master Record Edit Attendance Dialog -->
+    <v-dialog v-model="editAttendanceModal" max-width="460" persistent>
+      <v-card class="rounded-xl overflow-hidden" elevation="4">
+        <div class="px-5 py-4 bg-primary text-white d-flex align-center justify-space-between">
+          <div class="d-flex align-center gap-2">
+            <v-icon color="white" size="20">mdi-pencil-lock</v-icon>
+            <div class="text-subtitle-1 font-weight-bold">Edit Attendance (Master)</div>
+          </div>
+          <v-btn icon size="small" variant="text" color="white" @click="editAttendanceModal = false">
+            <v-icon size="18">mdi-close</v-icon>
+          </v-btn>
+        </div>
+
+        <v-card-text class="pa-5 bg-white">
+          <div class="pa-3 rounded-lg bg-slate-50 border mb-4 text-caption">
+            <div class="d-flex justify-space-between mb-1">
+              <span class="text-slate-500">Employee:</span>
+              <strong class="text-slate-900">{{ record?.employeeName }}</strong>
+            </div>
+            <div class="d-flex justify-space-between mb-1">
+              <span class="text-slate-500">Date:</span>
+              <strong class="text-slate-900">{{ formatDate(editingDay?.date) }}</strong>
+            </div>
+            <div class="d-flex justify-space-between">
+              <span class="text-slate-500">Day:</span>
+              <span class="font-weight-medium text-slate-700">{{ editingDay?.dayName }}</span>
+            </div>
+          </div>
+
+          <label class="text-caption font-weight-bold text-slate-700 mb-1 d-block">
+            Attendance Status *
+          </label>
+          <v-btn-toggle
+            v-model="editAttendanceForm.status"
+            mandatory
+            density="compact"
+            rounded="lg"
+            class="border w-100 mb-4"
+          >
+            <v-btn
+              value="Present"
+              class="flex-grow-1 text-capitalize font-weight-bold"
+              :color="editAttendanceForm.status === 'Present' ? 'success' : undefined"
+              :variant="editAttendanceForm.status === 'Present' ? 'flat' : 'text'"
+            >
+              <v-icon size="16" class="me-1">mdi-check</v-icon>
+              Present
+            </v-btn>
+            <v-btn
+              value="Absent"
+              class="flex-grow-1 text-capitalize font-weight-bold"
+              :color="editAttendanceForm.status === 'Absent' ? 'error' : undefined"
+              :variant="editAttendanceForm.status === 'Absent' ? 'flat' : 'text'"
+            >
+              <v-icon size="16" class="me-1">mdi-close</v-icon>
+              Absent
+            </v-btn>
+          </v-btn-toggle>
+
+          <label class="text-caption font-weight-bold text-slate-700 mb-1 d-block">
+            Leave / Attendance Note
+          </label>
+          <v-text-field
+            v-model="editAttendanceForm.notes"
+            density="compact"
+            variant="outlined"
+            placeholder="e.g. Approved leave / Sick leave"
+            hide-details
+            class="rounded-lg"
+          />
+        </v-card-text>
+
+        <v-card-actions class="px-5 py-3 bg-slate-50 border-t d-flex justify-end gap-2">
+          <v-btn
+            variant="text"
+            color="slate-600"
+            class="text-capitalize font-weight-medium"
+            @click="editAttendanceModal = false"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            class="text-capitalize font-weight-bold px-4"
+            :loading="savingAttendanceModal"
+            @click="saveMonthlyRecordEdit"
+          >
+            Update in Master
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -391,6 +496,15 @@ const payDialog = ref(false);
 const payingSalary = ref(false);
 const paymentMethod = ref('Cash');
 const paymentNotes = ref('');
+
+// Master Attendance Edit Modal State
+const editAttendanceModal = ref(false);
+const editingDay = ref(null);
+const savingAttendanceModal = ref(false);
+const editAttendanceForm = ref({
+  status: 'Present',
+  notes: '',
+});
 
 const salaryStatusSubtitle = computed(() => {
   if (!record.value) return 'No employee selected';
@@ -492,6 +606,37 @@ async function executeSalaryPayment(salary) {
     snackbar.error(err.message || 'Payment failed');
   } finally {
     payingSalary.value = false;
+  }
+}
+
+function openMonthlyRecordEditModal(day) {
+  editingDay.value = day;
+  editAttendanceForm.value = {
+    status: day.status === 'Absent' ? 'Absent' : 'Present',
+    notes: day.notes || '',
+  };
+  editAttendanceModal.value = true;
+}
+
+async function saveMonthlyRecordEdit() {
+  if (!editingDay.value || !selectedEmployeeId.value) return;
+  savingAttendanceModal.value = true;
+  try {
+    await employeeService.updateSingleAttendance(
+      editingDay.value.date,
+      selectedEmployeeId.value,
+      {
+        status: editAttendanceForm.value.status,
+        notes: editAttendanceForm.value.notes,
+      }
+    );
+    snackbar.success(`Attendance updated in Master for ${formatDate(editingDay.value.date)}`);
+    editAttendanceModal.value = false;
+    await loadRecord();
+  } catch (err) {
+    snackbar.error(err.message || 'Failed to update attendance in Master');
+  } finally {
+    savingAttendanceModal.value = false;
   }
 }
 

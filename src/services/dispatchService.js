@@ -214,20 +214,26 @@ export const dispatchService = {
     customerName = 'Guest Customer',
     customerPhone = '',
     quantityKg,
+    returnKgs = 0,
     rate,
     totalAmount,
     paidAmount,
+    paymentReturn = 0,
     paymentMethod = 'cash',
     notes = '',
     token = '',
     seqNo = '',
   }) {
-    const qty = Number(quantityKg) || 0;
+    const qty = Math.max(0, Number(quantityKg) || 0);
+    const ret = Math.max(0, Number(returnKgs) || 0);
+    const netMilk = Math.max(0, Number((qty - ret).toFixed(2)));
     const r = Number(rate) || 0;
-    const computedTotal = Number((qty * r).toFixed(2));
+    const computedTotal = Number((netMilk * r).toFixed(2));
     const total = totalAmount !== undefined && totalAmount !== null ? Number(totalAmount) || 0 : computedTotal;
     const paid = paidAmount !== undefined && paidAmount !== null ? Number(paidAmount) || 0 : total;
-    const balance = Math.max(0, Number((total - paid).toFixed(2)));
+    const returnedCash = Math.max(0, Number(paymentReturn) || 0);
+    const netCollection = Math.max(0, Number((paid - returnedCash).toFixed(2)));
+    const balance = Math.max(0, Number((total - netCollection).toFixed(2)));
     const shortToken = token || Math.random().toString(16).substring(2, 10);
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -240,11 +246,13 @@ export const dispatchService = {
       price: r,
       cans: 0,
       kgs: qty,
-      returnKgs: 0,
-      todayMilk: qty,
+      returnKgs: ret,
+      todayMilk: netMilk,
       todayAmount: total,
       previousArrears: 0,
-      todayCollection: paid,
+      todayCollection: netCollection,
+      paidAmount: paid,
+      paymentReturn: returnedCash,
       totalPayable: total,
       newArrears: balance,
     };
@@ -266,11 +274,13 @@ export const dispatchService = {
       areaId: '',
       areaName: 'Direct / Guest Sale',
       totalCans: 0,
-      totalMilk: qty,
-      totalReturnMilk: 0,
+      totalMilk: netMilk,
+      totalReturnMilk: ret,
       totalAmount: total,
       totalPreviousArrears: 0,
-      totalCollection: paid,
+      totalCollection: netCollection,
+      paidAmount: paid,
+      paymentReturn: returnedCash,
       totalNewArrears: balance,
       rate: r,
       paymentMethod,
@@ -284,6 +294,86 @@ export const dispatchService = {
     await statsService.refreshDailyStats(date);
 
     return { ...savedDispatch, items: [guestItem] };
+  },
+
+  async updateGuestSale(dispatchId, payload) {
+    const {
+      date,
+      customerName = 'Guest Customer',
+      customerPhone = '',
+      quantityKg,
+      returnKgs = 0,
+      rate,
+      totalAmount,
+      paidAmount,
+      paymentReturn = 0,
+      paymentMethod = 'cash',
+      notes = '',
+    } = payload;
+
+    const qty = Math.max(0, Number(quantityKg) || 0);
+    const ret = Math.max(0, Number(returnKgs) || 0);
+    const netMilk = Math.max(0, Number((qty - ret).toFixed(2)));
+    const r = Number(rate) || 0;
+    const computedTotal = Number((netMilk * r).toFixed(2));
+    const total = totalAmount !== undefined && totalAmount !== null ? Number(totalAmount) || 0 : computedTotal;
+    const paid = Number(paidAmount) || 0;
+    const returnedCash = Math.max(0, Number(paymentReturn) || 0);
+    const netCollection = Math.max(0, Number((paid - returnedCash).toFixed(2)));
+    const balance = Math.max(0, Number((total - netCollection).toFixed(2)));
+
+    const now = new Date();
+    const existing = await storageAdapter.getDoc('dispatches', dispatchId);
+
+    const guestItem = {
+      shopId: '',
+      shopCode: 'GUEST',
+      shopName: customerName || 'Guest Customer',
+      ownerName: customerPhone || '',
+      price: r,
+      cans: 0,
+      kgs: qty,
+      returnKgs: ret,
+      todayMilk: netMilk,
+      todayAmount: total,
+      previousArrears: 0,
+      todayCollection: netCollection,
+      paidAmount: paid,
+      paymentReturn: returnedCash,
+      totalPayable: total,
+      newArrears: balance,
+    };
+
+    const dispatchUpdates = {
+      customerName: customerName || 'Guest Customer',
+      customerPhone: customerPhone || '',
+      totalMilk: netMilk,
+      totalReturnMilk: ret,
+      totalAmount: total,
+      totalPreviousArrears: 0,
+      totalCollection: netCollection,
+      paidAmount: paid,
+      paymentReturn: returnedCash,
+      totalNewArrears: balance,
+      rate: r,
+      paymentMethod,
+      returnNotes: notes || 'Direct counter guest customer sale',
+      updatedAt: now.toISOString(),
+    };
+
+    if (date) {
+      dispatchUpdates.date = date;
+    }
+
+    const updated = await storageAdapter.updateDoc('dispatches', dispatchId, dispatchUpdates);
+    await storageAdapter.saveSubcollectionItems('dispatches', dispatchId, 'items', [guestItem]);
+
+    const targetDate = date || existing?.date;
+    if (targetDate) {
+      await statsService.refreshDailyStats(targetDate);
+    }
+
+    return { ...existing, ...updated, items: [guestItem] };
   },
 
   async getGuestSales(dateFilter = null) {

@@ -134,6 +134,29 @@ export const employeeService = {
     return true;
   },
 
+  async updateSingleAttendance(date, employeeId, { status, notes }) {
+    const existing = await this.getAttendanceByDate(date);
+    const rec = existing.find((r) => r.employeeId === employeeId);
+    if (rec) {
+      await storageAdapter.updateDoc('attendance', rec.id, {
+        status: status || 'Present',
+        notes: notes || '',
+        updatedAt: new Date().toISOString(),
+      });
+      return rec.id;
+    } else {
+      const emp = await this.getEmployee(employeeId);
+      return await storageAdapter.addDoc('attendance', {
+        date,
+        employeeId,
+        employeeName: emp?.name || '',
+        status: status || 'Present',
+        notes: notes || '',
+        createdAt: new Date().toISOString(),
+      });
+    }
+  },
+
   // ---- ADVANCES ----
   async getAdvances(monthFilter = null, employeeIdFilter = null) {
     const list = await storageAdapter.getCollection('advances', [], 'date', 'desc');

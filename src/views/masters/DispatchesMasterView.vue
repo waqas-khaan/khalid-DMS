@@ -142,6 +142,8 @@
               v-for="d in paginatedDispatches"
               :key="d.id"
               :class="{ 'selected-row': selectedIds.includes(d.id) }"
+              class="cursor-pointer"
+              @click="viewDispatch(d)"
             >
               <td v-if="authStore.isAdmin" class="table-checkbox-col">
                 <v-checkbox-btn
@@ -191,21 +193,13 @@
               </td>
               <td class="text-end" style="white-space: nowrap;">
                 <v-btn
-                  icon="mdi-eye"
-                  size="small"
-                  variant="text"
-                  color="blue-grey"
-                  title="View Dispatch Breakdown"
-                  @click="viewDispatch(d)"
-                />
-                <v-btn
                   v-if="canEditDispatch(d)"
                   icon="mdi-pencil"
                   size="small"
                   variant="text"
                   color="primary"
                   title="Edit Dispatch"
-                  @click="goToEditDispatch(d)"
+                  @click.stop="goToEditDispatch(d)"
                 />
                 <v-btn
                   v-if="canDeleteDispatch(d)"
@@ -214,7 +208,7 @@
                   variant="text"
                   color="error"
                   title="Delete Dispatch (Admin)"
-                  @click="promptDelete(d)"
+                  @click.stop="promptDelete(d)"
                 />
               </td>
             </tr>
@@ -252,7 +246,16 @@
         </div>
 
         <div class="my-3">
-          <v-row dense class="align-center">
+          <v-row v-if="selectedDispatch.dispatchType === 'guest'" dense class="align-center">
+            <v-col cols="3"><span class="text-caption text-grey">Customer:</span> <strong>{{ selectedDispatch.customerName || 'Guest Customer' }}</strong></v-col>
+            <v-col cols="3"><span class="text-caption text-grey">Token:</span> <strong class="font-mono text-primary">#{{ selectedDispatch.token }}</strong></v-col>
+            <v-col cols="3"><span class="text-caption text-grey">Method:</span> <strong>{{ selectedDispatch.paymentMethod === 'bank' ? 'Bank Transfer' : 'Cash in Hand' }}</strong></v-col>
+            <v-col cols="3" class="text-end">
+              <span class="text-caption text-grey me-2">Bakaya / Return:</span>
+              <strong class="text-emerald-700">{{ formatCurrency(selectedDispatch.paymentReturn || 0) }}</strong>
+            </v-col>
+          </v-row>
+          <v-row v-else dense class="align-center">
             <v-col cols="3"><span class="text-caption text-grey">Vehicle:</span> <strong>{{ selectedDispatch.vehicleNumber }}</strong></v-col>
             <v-col cols="3"><span class="text-caption text-grey">Driver:</span> <strong>{{ selectedDispatch.driverName }}</strong></v-col>
             <v-col cols="3"><span class="text-caption text-grey">Calander:</span> <strong>{{ selectedDispatch.calanderName || '-' }}</strong></v-col>
@@ -325,6 +328,20 @@
       :loading="bulkDeleting"
       @confirm="executeBulkDelete"
     />
+
+    <!-- Edit Guest Customer Sale Dialog (Direct from Masters) -->
+    <EditGuestSaleDialog
+      v-model="editGuestSaleDialog"
+      :sale="activeGuestSaleToEdit"
+      @saved="onGuestSaleUpdated"
+    />
+
+    <!-- Guest Sale Receipt Print Dialog -->
+    <GuestSaleReceiptDialog
+      v-model="receiptDialog"
+      :sale="activeReceiptSale"
+      :auto-print="true"
+    />
   </div>
 </template>
 
@@ -341,6 +358,8 @@ import AppDatePicker from '@/components/common/AppDatePicker.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import BulkActionsBar from '@/components/common/BulkActionsBar.vue';
+import EditGuestSaleDialog from '@/components/dispatch/EditGuestSaleDialog.vue';
+import GuestSaleReceiptDialog from '@/components/dispatch/GuestSaleReceiptDialog.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -450,11 +469,30 @@ async function viewDispatch(d) {
   }
 }
 
+const editGuestSaleDialog = ref(false);
+const activeGuestSaleToEdit = ref(null);
+const receiptDialog = ref(false);
+const activeReceiptSale = ref(null);
+
 function goToEditDispatch(d) {
+  if (d.dispatchType === 'guest' || d.isGuest || d.areaName?.toLowerCase().includes('guest')) {
+    activeGuestSaleToEdit.value = d;
+    editGuestSaleDialog.value = true;
+    return;
+  }
   router.push({
     path: '/milk-dispatch',
     query: { tab: 'history', editId: d.id },
   });
+}
+
+async function onGuestSaleUpdated({ sale, triggerPrint }) {
+  snackbar.success('Guest sale updated successfully');
+  await Promise.all([loadDispatches(), businessDayStore.refreshBusinessDay()]);
+  if (triggerPrint) {
+    activeReceiptSale.value = sale;
+    receiptDialog.value = true;
+  }
 }
 
 function promptDelete(d) {

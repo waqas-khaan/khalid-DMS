@@ -75,6 +75,34 @@
   margin-right: 12px !important;
 }
 
+/* Mobile Power Button */
+.mobile-power-wrapper {
+  margin-left: auto;
+  z-index: 10;
+}
+
+.mobile-power-btn {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.mobile-power-btn:hover,
+.mobile-power-btn:active {
+  background: rgba(239, 68, 68, 0.35) !important;
+  border-color: rgba(248, 113, 113, 0.6) !important;
+  color: #fee2e2 !important;
+  transform: scale(1.06) !important;
+}
+
 /* Redesigned Unified User Profile Trigger Pill */
 .user-profile-trigger {
   display: inline-flex !important;

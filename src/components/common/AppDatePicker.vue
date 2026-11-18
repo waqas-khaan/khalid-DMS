@@ -352,46 +352,44 @@ function handleClear() {
 .app-date-picker-wrapper {
   display: inline-block;
   width: 100%;
+  min-width: 205px;
 }
 
 :deep(.app-date-input input),
 :deep(.app-date-input .v-field__input) {
   cursor: pointer !important;
-  font-size: 0.80rem !important;
+  font-size: 0.82rem !important;
   font-weight: 600 !important;
   color: #0f172a !important;
-  letter-spacing: normal !important;
+  letter-spacing: -0.01em !important;
   white-space: nowrap !important;
-  text-overflow: clip !important;
-  overflow: visible !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
   opacity: 1 !important;
+  padding-inline-start: 4px !important;
+  padding-inline-end: 8px !important;
 }
 
 :deep(.app-date-input .v-field) {
   cursor: pointer !important;
   background: #ffffff !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
 }
 
 :deep(.app-date-input .v-field__outline) {
+  --v-field-border-opacity: 1 !important;
   color: #cbd5e1 !important;
+  transition: color 0.2s ease !important;
 }
 
-:deep(.app-date-input .v-field__outline__start),
-:deep(.app-date-input .v-field__outline__notch::before),
-:deep(.app-date-input .v-field__outline__notch::after),
-:deep(.app-date-input .v-field__outline__end) {
-  border-color: #cbd5e1 !important;
+:deep(.app-date-input .v-field:hover .v-field__outline) {
+  color: #94a3b8 !important;
 }
 
 :deep(.app-date-input .v-field--focused .v-field__outline) {
-  color: #0284c7 !important;
-}
-
-:deep(.app-date-input .v-field--focused .v-field__outline__start),
-:deep(.app-date-input .v-field--focused .v-field__outline__notch::before),
-:deep(.app-date-input .v-field--focused .v-field__outline__notch::after),
-:deep(.app-date-input .v-field--focused .v-field__outline__end) {
-  border-color: #0284c7 !important;
+  --v-field-border-width: 2px !important;
+  color: #063F78 !important;
 }
 
 :deep(.app-date-input .v-field-label),
@@ -404,21 +402,13 @@ function handleClear() {
 
 :deep(.app-date-input .v-field-label--floating),
 :deep(.app-date-input .v-label--floating) {
-  color: #0f172a !important;
+  color: #063F78 !important;
   opacity: 1 !important;
   font-weight: 700 !important;
-  font-size: 0.72rem !important;
 }
 
 :deep(.app-date-input .v-field--focused .v-field-label--floating) {
-  color: #0284c7 !important;
-}
-
-:deep(.app-date-input .v-field__input) {
-  padding-inline-start: 6px !important;
-  padding-inline-end: 6px !important;
-  overflow: visible !important;
-  color: #0f172a !important;
+  color: #063F78 !important;
 }
 
 :deep(.app-date-input .v-field__clearable) {
@@ -427,12 +417,14 @@ function handleClear() {
 }
 
 :deep(.app-date-input .v-field__prepend-inner) {
-  padding-inline-end: 8px !important;
+  padding-inline-end: 6px !important;
+  padding-inline-start: 2px !important;
 }
 
 :deep(.app-date-input .v-field__prepend-inner .v-icon) {
-  color: #475569 !important;
-  opacity: 1 !important;
+  color: #063F78 !important;
+  opacity: 0.85 !important;
+  font-size: 19px !important;
 }
 
 .calendar-card {
