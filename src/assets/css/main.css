@@ -36,6 +36,18 @@ body {
 .gap-4 { gap: 24px !important; }
 .gap-6 { gap: 32px !important; }
 
+/* Scrollbar Hiding Utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 /* Page Layout Container - Standard comfortable margins for headers & stat cards */
 .page-container {
   min-height: calc(100vh - var(--v-layout-top, 64px));

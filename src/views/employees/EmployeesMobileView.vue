@@ -30,43 +30,43 @@
         </v-btn>
       </div>
 
-      <!-- Quick Scrollable Tab Pills -->
-      <div class="d-flex align-center gap-1-5 overflow-x-auto pb-1 mt-1">
+      <!-- Quick Segmented Tab Navigation Bar -->
+      <div class="mobile-nav-tabs-bar no-scrollbar mt-2">
         <button
           type="button"
-          class="mobile-nav-pill"
+          class="mobile-nav-tab"
           :class="{ active: currentTab === 'salaries' }"
           @click="switchTab('salaries')"
         >
-          <v-icon size="14" start>mdi-currency-pkr</v-icon>
-          Salaries
+          <v-icon size="15" class="tab-icon">mdi-currency-pkr</v-icon>
+          <span>Salaries</span>
         </button>
         <button
           type="button"
-          class="mobile-nav-pill"
+          class="mobile-nav-tab"
           :class="{ active: currentTab === 'attendance' }"
           @click="switchTab('attendance')"
         >
-          <v-icon size="14" start>mdi-calendar-check</v-icon>
-          Attendance
+          <v-icon size="15" class="tab-icon">mdi-calendar-check</v-icon>
+          <span>Attendance</span>
         </button>
         <button
           type="button"
-          class="mobile-nav-pill"
+          class="mobile-nav-tab"
           :class="{ active: currentTab === 'advances' }"
           @click="switchTab('advances')"
         >
-          <v-icon size="14" start>mdi-cash-fast</v-icon>
-          Advances
+          <v-icon size="15" class="tab-icon">mdi-cash-fast</v-icon>
+          <span>Advances</span>
         </button>
         <button
           type="button"
-          class="mobile-nav-pill"
+          class="mobile-nav-tab"
           :class="{ active: currentTab === 'directory' }"
           @click="switchTab('directory')"
         >
-          <v-icon size="14" start>mdi-badge-account</v-icon>
-          Directory
+          <v-icon size="15" class="tab-icon">mdi-badge-account</v-icon>
+          <span>Directory</span>
         </button>
       </div>
     </header>
@@ -730,6 +730,69 @@ onMounted(async () => {
   height: 32px;
 }
 
+.mobile-nav-tabs-bar {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 3px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-nav-tab {
+  flex: 1 1 0;
+  min-width: max-content;
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.mobile-nav-tab .tab-icon {
+  opacity: 0.85;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.mobile-nav-tab:hover {
+  color: #1e293b;
+}
+
+.mobile-nav-tab.active {
+  background: #063F78;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(6, 63, 120, 0.28);
+}
+
+.mobile-nav-tab.active .tab-icon {
+  opacity: 1;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 .mobile-nav-pill {
   padding: 5px 12px;
   border-radius: 9999px;
@@ -746,9 +809,9 @@ onMounted(async () => {
 }
 
 .mobile-nav-pill.active {
-  background: #0284c7;
+  background: #063F78;
   color: #ffffff;
-  border-color: #0284c7;
+  border-color: #063F78;
 }
 
 .mobile-kpi-grid {
