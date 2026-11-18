@@ -14,7 +14,15 @@ import {
 import { db, isConfigured } from './firebase';
 
 const LOCAL_STORAGE_PREFIX = 'dairy_db_';
+
+// High-speed in-memory cache
 const memoryCache = new Map();
+const cacheTimestamps = new Map();
+const inFlightRequests = new Map();
+
+// 30 seconds fresh cache, background revalidation after 5 seconds
+const CACHE_TTL_MS = 30000;
+const REVALIDATE_AFTER_MS = 5000;
 
 /**
  * Purge any legacy data previously cached in browser localStorage.
@@ -50,6 +58,7 @@ function getMemoryCollection(name) {
 
 function saveMemoryCollection(name, list) {
   memoryCache.set(name, [...list]);
+  cacheTimestamps.set(name, Date.now());
 }
 
 function sanitizePayload(obj) {
@@ -67,9 +76,91 @@ function sanitizePayload(obj) {
   return clean;
 }
 
+function applyFiltersAndSort(items, filters = [], sortField = null, sortDir = 'desc') {
+  let list = [...items];
+  for (const f of filters) {
+    if (f.value === undefined) continue;
+    const op = f.operator || '==';
+    list = list.filter((item) => {
+      const val = item[f.field];
+      if (op === '==') return val === f.value;
+      if (op === '>=') return val >= f.value;
+      if (op === '<=') return val <= f.value;
+      if (op === '!=') return val !== f.value;
+      return true;
+    });
+  }
+
+  if (sortField) {
+    list.sort((a, b) => {
+      const valA = a[sortField] !== undefined && a[sortField] !== null ? a[sortField] : '';
+      const valB = b[sortField] !== undefined && b[sortField] !== null ? b[sortField] : '';
+      if (sortDir === 'asc') return valA > valB ? 1 : (valA < valB ? -1 : 0);
+      return valA < valB ? 1 : (valA > valB ? -1 : 0);
+    });
+  }
+
+  return list;
+}
+
+async function fetchCollectionFromFirestore(colName) {
+  if (!isConfigured || !db) {
+    return getMemoryCollection(colName);
+  }
+
+  const q = collection(db, colName);
+  const snapshot = await getDocs(q);
+  const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  saveMemoryCollection(colName, items);
+  return items;
+}
+
 export const storageAdapter = {
-  async getCollection(colName, filters = [], sortField = null, sortDir = 'desc') {
-    if (isConfigured && db) {
+  /**
+   * Invalidate the local cache for a specific collection or all collections.
+   */
+  invalidateCache(colName = null) {
+    if (colName) {
+      cacheTimestamps.delete(colName);
+    } else {
+      cacheTimestamps.clear();
+    }
+  },
+
+  /**
+   * Fast collection retrieval with instant in-memory cache and background sync.
+   */
+  async getCollection(colName, filters = [], sortField = null, sortDir = 'desc', options = {}) {
+    const cached = memoryCache.get(colName);
+    const lastTimestamp = cacheTimestamps.get(colName) || 0;
+    const isFresh = Date.now() - lastTimestamp < CACHE_TTL_MS;
+    const needsRevalidation = Date.now() - lastTimestamp > REVALIDATE_AFTER_MS;
+
+    // 1. If we have fresh cached items in memory and no force refresh requested, return immediately (sub-1ms!)
+    if (cached && cached.length > 0 && isFresh && !options.force) {
+      // Trigger non-blocking background revalidation if data is older than 5 seconds
+      if (needsRevalidation && isConfigured && db && !inFlightRequests.has(colName)) {
+        const bgPromise = fetchCollectionFromFirestore(colName)
+          .catch((err) => console.warn(`[Storage] Background sync error for ${colName}:`, err.message))
+          .finally(() => inFlightRequests.delete(colName));
+        inFlightRequests.set(colName, bgPromise);
+      }
+      return applyFiltersAndSort(cached, filters, sortField, sortDir);
+    }
+
+    // 2. If already fetching this collection, reuse the active promise (request deduplication)
+    if (inFlightRequests.has(colName)) {
+      try {
+        const items = await inFlightRequests.get(colName);
+        return applyFiltersAndSort(items, filters, sortField, sortDir);
+      } catch (err) {
+        // Fallback to memory on rejection
+        return applyFiltersAndSort(getMemoryCollection(colName), filters, sortField, sortDir);
+      }
+    }
+
+    // 3. Fetch from Cloud Firestore
+    const fetchPromise = (async () => {
       try {
         let q = collection(db, colName);
         const queryConstraints = [];
@@ -78,68 +169,69 @@ export const storageAdapter = {
             queryConstraints.push(where(f.field, f.operator || '==', f.value));
           }
         }
-        // Do NOT pass orderBy to Firestore query when filters exist:
-        // Firestore requires composite indexes for any equality filter combined with orderBy.
-        // Performing sorting in memory guarantees 100% reliability with ZERO manual composite indexes!
-        if (queryConstraints.length > 0) {
-          q = query(q, ...queryConstraints);
-        } else if (sortField) {
-          q = query(q, orderBy(sortField, sortDir));
+
+        // When no filters are passed, fetch full collection to warm up local cache
+        if (queryConstraints.length === 0) {
+          return await fetchCollectionFromFirestore(colName);
         }
+
+        // When filters are present, execute filtered query directly
+        q = query(q, ...queryConstraints);
         const snapshot = await getDocs(q);
-        let items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-        if (sortField) {
-          items.sort((a, b) => {
-            const valA = a[sortField] !== undefined && a[sortField] !== null ? a[sortField] : '';
-            const valB = b[sortField] !== undefined && b[sortField] !== null ? b[sortField] : '';
-            if (sortDir === 'asc') return valA > valB ? 1 : (valA < valB ? -1 : 0);
-            return valA < valB ? 1 : (valA > valB ? -1 : 0);
-          });
+        const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+        // Merge filtered results into master in-memory cache
+        const existing = memoryCache.get(colName) || [];
+        const map = new Map(existing.map((item) => [item.id, item]));
+        for (const it of items) {
+          map.set(it.id, it);
         }
-        saveMemoryCollection(colName, items);
+        memoryCache.set(colName, Array.from(map.values()));
         return items;
       } catch (err) {
-        console.warn(`Firestore getCollection(${colName}) fallback to memory:`, err.message);
+        console.warn(`Firestore getCollection(${colName}) error:`, err.message);
+        return getMemoryCollection(colName);
       }
-    }
+    })();
 
-    // In-memory fallback (never touches localStorage)
-    let list = getMemoryCollection(colName);
-    for (const f of filters) {
-      const op = f.operator || '==';
-      list = list.filter((item) => {
-        const val = item[f.field];
-        if (op === '==') return val === f.value;
-        if (op === '>=') return val >= f.value;
-        if (op === '<=') return val <= f.value;
-        if (op === '!=') return val !== f.value;
-        return true;
-      });
+    inFlightRequests.set(colName, fetchPromise);
+    try {
+      const items = await fetchPromise;
+      return applyFiltersAndSort(items, filters, sortField, sortDir);
+    } finally {
+      inFlightRequests.delete(colName);
     }
-
-    if (sortField) {
-      list = [...list].sort((a, b) => {
-        const valA = a[sortField] || '';
-        const valB = b[sortField] || '';
-        if (sortDir === 'asc') return valA > valB ? 1 : -1;
-        return valA < valB ? 1 : -1;
-      });
-    }
-    return list;
   },
 
   async getDoc(colName, id) {
     if (!id) return null;
+
+    // Check in-memory collection cache first (0ms!)
+    const cachedList = memoryCache.get(colName);
+    if (cachedList) {
+      const found = cachedList.find((item) => item.id === id);
+      if (found) return found;
+    }
+
     if (isConfigured && db) {
       try {
         const ref = doc(db, colName, id);
         const snap = await getDoc(ref);
         if (snap.exists()) {
-          return { id: snap.id, ...snap.data() };
+          const item = { id: snap.id, ...snap.data() };
+          const list = getMemoryCollection(colName);
+          const idx = list.findIndex((x) => x.id === id);
+          if (idx >= 0) {
+            list[idx] = item;
+          } else {
+            list.push(item);
+          }
+          saveMemoryCollection(colName, list);
+          return item;
         }
         return null;
       } catch (err) {
-        console.warn(`Firestore getDoc(${colName}/${id}) fallback to memory:`, err.message);
+        console.warn(`Firestore getDoc(${colName}/${id}) error:`, err.message);
       }
     }
 
@@ -147,10 +239,13 @@ export const storageAdapter = {
     return list.find((item) => item.id === id) || null;
   },
 
+  /**
+   * Fast Optimistic Set: updates memory immediately and syncs with Firestore in background.
+   */
   async setDoc(colName, id, data, merge = true) {
     const payload = sanitizePayload({ ...data, updatedAt: new Date().toISOString() });
     
-    // Save in-memory cache
+    // 1. Optimistic in-memory update (0ms latency for UI)
     const list = getMemoryCollection(colName);
     const index = list.findIndex((item) => item.id === id);
     if (index >= 0) {
@@ -160,14 +255,20 @@ export const storageAdapter = {
     }
     saveMemoryCollection(colName, list);
 
+    // 2. Cloud Firestore persistence
     if (isConfigured && db) {
       const ref = doc(db, colName, id);
-      await setDoc(ref, payload, { merge });
+      setDoc(ref, payload, { merge }).catch((err) => {
+        console.error(`[Storage] Background setDoc error on ${colName}/${id}:`, err);
+      });
     }
 
     return { id, ...payload };
   },
 
+  /**
+   * Fast Optimistic Add: updates memory immediately and syncs with Firestore in background.
+   */
   async addDoc(colName, data) {
     const id = `${colName}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const payload = sanitizePayload({
@@ -177,19 +278,25 @@ export const storageAdapter = {
       updatedAt: new Date().toISOString(),
     });
 
-    // Save in-memory cache
+    // 1. Optimistic in-memory update (0ms latency for UI)
     const list = getMemoryCollection(colName);
     list.unshift(payload);
     saveMemoryCollection(colName, list);
 
+    // 2. Cloud Firestore persistence
     if (isConfigured && db) {
       const ref = doc(db, colName, id);
-      await setDoc(ref, payload);
+      setDoc(ref, payload).catch((err) => {
+        console.error(`[Storage] Background addDoc error on ${colName}/${id}:`, err);
+      });
     }
 
     return payload;
   },
 
+  /**
+   * Fast Optimistic Update: updates memory immediately and syncs with Firestore in background.
+   */
   async updateDoc(colName, id, updates) {
     const payload = sanitizePayload({ ...updates, updatedAt: new Date().toISOString() });
     const list = getMemoryCollection(colName);
@@ -204,12 +311,17 @@ export const storageAdapter = {
 
     if (isConfigured && db) {
       const ref = doc(db, colName, id);
-      await updateDoc(ref, payload);
+      updateDoc(ref, payload).catch((err) => {
+        console.error(`[Storage] Background updateDoc error on ${colName}/${id}:`, err);
+      });
     }
 
     return updatedItem || { id, ...payload };
   },
 
+  /**
+   * Fast Optimistic Delete: updates memory immediately and syncs with Firestore in background.
+   */
   async deleteDoc(colName, id) {
     const list = getMemoryCollection(colName);
     const filtered = list.filter((item) => item.id !== id);
@@ -217,7 +329,9 @@ export const storageAdapter = {
 
     if (isConfigured && db) {
       const ref = doc(db, colName, id);
-      await deleteDoc(ref);
+      deleteDoc(ref).catch((err) => {
+        console.error(`[Storage] Background deleteDoc error on ${colName}/${id}:`, err);
+      });
     }
 
     return true;
@@ -225,6 +339,11 @@ export const storageAdapter = {
 
   async getSubcollection(parentCol, parentId, subCol) {
     const key = `${parentCol}_${parentId}_${subCol}`;
+    const cached = memoryCache.get(key);
+    if (cached && cached.length > 0) {
+      return [...cached];
+    }
+
     if (isConfigured && db) {
       try {
         const subRef = collection(db, parentCol, parentId, subCol);
@@ -249,9 +368,11 @@ export const storageAdapter = {
         for (const item of items) {
           const itemId = item.id || doc(collection(db, parentCol, parentId, subCol)).id;
           const ref = doc(db, parentCol, parentId, subCol, itemId);
-          batch.set(ref, { ...item, id: itemId });
+          batch.set(ref, sanitizePayload({ ...item, id: itemId }));
         }
-        await batch.commit();
+        batch.commit().catch((err) => {
+          console.error(`[Storage] Background batch commit error:`, err);
+        });
       } catch (err) {
         console.warn('Firestore subcollection write error:', err.message);
       }

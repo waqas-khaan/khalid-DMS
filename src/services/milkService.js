@@ -60,8 +60,8 @@ export const milkService = {
     const payload = await buildArrivalPayload(data);
     const arrival = await storageAdapter.addDoc('milkArrivals', payload);
 
-    // Update daily & monthly stats
-    await statsService.refreshDailyStats(data.date);
+    // Update daily & monthly stats in the background without blocking the UI
+    statsService.refreshDailyStats(data.date).catch(console.warn);
     return arrival;
   },
 
@@ -69,14 +69,14 @@ export const milkService = {
     const payload = await buildArrivalPayload(data);
     const updated = await storageAdapter.updateDoc('milkArrivals', id, payload);
 
-    await statsService.refreshDailyStats(data.date);
+    statsService.refreshDailyStats(data.date).catch(console.warn);
     return updated;
   },
 
   async deleteMilkArrival(id, date) {
     const deleted = await storageAdapter.deleteDoc('milkArrivals', id);
     if (date) {
-      await statsService.refreshDailyStats(date);
+      statsService.refreshDailyStats(date).catch(console.warn);
     }
     return deleted;
   },

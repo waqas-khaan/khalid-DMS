@@ -88,8 +88,8 @@ export const expenseService = {
     };
     const saved = await storageAdapter.addDoc('expenses', payload);
 
-    // Refresh daily stats
-    await statsService.refreshDailyStats(data.date);
+    // Refresh daily stats in background
+    statsService.refreshDailyStats(data.date).catch(console.warn);
     return saved;
   },
 
@@ -105,14 +105,14 @@ export const expenseService = {
     };
     const updated = await storageAdapter.updateDoc('expenses', id, payload);
 
-    await statsService.refreshDailyStats(data.date);
+    statsService.refreshDailyStats(data.date).catch(console.warn);
     return updated;
   },
 
   async deleteExpense(id, date) {
     const deleted = await storageAdapter.deleteDoc('expenses', id);
     if (date) {
-      await statsService.refreshDailyStats(date);
+      statsService.refreshDailyStats(date).catch(console.warn);
     }
     return deleted;
   },

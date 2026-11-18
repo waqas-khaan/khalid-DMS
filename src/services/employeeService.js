@@ -185,15 +185,15 @@ export const employeeService = {
       status: 'Recorded',
     });
 
-    // Refresh monthly stats
-    await statsService.refreshMonthlyStats(month);
+    // Refresh monthly stats in background
+    statsService.refreshMonthlyStats(month).catch(console.warn);
     return advance;
   },
 
   async deleteAdvance(id, month) {
     const deleted = await storageAdapter.deleteDoc('advances', id);
     if (month) {
-      await statsService.refreshMonthlyStats(month);
+      statsService.refreshMonthlyStats(month).catch(console.warn);
     }
     return deleted;
   },

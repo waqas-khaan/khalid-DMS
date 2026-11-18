@@ -97,15 +97,14 @@ export const dispatchService = {
     // 3. Save items into subcollection dispatches/{dispatchId}/items
     await storageAdapter.saveSubcollectionItems('dispatches', savedDispatch.id, 'items', sanitizedItems);
 
-    // 4. Update each shop's current arrears in shops collection
-    for (const row of sanitizedItems) {
-      if (row.shopId) {
-        await mastersService.updateShopArrears(row.shopId, row.newArrears);
-      }
-    }
+    // 4. Update each shop's current arrears concurrently in parallel
+    const shopUpdatePromises = sanitizedItems
+      .filter((row) => row.shopId)
+      .map((row) => mastersService.updateShopArrears(row.shopId, row.newArrears));
+    await Promise.all(shopUpdatePromises);
 
-    // 5. Update daily stats
-    await statsService.refreshDailyStats(header.date);
+    // 5. Update daily stats in background
+    statsService.refreshDailyStats(header.date).catch(console.warn);
 
     return { ...savedDispatch, items: sanitizedItems };
   },
@@ -189,15 +188,14 @@ export const dispatchService = {
     const updated = await storageAdapter.updateDoc('dispatches', dispatchId, dispatchUpdates);
     await storageAdapter.saveSubcollectionItems('dispatches', dispatchId, 'items', sanitizedItems);
 
-    // Update shop current arrears
-    for (const row of sanitizedItems) {
-      if (row.shopId) {
-        await mastersService.updateShopArrears(row.shopId, row.newArrears);
-      }
-    }
+    // Update shop current arrears concurrently in parallel
+    const shopUpdatePromises = sanitizedItems
+      .filter((row) => row.shopId)
+      .map((row) => mastersService.updateShopArrears(row.shopId, row.newArrears));
+    await Promise.all(shopUpdatePromises);
 
-    // Refresh daily stats
-    await statsService.refreshDailyStats(header.date);
+    // Refresh daily stats in background
+    statsService.refreshDailyStats(header.date).catch(console.warn);
 
     return { ...updated, items: sanitizedItems };
   },

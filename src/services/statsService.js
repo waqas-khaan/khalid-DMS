@@ -18,9 +18,13 @@ export const statsService = {
     if (!date) return null;
     const docId = `daily_${date}`;
 
-    // 1. Dispatches for date
-    const dispatches = await storageAdapter.getCollection('dispatches', [
-      { field: 'date', operator: '==', value: date },
+    // 1. Fetch collections concurrently in parallel
+    const [dispatches, arrivals, expenses, advances, salaries] = await Promise.all([
+      storageAdapter.getCollection('dispatches', [{ field: 'date', operator: '==', value: date }]),
+      storageAdapter.getCollection('milkArrivals', [{ field: 'date', operator: '==', value: date }]),
+      storageAdapter.getCollection('expenses', [{ field: 'date', operator: '==', value: date }]),
+      storageAdapter.getCollection('advances', [{ field: 'date', operator: '==', value: date }]),
+      storageAdapter.getCollection('salaries'),
     ]);
 
     let todayMilkDispatched = 0;
@@ -33,11 +37,6 @@ export const statsService = {
       todayIncome += Number(d.totalCollection) || 0;
     }
 
-    // 2. Milk Arrivals for date
-    const arrivals = await storageAdapter.getCollection('milkArrivals', [
-      { field: 'date', operator: '==', value: date },
-    ]);
-
     let milkReceivedTodayLiters = 0;
     let milkReceivedTodayKg = 0;
     let openingCashToday = 0;
@@ -47,11 +46,6 @@ export const statsService = {
       milkReceivedTodayKg += Number(a.quantityKg) || 0;
       openingCashToday += Number(a.availableCash) || 0;
     }
-
-    // 3. Expenses for date
-    const expenses = await storageAdapter.getCollection('expenses', [
-      { field: 'date', operator: '==', value: date },
-    ]);
 
     let totalExpenseToday = 0;
     let foodExpense = 0;
@@ -82,13 +76,7 @@ export const statsService = {
       }
     }
 
-    // 4. Advances given & salaries paid on date
-    const advances = await storageAdapter.getCollection('advances', [
-      { field: 'date', operator: '==', value: date },
-    ]);
     const advancesToday = advances.reduce((sum, a) => sum + (Number(a.amount) || 0), 0);
-
-    const salaries = await storageAdapter.getCollection('salaries');
     const paidSalariesForDate = salaries.filter((s) => s.status === 'Paid' && s.paidDate === date);
     const salariesPaidToday = paidSalariesForDate.reduce(
       (sum, s) => sum + (Number(s.netPayable) || 0),
@@ -151,10 +139,16 @@ export const statsService = {
     if (!month) return null;
     const docId = `monthly_${month}`;
 
-    // 1. Dispatches in month
-    const dispatches = await storageAdapter.getCollection('dispatches');
-    const monthlyDispatches = dispatches.filter((d) => d.date && d.date.startsWith(month));
+    // Fetch collections concurrently in parallel
+    const [dispatches, arrivals, expenses, salaries, advances] = await Promise.all([
+      storageAdapter.getCollection('dispatches'),
+      storageAdapter.getCollection('milkArrivals'),
+      storageAdapter.getCollection('expenses'),
+      storageAdapter.getCollection('salaries'),
+      storageAdapter.getCollection('advances'),
+    ]);
 
+    const monthlyDispatches = dispatches.filter((d) => d.date && d.date.startsWith(month));
     let monthlyIncome = 0;
     let monthlyDispatched = 0;
     for (const d of monthlyDispatches) {
@@ -162,10 +156,7 @@ export const statsService = {
       monthlyDispatched += Number(d.totalMilk) || 0;
     }
 
-    // 2. Milk arrivals in month
-    const arrivals = await storageAdapter.getCollection('milkArrivals');
     const monthlyArrivals = arrivals.filter((a) => a.date && a.date.startsWith(month));
-
     let monthlyReceivedKg = 0;
     let monthlyReceivedLiters = 0;
     for (const a of monthlyArrivals) {
@@ -173,10 +164,7 @@ export const statsService = {
       monthlyReceivedLiters += Number(a.quantityLiters) || 0;
     }
 
-    // 3. Expenses in month
-    const expenses = await storageAdapter.getCollection('expenses');
     const monthlyExpenses = expenses.filter((e) => e.date && e.date.startsWith(month));
-
     let totalMonthlyExpense = 0;
     const expenseByCategory = {};
     for (const e of monthlyExpenses) {
@@ -186,13 +174,9 @@ export const statsService = {
       expenseByCategory[cat] = (expenseByCategory[cat] || 0) + amt;
     }
 
-    // 4. Salaries paid in month
-    const salaries = await storageAdapter.getCollection('salaries');
     const monthlySalaries = salaries.filter((s) => s.month === month && s.status === 'Paid');
     const salariesPaid = monthlySalaries.reduce((sum, s) => sum + (Number(s.netPayable) || 0), 0);
 
-    // 5. Advances given in month
-    const advances = await storageAdapter.getCollection('advances');
     const monthlyAdvances = advances.filter((a) => a.month === month || (a.date && a.date.startsWith(month)));
     const advancesGiven = monthlyAdvances.reduce((sum, a) => sum + (Number(a.amount) || 0), 0);
 
