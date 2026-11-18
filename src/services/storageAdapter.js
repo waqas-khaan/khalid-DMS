@@ -16,43 +16,40 @@ import { db, isConfigured } from './firebase';
 const LOCAL_STORAGE_PREFIX = 'dairy_db_';
 const memoryCache = new Map();
 
-function getLocalCollection(name) {
-  const storageKey = `${LOCAL_STORAGE_PREFIX}${name}`;
+/**
+ * Purge any legacy data previously cached in browser localStorage.
+ * Keeps auth credentials (dairy_current_user) intact.
+ */
+export function purgeLocalStorageData() {
   try {
-    const raw = localStorage.getItem(storageKey);
-    if (!raw) {
-      memoryCache.delete(name);
-      return [];
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(LOCAL_STORAGE_PREFIX)) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+      if (keysToRemove.length > 0) {
+        console.log(`[Storage] Purged ${keysToRemove.length} legacy data items from localStorage. All data now uses Cloud Firestore.`);
+      }
     }
-    const cached = memoryCache.get(name);
-    if (cached && cached.raw === raw) {
-      return [...cached.list];
-    }
-    const list = JSON.parse(raw);
-    memoryCache.set(name, { raw, list });
-    return [...list];
   } catch (e) {
-    memoryCache.delete(name);
-    return [];
+    // Ignore storage access errors
   }
 }
 
-function saveLocalCollection(name, list) {
-  try {
-    const raw = JSON.stringify(list);
-    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}${name}`, raw);
-    memoryCache.set(name, { raw, list });
-  } catch (e) {
-    console.error('Storage write error:', e);
-  }
+// Automatically clean up legacy localStorage data on startup
+purgeLocalStorageData();
+
+function getMemoryCollection(name) {
+  const cached = memoryCache.get(name);
+  return cached ? [...cached] : [];
 }
 
-// Timeout wrapper to prevent any network hanging
-function withTimeout(promise, ms = 2500) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), ms)),
-  ]);
+function saveMemoryCollection(name, list) {
+  memoryCache.set(name, [...list]);
 }
 
 export const storageAdapter = {
@@ -70,17 +67,17 @@ export const storageAdapter = {
         if (queryConstraints.length > 0) {
           q = query(q, ...queryConstraints);
         }
-        const snapshot = await withTimeout(getDocs(q));
+        const snapshot = await getDocs(q);
         const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-        saveLocalCollection(colName, items);
+        saveMemoryCollection(colName, items);
         return items;
       } catch (err) {
-        // Fall through to instant local cache
+        console.warn(`Firestore getCollection(${colName}) fallback to memory:`, err.message);
       }
     }
 
-    // Instant local memory / persistence access (0ms)
-    let list = getLocalCollection(colName);
+    // In-memory fallback (never touches localStorage)
+    let list = getMemoryCollection(colName);
     for (const f of filters) {
       const op = f.operator || '==';
       list = list.filter((item) => {
@@ -109,38 +106,36 @@ export const storageAdapter = {
     if (isConfigured && db) {
       try {
         const ref = doc(db, colName, id);
-        const snap = await withTimeout(getDoc(ref));
+        const snap = await getDoc(ref);
         if (snap.exists()) {
           return { id: snap.id, ...snap.data() };
         }
+        return null;
       } catch (err) {
-        // Fall through to instant local cache
+        console.warn(`Firestore getDoc(${colName}/${id}) fallback to memory:`, err.message);
       }
     }
 
-    const list = getLocalCollection(colName);
+    const list = getMemoryCollection(colName);
     return list.find((item) => item.id === id) || null;
   },
 
   async setDoc(colName, id, data, merge = true) {
     const payload = { ...data, updatedAt: new Date().toISOString() };
     
-    // Save to local cache immediately
-    const list = getLocalCollection(colName);
+    // Save in-memory cache
+    const list = getMemoryCollection(colName);
     const index = list.findIndex((item) => item.id === id);
     if (index >= 0) {
       list[index] = merge ? { ...list[index], ...payload, id } : { ...payload, id };
     } else {
       list.push({ ...payload, id, createdAt: new Date().toISOString() });
     }
-    saveLocalCollection(colName, list);
+    saveMemoryCollection(colName, list);
 
     if (isConfigured && db) {
-      // Background sync to Firestore without blocking the UI
       const ref = doc(db, colName, id);
-      setDoc(ref, payload, { merge }).catch((err) => {
-        console.warn(`Background setDoc to ${colName} delayed:`, err.message);
-      });
+      await setDoc(ref, payload, { merge });
     }
 
     return { id, ...payload };
@@ -155,15 +150,14 @@ export const storageAdapter = {
       updatedAt: new Date().toISOString(),
     };
 
-    const list = getLocalCollection(colName);
+    // Save in-memory cache
+    const list = getMemoryCollection(colName);
     list.unshift(payload);
-    saveLocalCollection(colName, list);
+    saveMemoryCollection(colName, list);
 
     if (isConfigured && db) {
       const ref = doc(db, colName, id);
-      setDoc(ref, payload).catch((err) => {
-        console.warn(`Background addDoc to ${colName} delayed:`, err.message);
-      });
+      await setDoc(ref, payload);
     }
 
     return payload;
@@ -171,36 +165,32 @@ export const storageAdapter = {
 
   async updateDoc(colName, id, updates) {
     const payload = { ...updates, updatedAt: new Date().toISOString() };
-    const list = getLocalCollection(colName);
+    const list = getMemoryCollection(colName);
     const index = list.findIndex((item) => item.id === id);
     let updatedItem = null;
 
     if (index >= 0) {
       list[index] = { ...list[index], ...payload };
-      saveLocalCollection(colName, list);
+      saveMemoryCollection(colName, list);
       updatedItem = list[index];
     }
 
     if (isConfigured && db) {
       const ref = doc(db, colName, id);
-      updateDoc(ref, payload).catch((err) => {
-        console.warn(`Background updateDoc to ${colName} delayed:`, err.message);
-      });
+      await updateDoc(ref, payload);
     }
 
-    return updatedItem;
+    return updatedItem || { id, ...payload };
   },
 
   async deleteDoc(colName, id) {
-    const list = getLocalCollection(colName);
+    const list = getMemoryCollection(colName);
     const filtered = list.filter((item) => item.id !== id);
-    saveLocalCollection(colName, filtered);
+    saveMemoryCollection(colName, filtered);
 
     if (isConfigured && db) {
       const ref = doc(db, colName, id);
-      deleteDoc(ref).catch((err) => {
-        console.warn(`Background deleteDoc from ${colName} delayed:`, err.message);
-      });
+      await deleteDoc(ref);
     }
 
     return true;
@@ -211,20 +201,20 @@ export const storageAdapter = {
     if (isConfigured && db) {
       try {
         const subRef = collection(db, parentCol, parentId, subCol);
-        const snap = await withTimeout(getDocs(subRef));
+        const snap = await getDocs(subRef);
         const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        saveLocalCollection(key, items);
+        saveMemoryCollection(key, items);
         return items;
       } catch (err) {
-        // Fall through to instant local cache
+        console.warn(`Firestore getSubcollection error:`, err.message);
       }
     }
-    return getLocalCollection(key);
+    return getMemoryCollection(key);
   },
 
   async saveSubcollectionItems(parentCol, parentId, subCol, items) {
     const key = `${parentCol}_${parentId}_${subCol}`;
-    saveLocalCollection(key, items);
+    saveMemoryCollection(key, items);
 
     if (isConfigured && db) {
       try {
@@ -234,11 +224,9 @@ export const storageAdapter = {
           const ref = doc(db, parentCol, parentId, subCol, itemId);
           batch.set(ref, { ...item, id: itemId });
         }
-        batch.commit().catch((err) => {
-          console.warn('Background subcollection write delayed:', err.message);
-        });
+        await batch.commit();
       } catch (err) {
-        // Silently handled
+        console.warn('Firestore subcollection write error:', err.message);
       }
     }
   },
