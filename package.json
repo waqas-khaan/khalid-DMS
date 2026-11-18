@@ -5,12 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "deploy": "npm run build && npx wrangler deploy",
-    "cap:sync": "cap sync",
-    "cap:android": "cap open android"
+    "deploy": "npm run build && npx wrangler deploy"
   },
   "dependencies": {
-    "@capacitor/android": "^6.1.0",
     "@capacitor/cli": "^6.1.0",
     "@capacitor/core": "^6.1.0",
     "@capacitor/splash-screen": "^6.0.4",
