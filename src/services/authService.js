@@ -55,7 +55,7 @@ export const authService = {
   async getAllUsers() {
     return [
       { id: 'user_admin', username: 'admin', name: 'Administrator', role: 'admin' },
-      { id: 'user_staff', username: 'staff', name: 'Administrator', role: 'staff' },
+      { id: 'user_staff', username: 'staff', name: 'Staff Clean Pass', role: 'staff' },
     ];
   },
 };
