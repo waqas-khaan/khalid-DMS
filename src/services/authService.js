@@ -36,7 +36,7 @@ export const authService = {
           id: 'user_staff',
           uid: 'user_staff',
           username: 'staff',
-          name: 'Administrator',
+          name: 'Staff Clean Pass',
           role: 'staff',
           createdAt: new Date().toISOString(),
         };

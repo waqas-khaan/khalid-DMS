@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', {
     canAdd: (state) => Boolean(state.user),
     userName: (state) => {
       if (!state.user) return '';
-      return 'Administrator';
+      return state.user.role === 'staff' ? 'Staff Clean Pass' : 'Administrator';
     },
     userRoleText: () => '',
   },
@@ -30,6 +30,7 @@ export const useAuthStore = defineStore('auth', {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed && (parsed.role === 'admin' || parsed.role === 'staff')) {
+            parsed.name = parsed.role === 'staff' ? 'Staff Clean Pass' : 'Administrator';
             this.user = parsed;
             return;
           }
