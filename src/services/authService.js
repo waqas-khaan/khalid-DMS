@@ -36,7 +36,7 @@ export const authService = {
           id: 'user_staff',
           uid: 'user_staff',
           username: 'staff',
-          name: 'Staff User',
+          name: 'Administrator',
           role: 'staff',
           createdAt: new Date().toISOString(),
         };
@@ -55,7 +55,7 @@ export const authService = {
   async getAllUsers() {
     return [
       { id: 'user_admin', username: 'admin', name: 'Administrator', role: 'admin' },
-      { id: 'user_staff', username: 'staff', name: 'Staff User', role: 'staff' },
+      { id: 'user_staff', username: 'staff', name: 'Administrator', role: 'staff' },
     ];
   },
 };

@@ -31,23 +31,8 @@
 
     <v-spacer></v-spacer>
 
-    <!-- Mobile View Power Button (d-flex d-md-none) -->
-    <div v-if="isLoggedIn" class="mobile-power-wrapper d-flex d-md-none align-center me-2">
-      <v-btn
-        icon
-        size="small"
-        variant="text"
-        class="mobile-power-btn"
-        title="Sign Out"
-        aria-label="Sign Out"
-        @click="showLogoutDialog = true"
-      >
-        <v-icon size="20">mdi-power</v-icon>
-      </v-btn>
-    </div>
-
-    <div class="header-right-actions d-none d-md-flex align-center">
-      <!-- Unified User Profile Pill & Dropdown (Desktop only) -->
+    <!-- Unified Administrator Profile Pill & Dropdown (Mobile & Desktop) -->
+    <div class="header-right-actions d-flex align-center">
       <v-menu v-if="isLoggedIn" location="bottom end" :offset="8">
         <template v-slot:activator="{ props }">
           <button
@@ -57,9 +42,7 @@
             aria-label="Open profile menu"
           >
             <span class="user-avatar-circle">
-              <v-icon size="18" class="user-avatar-icon">
-                {{ authStore.isAdmin ? 'mdi-shield-crown' : 'mdi-account' }}
-              </v-icon>
+              <v-icon size="18" class="user-avatar-icon">mdi-shield-crown</v-icon>
             </span>
             <span class="user-info">
               <span class="user-name">{{ authStore.userName }}</span>

@@ -18,11 +18,11 @@ export const useAuthStore = defineStore('auth', {
     canAdd: (state) => Boolean(state.user),
     userName: (state) => {
       if (!state.user) return '';
-      return state.user.name || (state.user.role === 'admin' ? 'Administrator' : 'Staff');
+      return 'Administrator';
     },
     userRoleText: (state) => {
       if (!state.user) return '';
-      return state.user.role === 'admin' ? 'Admin' : 'Staff';
+      return 'ADMIN';
     },
   },
 
