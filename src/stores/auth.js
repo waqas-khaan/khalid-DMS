@@ -20,10 +20,7 @@ export const useAuthStore = defineStore('auth', {
       if (!state.user) return '';
       return 'Administrator';
     },
-    userRoleText: (state) => {
-      if (!state.user) return '';
-      return 'ADMIN';
-    },
+    userRoleText: () => '',
   },
 
   actions: {

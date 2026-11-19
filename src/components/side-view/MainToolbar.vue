@@ -12,12 +12,9 @@
         <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
           <v-icon size="20" color="#063f78">mdi-shield-crown</v-icon>
         </div>
-        <div class="d-flex flex-column" style="min-width: 0;">
-          <span class="font-weight-black text-body-2 text-truncate" style="color: #063f78; line-height: 1.2;">
-            {{ authStore.userName }}
-          </span>
-          <span class="font-weight-black text-caption text-uppercase" style="color: #64748b; font-size: 0.65rem !important; letter-spacing: 0.5px;">
-            {{ authStore.userRoleText }}
+        <div class="d-flex align-center" style="min-width: 0;">
+          <span class="font-weight-black text-body-1 text-truncate" style="color: #063f78;">
+            Administrator
           </span>
         </div>
       </div>

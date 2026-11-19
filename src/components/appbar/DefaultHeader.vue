@@ -44,17 +44,13 @@
             <span class="user-avatar-circle">
               <v-icon size="18" class="user-avatar-icon">mdi-shield-crown</v-icon>
             </span>
-            <span class="user-info">
-              <span class="user-name">{{ authStore.userName }}</span>
-              <span class="user-role-text">{{ authStore.userRoleText }}</span>
-            </span>
+            <span class="user-name">Administrator</span>
             <v-icon size="18" class="user-chevron">mdi-chevron-down</v-icon>
           </button>
         </template>
         <div class="profile-menu-card">
           <div class="profile-menu-user">
-            <div class="profile-menu-name">{{ authStore.userName }}</div>
-            <div class="profile-menu-role">{{ authStore.userRoleText }}</div>
+            <div class="profile-menu-name">Administrator</div>
           </div>
           <v-btn
             block
