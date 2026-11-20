@@ -350,9 +350,19 @@ watch(
 );
 
 function executePrint() {
+  document.body.classList.add('printing-modal-active');
+  const cleanup = () => {
+    document.body.classList.remove('printing-modal-active');
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+
   nextTick(() => {
-    window.print();
-    emit('printed');
+    setTimeout(() => {
+      window.print();
+      setTimeout(cleanup, 2000);
+      emit('printed');
+    }, 50);
   });
 }
 
@@ -601,52 +611,33 @@ function close() {
 
 /* 80mm ESC/POS Thermal Printing Mode */
 @media print {
-  @page {
-    size: 80mm auto;
-    margin: 0;
-  }
-
-  html, body {
-    width: 80mm !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #ffffff !important;
-  }
-
-  body * {
-    visibility: hidden;
-  }
-
-  .receipt-printable-container,
-  .receipt-printable-container * {
-    visibility: visible !important;
-  }
-
-  .receipt-printable-container {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 80mm !important;
-    max-width: 80mm !important;
-    margin: 0 !important;
-    padding: 2mm 3mm !important;
-    box-shadow: none !important;
-    border: none !important;
-    background: #ffffff !important;
-    z-index: 999999;
-  }
-
   .pos-80mm-slip {
-    width: 100% !important;
-    max-width: 100% !important;
-    border: none !important;
+    width: 76mm !important;
+    max-width: 76mm !important;
+    margin: 0 auto !important;
+    padding: 3mm 2mm 6mm 2mm !important;
+    border: 1.5px solid #000000 !important;
     box-shadow: none !important;
-    padding: 2mm 1mm 10mm 1mm !important;
-    page-break-inside: avoid;
+    border-radius: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .slip-type-header {
+    border-bottom: 1.5px dashed #000000 !important;
+    color: #000000 !important;
+  }
+
+  .slip-divider-dashed {
+    border-bottom: 1px dashed #000000 !important;
   }
 
   .slip-table {
     border: 1.5px solid #000000 !important;
+    background: #ffffff !important;
+    width: 100% !important;
   }
 
   .slip-tr {
@@ -655,6 +646,11 @@ function close() {
 
   .slip-td-val {
     border-right: 1px solid #000000 !important;
+    color: #000000 !important;
+  }
+
+  .slip-td-lbl {
+    color: #000000 !important;
   }
 
   .slip-tr-balance {
@@ -662,9 +658,13 @@ function close() {
   }
 
   .print-page-break {
-    display: block;
-    page-break-after: always;
-    height: 1px;
+    display: block !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
   }
 
   .no-print {

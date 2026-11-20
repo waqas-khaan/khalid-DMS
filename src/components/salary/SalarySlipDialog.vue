@@ -188,7 +188,17 @@ function formatMonth(mStr) {
 }
 
 function printSlip() {
-  window.print();
+  document.body.classList.add('printing-modal-active');
+  const cleanup = () => {
+    document.body.classList.remove('printing-modal-active');
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+
+  setTimeout(() => {
+    window.print();
+    setTimeout(cleanup, 2000);
+  }, 50);
 }
 </script>
 

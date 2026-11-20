@@ -902,57 +902,170 @@ body {
   background-color: #f0f7ff !important;
 }
 
-/* Printable Slip & Receipt styling */
+/* ==========================================================================
+   Printable Slips, Thermal Receipts & Dialog Print Styling
+   ========================================================================== */
 @media print {
-  body {
-    background: #fff !important;
+  @page {
+    size: auto;
+    margin: 5mm;
   }
-  body * {
-    visibility: hidden;
+
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  .printable-area, .printable-area * {
-    visibility: visible;
+
+  /* 1. Hide the entire SPA background application when printing from dialog or overlay */
+  body.printing-modal-active #app,
+  body:has(.v-overlay-container .v-overlay__content:not([style*="display: none"])) #app,
+  .v-overlay__scrim,
+  .dialog-header,
+  .dialog-actions,
+  .v-card-actions,
+  .no-print,
+  .receipt-cut-line {
+    display: none !important;
   }
-  .printable-area {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 24px !important;
-    background: #fff !important;
+
+  /* If printing normal view outside dialog, hide sidebars and app bars */
+  .v-navigation-drawer,
+  .v-app-bar,
+  .v-bottom-navigation {
+    display: none !important;
+  }
+
+  /* 2. Strip Vuetify overlay, modal & card containers so content flows naturally from page top */
+  .v-overlay-container,
+  .v-overlay,
+  .v-overlay__content,
+  .v-card,
+  .v-card-text,
+  .receipt-scroll-area {
+    position: static !important;
+    display: block !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    filter: none !important;
+  }
+
+  /* 3. Common rules for all printable containers */
+  .printable-area,
+  .receipt-printable-container,
+  .route-receipt-printable-container {
+    display: block !important;
+    position: static !important;
+    visibility: visible !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
     box-shadow: none !important;
     border: none !important;
+    overflow: visible !important;
   }
-  /* 80mm ESC/POS Thermal Receipt Container (Takes priority for route delivery slips & guest sales) */
-  .receipt-printable-container,
+
+  .printable-area *,
   .receipt-printable-container *,
-  .route-receipt-printable-container,
   .route-receipt-printable-container * {
     visibility: visible !important;
   }
+
+  /* 4. A4 Standard Document (Salary Slip, Dispatch Summary) */
+  .printable-area {
+    width: 100% !important;
+    max-width: 780px !important;
+    margin: 0 auto !important;
+    padding: 8mm 6mm !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .printable-area .v-card {
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+  }
+
+  /* 5. 80mm ESC/POS Thermal Receipt Container (Guest Sales & Route Delivery Slips) */
   .receipt-printable-container,
   .route-receipt-printable-container {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 80mm !important;
-    max-width: 80mm !important;
-    margin: 0 !important;
-    padding: 2mm 3mm !important;
-    background: #fff !important;
-    box-shadow: none !important;
-    border: none !important;
-    z-index: 999999 !important;
+    width: 76mm !important;
+    max-width: 76mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
   }
+
+  .pos-80mm-slip {
+    width: 76mm !important;
+    max-width: 76mm !important;
+    margin: 0 auto !important;
+    padding: 3mm 2mm 6mm 2mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1.5px solid #000000 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: visible !important;
+  }
+
+  .signature-block {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-top: 36px !important;
+    padding-top: 16px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .signature-line {
+    width: 200px !important;
+    border-top: 1.5px dashed #000000 !important;
+    text-align: center !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+    padding-top: 6px !important;
+  }
+
+  /* 6. Clean Page Break */
   .print-page-break {
     display: block !important;
     page-break-after: always !important;
     break-after: page !important;
-    height: 1px !important;
-  }
-  .no-print {
-    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
   }
 }
 
