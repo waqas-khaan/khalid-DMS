@@ -52,6 +52,7 @@
       </div>
     </v-main>
     <SnackbarNotification />
+    <PwaInstallDialog />
   </v-app>
 </template>
 
@@ -66,6 +67,7 @@ import { formatDate } from '@/utils/formatters';
 import DefaultHeader from '@/components/appbar/DefaultHeader.vue';
 import MainToolbar from '@/components/side-view/MainToolbar.vue';
 import SnackbarNotification from '@/components/common/SnackbarNotification.vue';
+import PwaInstallDialog from '@/components/pwa/PwaInstallDialog.vue';
 
 const route = useRoute();
 const router = useRouter();

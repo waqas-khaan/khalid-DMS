@@ -33,6 +33,30 @@
 
     <!-- Unified Administrator Profile Pill & Dropdown (Mobile & Desktop) -->
     <div class="header-right-actions d-flex align-center">
+      <!-- Universal Desktop Install Button (visible if not installed) -->
+      <div v-if="!pwaStore.isInstalled" class="install-pwa-header-action">
+        <v-btn
+          size="small"
+          variant="tonal"
+          color="white"
+          class="text-capitalize font-weight-bold d-none d-md-inline-flex install-desktop-btn rounded-lg"
+          prepend-icon="mdi-laptop"
+          @click="pwaStore.promptInstall"
+        >
+          Install Falcon DMS
+        </v-btn>
+        <v-btn
+          icon="mdi-download-box-outline"
+          size="small"
+          variant="text"
+          color="white"
+          class="d-md-none"
+          title="Install Falcon DMS"
+          aria-label="Install Falcon DMS"
+          @click="pwaStore.promptInstall"
+        />
+      </div>
+
       <v-menu v-if="isLoggedIn" location="bottom end" :offset="8">
         <template v-slot:activator="{ props }">
           <button
@@ -110,6 +134,7 @@ import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useAuthStore } from '@/stores/auth';
+import { usePwaStore } from '@/stores/pwa';
 import CurrentTimeDate from './CurrentTimeDate.vue';
 
 defineProps({
@@ -122,6 +147,7 @@ const route = useRoute();
 const router = useRouter();
 const display = useDisplay();
 const authStore = useAuthStore();
+const pwaStore = usePwaStore();
 
 const showLogoutDialog = ref(false);
 

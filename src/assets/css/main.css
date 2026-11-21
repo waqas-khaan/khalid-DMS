@@ -340,8 +340,21 @@ body {
   letter-spacing: 0.6px;
 }
 
-/* Desktop Themed Stat Cards - Distinct Accent Borders */
-.stat-card-themed {
+/* Desktop Themed Stat Cards - Distinct Accent Borders & Default Shadow */
+.stat-card-themed,
+.stat-card,
+.dashboard-card,
+.dispatch-metric-card,
+.desktop-kpi-card,
+.mobile-kpi-card,
+.handover-stat-card,
+.kpi-card,
+.metric-card,
+.route-kpi-card,
+.closing-metric-card,
+.employee-stat-card,
+.stats-card {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
@@ -1643,13 +1656,26 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
   border-radius: 8px !important;
 }
 
-/* All Stat & KPI Cards - Solid Modern Border */
+/* All Stat & KPI Cards - Solid Modern Border & Default Shadow */
 .mobile-kpi-card,
 .stat-card,
+.stat-card-themed,
 .dashboard-card,
-.handover-stat-card {
+.dispatch-metric-card,
+.desktop-kpi-card,
+.handover-stat-card,
+.kpi-card,
+.metric-card,
+.route-kpi-card,
+.closing-metric-card,
+.employee-stat-card,
+.attendance-stat-card,
+.salary-stat-card,
+.stat-box,
+.stats-card {
   border-radius: 12px !important;
   border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
 /* Crisp card borders and reduced corner radius across mobile and app */
@@ -1710,7 +1736,7 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 14px !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
   padding: 12px 14px !important;
   display: flex !important;
   flex-direction: column !important;
@@ -1851,4 +1877,31 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
 .pa-3-5 { padding: 14px !important; }
 .px-3-5 { padding-left: 14px !important; padding-right: 14px !important; }
 .py-3-5 { padding-top: 14px !important; padding-bottom: 14px !important; }
+
+/* ==========================================================================
+   Desktop PWA Standalone Mode Styling
+   ========================================================================== */
+@media all and (display-mode: standalone) {
+  /* Prevent text selection across app chrome */
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Keep form fields, tables, and content selectable */
+  input,
+  textarea,
+  .v-field,
+  .v-table,
+  .data-selectable {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+
+  /* Safe area support for desktop window titlebars (macOS / Windows) */
+  .demo-navbar {
+    padding-top: env(safe-area-inset-top, 0px) !important;
+  }
+}
+
 

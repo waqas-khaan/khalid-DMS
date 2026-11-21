@@ -159,6 +159,20 @@
               >
                 {{ error }}
               </v-alert>
+
+              <!-- Universal Desktop Install Option -->
+              <div v-if="!pwaStore.isInstalled" class="text-center mt-4 pt-3 border-t">
+                <v-btn
+                  variant="tonal"
+                  size="small"
+                  color="#0284c7"
+                  class="text-capitalize font-weight-bold rounded-lg px-4"
+                  prepend-icon="mdi-laptop"
+                  @click="pwaStore.promptInstall"
+                >
+                  Install Falcon DMS
+                </v-btn>
+              </div>
             </v-form>
           </v-card-text>
         </v-card>
@@ -173,11 +187,13 @@ import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useSnackbarStore } from '@/stores/snackbar';
+import { usePwaStore } from '@/stores/pwa';
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const snackbar = useSnackbarStore();
+const pwaStore = usePwaStore();
 
 const formRef = ref(null);
 const valid = ref(false);

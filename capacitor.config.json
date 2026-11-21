@@ -1,6 +1,6 @@
 {
   "appId": "com.dairybusiness.app",
-  "appName": "DMS",
+  "appName": "Falcon DMS",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"
