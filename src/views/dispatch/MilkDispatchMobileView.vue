@@ -943,7 +943,6 @@ onMounted(async () => {
   background: #ffffff;
   border: 1px solid #e2e8f0 !important;
   border-radius: 14px !important;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
 .income-card { border-top: 3px solid #10b981 !important; }
