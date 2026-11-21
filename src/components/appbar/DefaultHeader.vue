@@ -44,22 +44,20 @@
       </button>
     </div>
 
-    <!-- Desktop View: Unified Install Pill + Split Executive Profile & Power Capsule -->
+    <!-- Desktop View: Profile Pill with Menu & Universal Installer -->
     <div v-if="!display.smAndDown.value" class="header-right-actions d-none d-md-flex align-center">
-      <!-- Universal Desktop Install Pill (visible if not installed) -->
+      <!-- Universal Desktop Install Button (visible if not installed) -->
       <div v-if="!pwaStore.isInstalled" class="install-pwa-header-action">
-        <button
-          type="button"
-          class="desktop-install-pill"
-          title="Install Falcon DMS as Standalone Desktop Application"
+        <v-btn
+          size="small"
+          variant="tonal"
+          color="white"
+          class="text-capitalize font-weight-bold install-desktop-btn rounded-lg"
+          prepend-icon="mdi-laptop"
           @click="pwaStore.promptInstall"
         >
-          <span class="install-pill-icon-wrap">
-            <v-icon size="16">mdi-laptop</v-icon>
-          </span>
-          <span class="install-pill-text">Install Falcon DMS</span>
-          <span class="install-pill-badge">APP</span>
-        </button>
+          Install Falcon DMS
+        </v-btn>
       </div>
 
       <!-- Desktop User Profile Pill with Menu (No power button on web view) -->
@@ -68,7 +66,7 @@
           <button
             type="button"
             v-bind="props"
-            class="desktop-user-pill d-flex align-center"
+            class="user-profile-trigger"
             aria-label="Open profile menu"
           >
             <span class="user-avatar-circle">
@@ -77,7 +75,7 @@
               </v-icon>
             </span>
             <span class="user-name">{{ authStore.userName }}</span>
-            <v-icon size="16" class="user-chevron">mdi-chevron-down</v-icon>
+            <v-icon size="18" class="user-chevron">mdi-chevron-down</v-icon>
           </button>
         </template>
         <div class="profile-menu-card">
