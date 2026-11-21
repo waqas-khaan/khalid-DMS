@@ -33,17 +33,15 @@
 
     <!-- Mobile View: Power Button Only -->
     <div v-if="isLoggedIn && display.smAndDown.value" class="mobile-power-wrapper d-flex align-center me-2">
-      <v-btn
-        icon
-        size="small"
-        variant="text"
+      <button
+        type="button"
         class="mobile-power-btn"
         title="Sign Out"
         aria-label="Sign Out"
         @click="showLogoutDialog = true"
       >
         <v-icon size="20">mdi-power</v-icon>
-      </v-btn>
+      </button>
     </div>
 
     <!-- Desktop View: Profile Pill with Menu & Universal Installer -->
