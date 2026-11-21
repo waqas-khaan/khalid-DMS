@@ -82,6 +82,26 @@
           <v-icon size="20" :color="isNextDayDisabled ? 'grey-lighten-1' : 'default'">mdi-chevron-right</v-icon>
         </button>
       </div>
+
+      <!-- Quick Day Pill Buttons on Mobile -->
+      <div class="quick-nav-pill-group d-flex align-center p-1 bg-slate-200 rounded-lg">
+        <button
+          type="button"
+          class="quick-pill-btn flex-grow-1"
+          :class="{ active: selectedDate === businessDayStore.activeBusinessDate }"
+          @click="setDateActive"
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          class="quick-pill-btn flex-grow-1"
+          :class="{ active: selectedDate === yesterdayDateStr }"
+          @click="setDateYesterday"
+        >
+          Yesterday
+        </button>
+      </div>
     </header>
 
     <div class="px-3 pt-3">
@@ -645,6 +665,35 @@ onMounted(async () => {
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.quick-nav-pill-group {
+  background: #e2e8f0;
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.quick-pill-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-pill-btn.active {
+  background: linear-gradient(135deg, #063F78 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(6, 63, 120, 0.28) !important;
 }
 
 .filter-pill-btn {

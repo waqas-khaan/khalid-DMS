@@ -806,10 +806,10 @@ onMounted(async () => {
 }
 
 .quick-pill-btn.active {
-  background: #ffffff;
-  color: #063F78;
+  background: linear-gradient(135deg, #063F78 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
   font-weight: 700;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(6, 63, 120, 0.3) !important;
 }
 
 .filter-picker-wrap.date-wrap {
@@ -877,10 +877,10 @@ onMounted(async () => {
 }
 
 .month-pill-btn.active {
-  background: #ffffff;
-  color: #063F78;
+  background: linear-gradient(135deg, #063F78 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
   font-weight: 700;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(6, 63, 120, 0.3) !important;
 }
 
 /* Metrics Grid (6 Columns) */

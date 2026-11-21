@@ -1853,6 +1853,36 @@ button, .v-btn, .v-icon, a, .v-list-item, [role="button"], [tabindex] {
 .py-3-5 { padding-top: 14px !important; padding-bottom: 14px !important; }
 
 /* ==========================================================================
+   Active Segmented & Toggle Buttons (Colored Active State)
+   ========================================================================== */
+.quick-pill-btn.active,
+.month-pill-btn.active {
+  background: linear-gradient(135deg, #063F78 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(6, 63, 120, 0.28) !important;
+}
+
+.mode-toggle-btn.active {
+  background: linear-gradient(135deg, #063F78 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px rgba(6, 63, 120, 0.28) !important;
+}
+
+.mode-toggle-btn.active .v-icon {
+  color: #ffffff !important;
+}
+
+.mode-toggle-btn.guest-mode-btn.active {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%) !important;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.28) !important;
+}
+
+.mode-toggle-btn.guest-mode-btn.active .v-icon {
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
    Desktop PWA Standalone Mode Styling
    ========================================================================== */
 @media all and (display-mode: standalone) {

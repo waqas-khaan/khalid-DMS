@@ -78,7 +78,7 @@
       <div class="dispatch-mode-toggle d-flex align-center p-1 bg-slate-200 rounded-xl mb-3">
         <button
           type="button"
-          class="mode-toggle-btn flex-grow-1"
+          class="mode-toggle-btn routes-mode-btn flex-grow-1"
           :class="{ active: currentTab === 'routes' }"
           @click="currentTab = 'routes'"
         >
@@ -87,7 +87,7 @@
         </button>
         <button
           type="button"
-          class="mode-toggle-btn flex-grow-1"
+          class="mode-toggle-btn guest-mode-btn flex-grow-1"
           :class="{ active: currentTab === 'guest' }"
           @click="currentTab = 'guest'"
         >
@@ -893,9 +893,22 @@ onMounted(async () => {
 }
 
 .mode-toggle-btn.active {
-  background: #ffffff;
-  color: #0284c7;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #063F78 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px rgba(6, 63, 120, 0.28) !important;
+}
+
+.mode-toggle-btn.active .v-icon {
+  color: #ffffff !important;
+}
+
+.mode-toggle-btn.guest-mode-btn.active {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%) !important;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.28) !important;
+}
+
+.mode-toggle-btn.guest-mode-btn.active .v-icon {
+  color: #ffffff !important;
 }
 
 .sticky-top {
