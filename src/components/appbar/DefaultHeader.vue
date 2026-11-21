@@ -31,10 +31,25 @@
 
     <v-spacer></v-spacer>
 
-    <!-- Unified Administrator Profile Pill & Dropdown (Mobile & Desktop) -->
-    <div class="header-right-actions d-flex align-center">
-      <!-- Universal Desktop Install Button (desktop only, hidden on mobile view) -->
-      <div v-if="!pwaStore.isInstalled" class="install-pwa-header-action d-none d-md-block">
+    <!-- Mobile View: Power Button Only -->
+    <div v-if="isLoggedIn && display.smAndDown.value" class="mobile-power-wrapper d-flex align-center me-2">
+      <v-btn
+        icon
+        size="small"
+        variant="text"
+        class="mobile-power-btn"
+        title="Sign Out"
+        aria-label="Sign Out"
+        @click="showLogoutDialog = true"
+      >
+        <v-icon size="20">mdi-power</v-icon>
+      </v-btn>
+    </div>
+
+    <!-- Desktop View: Profile Pill with Menu & Universal Installer -->
+    <div v-if="!display.smAndDown.value" class="header-right-actions d-none d-md-flex align-center">
+      <!-- Universal Desktop Install Button (visible if not installed) -->
+      <div v-if="!pwaStore.isInstalled" class="install-pwa-header-action">
         <v-btn
           size="small"
           variant="tonal"
@@ -47,8 +62,7 @@
         </v-btn>
       </div>
 
-      <!-- Desktop View: Profile Pill with Menu -->
-      <v-menu v-if="isLoggedIn && !display.smAndDown.value" location="bottom end" :offset="8">
+      <v-menu v-if="isLoggedIn" location="bottom end" :offset="8">
         <template v-slot:activator="{ props }">
           <button
             type="button"
@@ -84,26 +98,6 @@
           </v-btn>
         </div>
       </v-menu>
-
-      <!-- Mobile View: Profile Pill directly displaying Power 0/I and triggering confirmation dialog -->
-      <button
-        v-if="isLoggedIn && display.smAndDown.value"
-        type="button"
-        class="user-profile-trigger mobile-user-profile-trigger"
-        aria-label="Sign Out"
-        title="Sign Out"
-        @click="showLogoutDialog = true"
-      >
-        <span class="user-avatar-circle">
-          <v-icon size="18" class="user-avatar-icon">
-            {{ authStore.isAdmin ? 'mdi-shield-crown' : 'mdi-account-check' }}
-          </v-icon>
-        </span>
-        <span class="user-name">{{ authStore.userName }}</span>
-        <span class="mobile-power-icon-badge">
-          <v-icon size="15" class="user-power-icon">mdi-power</v-icon>
-        </span>
-      </button>
     </div>
   </v-app-bar>
 
