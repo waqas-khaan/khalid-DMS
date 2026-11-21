@@ -440,32 +440,29 @@ onMounted(async () => {
 }
 
 .mobile-nav-tabs-bar {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 4px;
-  gap: 3px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  padding: 5px;
+  gap: 6px;
 }
 
 .mobile-nav-tab {
-  flex: 1 1 0;
-  min-width: max-content;
-  padding: 7px 10px;
+  width: 100%;
+  padding: 8px 10px;
   border-radius: 9px;
-  border: none;
-  background: transparent;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   color: #64748b;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -479,10 +476,12 @@ onMounted(async () => {
 
 .mobile-nav-tab:hover {
   color: #1e293b;
+  background: #f8fafc;
 }
 
 .mobile-nav-tab.active {
   background: #063F78;
+  border-color: #063F78;
   color: #ffffff;
   box-shadow: 0 2px 6px rgba(6, 63, 120, 0.28);
 }

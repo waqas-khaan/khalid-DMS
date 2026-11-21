@@ -175,6 +175,36 @@
   flex-shrink: 0 !important;
 }
 
+.mobile-power-icon-badge {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  background: rgba(239, 68, 68, 0.3) !important;
+  border: 1px solid rgba(248, 113, 113, 0.6) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: 4px !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.mobile-power-icon-badge .user-power-icon {
+  color: #ffffff !important;
+}
+
+.user-profile-trigger:hover .mobile-power-icon-badge,
+.user-profile-trigger:active .mobile-power-icon-badge {
+  background: rgba(239, 68, 68, 0.75) !important;
+  border-color: #ef4444 !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5) !important;
+}
+
+.mobile-user-profile-trigger:active {
+  transform: scale(0.97) !important;
+}
+
 /* Profile menu */
 .profile-menu-card {
   background: #ffffff !important;

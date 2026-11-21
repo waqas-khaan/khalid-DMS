@@ -33,31 +33,22 @@
 
     <!-- Unified Administrator Profile Pill & Dropdown (Mobile & Desktop) -->
     <div class="header-right-actions d-flex align-center">
-      <!-- Universal Desktop Install Button (visible if not installed) -->
-      <div v-if="!pwaStore.isInstalled" class="install-pwa-header-action">
+      <!-- Universal Desktop Install Button (desktop only, hidden on mobile view) -->
+      <div v-if="!pwaStore.isInstalled" class="install-pwa-header-action d-none d-md-block">
         <v-btn
           size="small"
           variant="tonal"
           color="white"
-          class="text-capitalize font-weight-bold d-none d-md-inline-flex install-desktop-btn rounded-lg"
+          class="text-capitalize font-weight-bold install-desktop-btn rounded-lg"
           prepend-icon="mdi-laptop"
           @click="pwaStore.promptInstall"
         >
           Install Falcon DMS
         </v-btn>
-        <v-btn
-          icon="mdi-download-box-outline"
-          size="small"
-          variant="text"
-          color="white"
-          class="d-md-none"
-          title="Install Falcon DMS"
-          aria-label="Install Falcon DMS"
-          @click="pwaStore.promptInstall"
-        />
       </div>
 
-      <v-menu v-if="isLoggedIn" location="bottom end" :offset="8">
+      <!-- Desktop View: Profile Pill with Menu -->
+      <v-menu v-if="isLoggedIn && !display.smAndDown.value" location="bottom end" :offset="8">
         <template v-slot:activator="{ props }">
           <button
             type="button"
@@ -71,7 +62,9 @@
               </v-icon>
             </span>
             <span class="user-name">{{ authStore.userName }}</span>
-            <v-icon size="18" class="user-chevron">mdi-chevron-down</v-icon>
+            <span class="mobile-power-icon-badge">
+              <v-icon size="15" class="user-power-icon">mdi-power</v-icon>
+            </span>
           </button>
         </template>
         <div class="profile-menu-card">
@@ -84,13 +77,33 @@
             variant="flat"
             color="#063F78"
             class="text-capitalize text-white font-weight-bold rounded-lg"
-            prepend-icon="mdi-logout"
+            prepend-icon="mdi-power"
             @click="handleSignOff"
           >
             Sign Out
           </v-btn>
         </div>
       </v-menu>
+
+      <!-- Mobile View: Profile Pill directly displaying Power 0/I and triggering confirmation dialog -->
+      <button
+        v-if="isLoggedIn && display.smAndDown.value"
+        type="button"
+        class="user-profile-trigger mobile-user-profile-trigger"
+        aria-label="Sign Out"
+        title="Sign Out"
+        @click="showLogoutDialog = true"
+      >
+        <span class="user-avatar-circle">
+          <v-icon size="18" class="user-avatar-icon">
+            {{ authStore.isAdmin ? 'mdi-shield-crown' : 'mdi-account-check' }}
+          </v-icon>
+        </span>
+        <span class="user-name">{{ authStore.userName }}</span>
+        <span class="mobile-power-icon-badge">
+          <v-icon size="15" class="user-power-icon">mdi-power</v-icon>
+        </span>
+      </button>
     </div>
   </v-app-bar>
 
