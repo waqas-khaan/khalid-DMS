@@ -40,7 +40,7 @@
         aria-label="Sign Out"
         @click="showLogoutDialog = true"
       >
-        <v-icon size="20">mdi-power</v-icon>
+        <v-icon size="17">mdi-power</v-icon>
       </button>
     </div>
 
@@ -87,7 +87,7 @@
             block
             size="small"
             variant="flat"
-            color="#063F78"
+            color="#dc2626"
             class="text-capitalize text-white font-weight-bold rounded-lg"
             prepend-icon="mdi-power"
             @click="handleSignOff"
