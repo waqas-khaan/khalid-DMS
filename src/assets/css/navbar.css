@@ -133,78 +133,35 @@
   line-height: 1.2 !important;
 }
 
-/* Desktop Unified User Capsule (Split Profile & Power) */
-.desktop-user-capsule {
-  display: inline-flex !important;
-  align-items: center !important;
-  height: 38px !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.14) !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
-  backdrop-filter: blur(10px) !important;
-  padding: 3px 4px 3px 4px !important;
-  gap: 0 !important;
-  transition: all 0.2s ease !important;
-}
-
-.desktop-user-capsule:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
-}
-
-.capsule-profile-btn {
+/* Desktop User Profile Pill (Clean, Executive, No power button on web view) */
+.desktop-user-pill {
   display: inline-flex !important;
   align-items: center !important;
   gap: 8px !important;
-  padding: 0 8px 0 2px !important;
-  background: transparent !important;
-  border: none !important;
+  height: 38px !important;
+  padding: 3px 14px 3px 5px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  backdrop-filter: blur(10px) !important;
   color: #ffffff !important;
   cursor: pointer !important;
   outline: none !important;
-  height: 100% !important;
-  border-radius: 999px 0 0 999px !important;
-}
-
-.capsule-divider {
-  width: 1px !important;
-  height: 20px !important;
-  background: rgba(255, 255, 255, 0.28) !important;
-  margin: 0 4px !important;
-  flex-shrink: 0 !important;
-}
-
-.capsule-power-btn {
-  width: 30px !important;
-  height: 30px !important;
-  min-width: 30px !important;
-  border-radius: 50% !important;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #991b1b 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.45) !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  outline: none !important;
-  flex-shrink: 0 !important;
 }
 
-.capsule-power-btn:hover,
-.capsule-power-btn:active {
-  background: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #b91c1c 100%) !important;
-  border-color: rgba(255, 255, 255, 0.8) !important;
-  transform: scale(1.1) !important;
-  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.65), inset 0 1px 1.5px rgba(255, 255, 255, 0.6) !important;
+.desktop-user-pill:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
 }
 
-.capsule-power-btn .v-icon {
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
-  color: #ffffff !important;
+.desktop-user-pill .user-chevron {
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin-left: 2px !important;
+  transition: transform 0.2s ease !important;
 }
 
 /* Mobile Power Button */

@@ -62,59 +62,42 @@
         </button>
       </div>
 
-      <!-- Desktop User Capsule: Unified Profile Dropdown + Quick Power Action -->
-      <div v-if="isLoggedIn" class="desktop-user-capsule d-flex align-center">
-        <!-- Profile Menu Activator -->
-        <v-menu location="bottom end" :offset="8">
-          <template v-slot:activator="{ props }">
-            <button
-              type="button"
-              v-bind="props"
-              class="capsule-profile-btn d-flex align-center"
-              aria-label="Open profile menu"
-            >
-              <span class="user-avatar-circle">
-                <v-icon size="18" class="user-avatar-icon">
-                  {{ authStore.isAdmin ? 'mdi-shield-crown' : 'mdi-account-check' }}
-                </v-icon>
-              </span>
-              <span class="user-name">{{ authStore.userName }}</span>
-              <v-icon size="16" class="user-chevron">mdi-chevron-down</v-icon>
-            </button>
-          </template>
-          <div class="profile-menu-card">
-            <div class="profile-menu-user">
-              <div class="profile-menu-name">{{ authStore.userName }}</div>
-              <div class="profile-menu-role">{{ authStore.isAdmin ? 'System Administrator' : 'Operations Staff' }}</div>
-            </div>
-            <v-btn
-              block
-              size="small"
-              variant="flat"
-              color="#dc2626"
-              class="text-capitalize text-white font-weight-bold rounded-lg"
-              prepend-icon="mdi-power"
-              @click="handleSignOff"
-            >
-              Sign Out
-            </v-btn>
+      <!-- Desktop User Profile Pill with Menu (No power button on web view) -->
+      <v-menu v-if="isLoggedIn" location="bottom end" :offset="8">
+        <template v-slot:activator="{ props }">
+          <button
+            type="button"
+            v-bind="props"
+            class="desktop-user-pill d-flex align-center"
+            aria-label="Open profile menu"
+          >
+            <span class="user-avatar-circle">
+              <v-icon size="18" class="user-avatar-icon">
+                {{ authStore.isAdmin ? 'mdi-shield-crown' : 'mdi-account-check' }}
+              </v-icon>
+            </span>
+            <span class="user-name">{{ authStore.userName }}</span>
+            <v-icon size="16" class="user-chevron">mdi-chevron-down</v-icon>
+          </button>
+        </template>
+        <div class="profile-menu-card">
+          <div class="profile-menu-user">
+            <div class="profile-menu-name">{{ authStore.userName }}</div>
+            <div class="profile-menu-role">{{ authStore.isAdmin ? 'System Administrator' : 'Operations Staff' }}</div>
           </div>
-        </v-menu>
-
-        <!-- Divider -->
-        <span class="capsule-divider"></span>
-
-        <!-- Quick Power Action -->
-        <button
-          type="button"
-          class="capsule-power-btn"
-          title="Sign Out"
-          aria-label="Sign Out"
-          @click="showLogoutDialog = true"
-        >
-          <v-icon size="15">mdi-power</v-icon>
-        </button>
-      </div>
+          <v-btn
+            block
+            size="small"
+            variant="flat"
+            color="#dc2626"
+            class="text-capitalize text-white font-weight-bold rounded-lg"
+            prepend-icon="mdi-power"
+            @click="handleSignOff"
+          >
+            Sign Out
+          </v-btn>
+        </div>
+      </v-menu>
     </div>
   </v-app-bar>
 
